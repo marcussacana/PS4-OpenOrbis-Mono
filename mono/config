@@ -1,0 +1,12 @@
+<configuration>
+	<dllmap dll="mscorlib.dll" target="/app0/mono/4.5/mscorlib.dll" />
+	<dllmap dll="MonoPosixHelper" target="$mono_libdir/libMonoPosixHelper.dll" />
+	<dllmap dll="System.Native" target="$mono_libdir/libmono-native.dll" />
+	<dllmap dll="libmono-btls-shared" target="$mono_libdir/libmono-btls-shared.dll" />
+	<dllmap dll="i:kernel32.dll">
+		<dllentry dll="__Internal" name="CopyMemory" target="mono_win32_compat_CopyMemory"/>
+		<dllentry dll="__Internal" name="FillMemory" target="mono_win32_compat_FillMemory"/>
+		<dllentry dll="__Internal" name="MoveMemory" target="mono_win32_compat_MoveMemory"/>
+		<dllentry dll="__Internal" name="ZeroMemory" target="mono_win32_compat_ZeroMemory"/>
+	</dllmap>
+</configuration>
