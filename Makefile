@@ -5,7 +5,7 @@ TITLE_ID    := MONO00001
 CONTENT_ID  := IV0000-MONO00001_00-MONOSAMPLE000000
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceSystemService
+LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceVideoOut -lSceAudioOut -lScePad -lSceSysmodule -lSceFreeType -lSDL2 -lSDL2_image
 
 # Additional compile flags.
 #EXTRAFLAGS  := 
@@ -30,7 +30,7 @@ CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES)) $(patsubst $(PROJDIR)/ps4-libjbc/%.c, $(INTDIR)/%.o, $(JBFILES))
 
 # Define final C/C++ flags
-CFLAGS      := -ggdb -O0--target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
+CFLAGS      := -ggdb -O0 --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
 CXXFLAGS    := $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1
 LDFLAGS     := --error-limit=0 -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crt1.o
 
