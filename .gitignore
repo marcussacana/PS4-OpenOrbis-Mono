@@ -37,3 +37,6 @@ obj/
 *.pidb
 *.userprefs
 *.suo
+*.pkg
+*.gp4
+eboot.bin
