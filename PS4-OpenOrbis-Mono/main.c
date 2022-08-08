@@ -45,12 +45,6 @@ int unjailbreak(){
 
 void* startMono(){
 
-    findAppMount(&appRoot);
-
-    sprintf(&baseDir, "%s/app0", appRoot);
-    sprintf(&mainExe, "%s/main.exe", baseDir);
-    sprintf(&baseCon, "%s/mono", baseDir);
-
     klog("Starting Mono...");
 
     auto domain = mono_get_root_domain();
@@ -144,8 +138,17 @@ void run(){
 int main()
 {
     jailbreak();
+
+    findAppMount(&appRoot);
+
+    sprintf(&baseDir, "%s/app0", appRoot);
+    sprintf(&mainExe, "%s/main.exe", baseDir);
+    sprintf(&baseCon, "%s/mono", baseDir);
+
+    char monoLib[0x100] = "\x0";
+    sprintf(&monoLib, "%s/sce_module/libmonosgen-2.0.prx", baseDir);
     
-    auto mono_framework = sceKernelLoadStartModule("/system/common/lib/libmonosgen-2.0.sprx", 0, NULL, 0, 0, 0);
+    auto mono_framework = sceKernelLoadStartModule(monoLib, 0, NULL, 0, 0, 0);
     auto libkernel_sys = sceKernelLoadStartModule("/system/common/lib/libkernel_sys.sprx", 0, NULL, 0, 0, 0);
     auto libKernel = sceKernelLoadStartModule("libkernel.sprx", 0, NULL, 0, 0, 0);
     
