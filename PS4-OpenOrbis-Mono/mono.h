@@ -23,8 +23,7 @@ int (*JitCreateSharedMemory)(int flags, size_t size, int protection, void** dest
 int (*JitCreateAliasOfSharedMemory)(int handle, int protection, void** destinationHandle);
 int (*JitMapSharedMemory)(int handle, int protection, void **destination);
 
-void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly);
-
 void* (*sceKernelLoadStartModuleInternalForMono)(const char *moduleFileName, size_t args, const void *argp, uint32_t flags, void* pOpt, int *pRes);
 
 typedef long long unsigned int U64;
+#define countof(_array) (sizeof(_array) / sizeof(_array[0]))

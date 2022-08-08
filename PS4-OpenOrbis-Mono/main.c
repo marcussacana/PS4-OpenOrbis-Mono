@@ -1,13 +1,21 @@
 #include <stddef.h>
+#include <stdlib.h>
 #include <orbis/SystemService.h>
 #include "ps4-libjbc/jailbreak.h"
 #include "trampoline.h"
-#include "imports.h"
+#include "mono.h"
+#include "io.h"
+#include "SDL2.h"
 
 struct jbc_cred OriCred;
+
+int jailbroken = 0;
  
 int jailbreak()
 {
+    if (jailbroken)
+        return 0;
+
     struct jbc_cred cr;
     if(jbc_get_cred(&cr))
         return -1;
@@ -21,19 +29,19 @@ int jailbreak()
     //cr.sceProcCap = 0x900000000000ff00;
     if(jbc_set_cred(&cr))
         return -1;
+
+    jailbroken = 1;
     return 0;
 }
 
 int unjailbreak(){
+    if (!jailbroken)
+        return 0;
     if(jbc_set_cred(&OriCred))
         return -1;
+    jailbroken = 0;
     return 0;
 }
-
-char appRoot[0x100] = "\x0";
-char baseCon[0x100] = "\x0";
-char baseDir[0x100] = "\x0";
-char mainExe[0x100] = "\x0";
 
 void* startMono(){
 
@@ -59,11 +67,6 @@ void* startMono(){
     
     klog("Mono domain Initialized");
     return domain;
-}
-
-
-int getTwo(){
-    return 2;
 }
 
 void runMain()
@@ -93,12 +96,24 @@ void runMain()
         return;
     }
     
-    klog("adding internal calls");
-    mono_add_internal_call("Test::GetTwo", getTwo);
-    klog("internal call added");
+    klog("adding kernel internal calls...");
+    mono_add_internal_call("Orbis.Kernel::Log(void*)", klog);
+    mono_add_internal_call("Orbis.Kernel::malloc(int)", malloc);
+    mono_add_internal_call("Orbis.Kernel::free(void*)", free);
+    mono_add_internal_call("Orbis.Kernel::Jailbreak", jailbreak);
+    mono_add_internal_call("Orbis.Kernel::Unjailbreak", unjailbreak);
+    klog("adding SDL internal calls...");
+    SetSDLInternals();
+    klog("internal calls added");
 
     void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
 
+    if (!methodMain){
+        klog("Failed to find Orbis.Program.Main() Method");
+        return;
+    }
+
+    klog("Starting program...");
     char* argv[] = { 0 };
     mono_runtime_invoke(methodMain, 0, argv, 0);
 

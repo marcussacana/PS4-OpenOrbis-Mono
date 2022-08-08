@@ -1,6 +1,11 @@
 #include <orbis/libkernel.h>
 #include <dirent.h>
 
+char appRoot[0x100] = "\x0";
+char baseCon[0x100] = "\x0";
+char baseDir[0x100] = "\x0";
+char mainExe[0x100] = "\x0";
+
 void klog(const char* str)
 {
     char buff[0x300];

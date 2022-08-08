@@ -33,6 +33,7 @@
 
 bin/
 obj/
+packages/
 .idea/
 *.pidb
 *.userprefs

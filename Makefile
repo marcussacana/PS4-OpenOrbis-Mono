@@ -64,7 +64,8 @@ pkg.gp4: eboot.bin main.exe sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/i
 	
 main.exe:
 	msbuild main/main.sln -t:Rebuild -p:Configuration=Release
-	cp -f main/main/bin/Release/main.exe ./main.exe
+	cp -f main/main/bin/x64/Release/main.exe ./main.exe
+	cp -f main/main/bin/x64/Release/*.dll ./mono/4.5/
 
 sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_new $@

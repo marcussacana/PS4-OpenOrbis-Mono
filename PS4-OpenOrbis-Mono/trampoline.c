@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include "memory.h"
-#include "imports.h"
+#include "mono.h"
 #include "io.h"
 
 
@@ -16,12 +16,26 @@ void WriteJump(void* Address, void* Destination){
 	//Write the address of our hook to the instruction.
 	*(uint64_t*)(JumpInstructions + 6) = (uint64_t)Destination;
 
-	sceKernelMprotect((void*)Address, sizeof(JumpInstructions), VM_PROT_ALL);
+	sceKernelMprotect((void*)Address, sizeof(JumpInstructions), PROT_READ | PROT_WRITE | PROT_EXEC);
 	memcpy(Address, JumpInstructions, sizeof(JumpInstructions));
 }
 
-U64 align(U64 x, U64 align) {
-    return (x + align - 1) & ~(align - 1);
+char* extract_file_name(char *path)
+{
+    int len = strlen(path);
+    int flag=0;
+
+    
+    for(int i=len-1; i>0; i--)
+    {
+        if(path[i]=='\\' || path[i]=='//' || path[i]=='/' )
+        {
+            flag=1;
+            path = path+i+1;
+            break;
+        }
+    }
+    return path;
 }
 
 void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly) {
@@ -30,8 +44,46 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 
     void* fp = fopen(AssemblyName, "r");
     if (fp == 0)  {
-      klog("Error opening file");
-      return 0;
+        klog("Error opening file");
+        
+        char hintPath[0x300] = "\x0";
+        char* fname = extract_file_name(AssemblyName);
+        
+        const char* hints[] = {
+            "%s/mono/4.5/%s",
+            "%s/mono/4.0/%s",
+            "%s/mono/3.5/%s",
+            "%s/mono/3.0/%s",
+            "%s/mono/2.0/%s",
+            "%s/mono/1.0/%s",
+            "%s/mono/%s",
+            "%s/%s"
+        };
+        
+        for (int i = 0; i < countof(hints); i++)
+        {
+            sprintf(&hintPath, hints[i], baseDir, fname);
+            klogf("Trying Hint: %s", hintPath);
+            
+            fp = fopen(hintPath, "r");
+            if (fp != 0)
+                break;
+            
+            sprintf(&hintPath, hints[i], "/app0", fname);
+            klogf("Trying Hint: %s", hintPath);
+            
+            fp = fopen(hintPath, "r");
+            if (fp != 0)
+                break;
+        }
+
+        
+        if (fp == 0){
+            klog("No valid hint");
+            return 0;
+        }
+        
+        klogf("Hint path matched: %s", hintPath);
     }
 
     klogf("FHandle: 0x%x", fp);
