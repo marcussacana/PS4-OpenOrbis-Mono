@@ -61,6 +61,11 @@ void* startMono(){
     return domain;
 }
 
+
+int getTwo(){
+    return 2;
+}
+
 void runMain()
 {
     auto rootDomain = mono_get_root_domain();
@@ -79,7 +84,6 @@ void runMain()
         return;
     }
 
-
     klogf("mainAssembly: %x", mainAssembly);
 
     void* programClass = mono_class_from_name(mainImage, "Orbis", "Program");
@@ -88,11 +92,16 @@ void runMain()
         klog("Get program class Failed");
         return;
     }
+    
+    klog("adding internal calls");
+    mono_add_internal_call("Test::GetTwo", getTwo);
+    klog("internal call added");
 
     void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
 
     char* argv[] = { 0 };
     mono_runtime_invoke(methodMain, 0, argv, 0);
+
 }
 
 void run(){
@@ -138,6 +147,7 @@ int main()
     sceKernelDlsym(mono_framework, "mono_thread_attach", (void**)&mono_thread_attach);
     sceKernelDlsym(mono_framework, "mono_assembly_get_image", (void**)&mono_assembly_get_image);
     sceKernelDlsym(mono_framework, "mono_assembly_load_from_full", (void**)&mono_assembly_load_from_full);
+    sceKernelDlsym(mono_framework, "mono_add_internal_call", (void**)&mono_add_internal_call);
     
     sceKernelDlsym(libKernel, "sceKernelJitCreateSharedMemory", (void**)&JitCreateSharedMemory);
     sceKernelDlsym(libKernel, "sceKernelJitCreateAliasOfSharedMemory", (void**)&JitCreateAliasOfSharedMemory);

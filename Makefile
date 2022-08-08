@@ -30,9 +30,9 @@ CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES)) $(patsubst $(PROJDIR)/ps4-libjbc/%.c, $(INTDIR)/%.o, $(JBFILES))
 
 # Define final C/C++ flags
-CFLAGS      := -ggdb -O0 --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
+CFLAGS      := -ggdb -O0--target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
 CXXFLAGS    := $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1
-LDFLAGS     := -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crt1.o
+LDFLAGS     := --error-limit=0 -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crt1.o
 
 # Create the intermediate directory incase it doesn't already exist.
 _unused     := $(shell mkdir -p $(INTDIR))
@@ -63,7 +63,8 @@ pkg.gp4: eboot.bin main.exe sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/i
 	sed -i "s/<dir targ_name=\"sce_sys\">/<dir targ_name=\"mono\">\n\t\t\t<dir targ_name=\"4.5\" \/>\n\t\t<\/dir>\n\t\t<dir targ_name=\"sce_sys\">/" pkg.gp4
 	
 main.exe:
-	csc main.cs /out:main.exe
+	msbuild main/main.sln -t:Rebuild -p:Configuration=Release
+	cp -f main/main/bin/Release/main.exe ./main.exe
 
 sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_new $@
@@ -79,6 +80,7 @@ sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_setentry $@ VERSION --type Utf8 --maxsize 8 --value '$(VERSION)'
 
 eboot.bin: $(INTDIR) $(OBJS)
+	rm -f ./main.exe
 	$(LD) $(INTDIR)/*.o -o $(INTDIR)/$(PROJDIR).elf $(LDFLAGS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(INTDIR)/$(PROJDIR).elf -out=$(INTDIR)/$(PROJDIR).oelf --eboot "eboot.bin" --paid 0x3800000000000011
 	
