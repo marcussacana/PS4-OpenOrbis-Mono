@@ -79,7 +79,7 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
             return 0;
         }
         
-        klogf(": %s", hintPath);
+        klogf("Hint path matched: %s", hintPath);
     }
 
     klogf("FHandle: 0x%x", fp);
@@ -124,7 +124,7 @@ void InstallHooks(){
     get_module_base("libmonosgen-2.0.prx", &MonoAddr, &MonoSize);
     
     if (MonoAddr == 0){
-    	klog("Failedt to get libmonosgen-2.0.sprx address");
+    	klog("Failed to get libmonosgen-2.0.sprx address");
     }
 
 

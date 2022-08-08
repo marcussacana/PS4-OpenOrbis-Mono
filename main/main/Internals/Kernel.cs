@@ -8,18 +8,26 @@ namespace Orbis.Internals
 
         public static void Log(string Line, params object[] Format)
         {
-            Log((CString)string.Format(Line, Format));
+            LogStr((CString)string.Format(Line, Format));
         }
-        public static void Log(CString Line)
+        static void LogStr(CString Line)
         {
             Log((void*)Line);
+        }
+
+        public static bool Jailbreak(long AuthID = 0)
+        {
+            return JailbreakCred(AuthID);
         }
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void Log(void* Line);
         
+        //[MethodImpl(MethodImplOptions.InternalCall)]
+        //public static extern bool Jailbreak();
+        
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern bool Jailbreak();
+        static extern bool JailbreakCred(long AuthID);
         
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool Unjailbreak();

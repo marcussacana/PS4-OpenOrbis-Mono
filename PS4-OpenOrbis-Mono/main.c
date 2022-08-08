@@ -10,8 +10,8 @@
 struct jbc_cred OriCred;
 
 int jailbroken = 0;
- 
-int jailbreak()
+
+int jailbreak(U64 authID)
 {
     if (jailbroken)
         return 0;
@@ -23,15 +23,22 @@ int jailbreak()
         return -1;
     if(jbc_jailbreak_cred(&cr))
         return -1;
-    //cr.jdir = 0;
-    //cr.sceProcType = 0x3800000000000010;
-    //cr.sonyCred = 0x40001c0000000000;
-    //cr.sceProcCap = 0x900000000000ff00;
+    
+    if (authID){
+        cr.jdir = 0;
+        cr.sceProcType = authID;
+        cr.sonyCred = 0x40001c0000000000;
+        cr.sceProcCap = 0x900000000000ff00;
+    }
     if(jbc_set_cred(&cr))
         return -1;
 
     jailbroken = 1;
     return 0;
+}
+
+int def_jailbreak(){
+    return jailbreak(0);
 }
 
 int unjailbreak(){
@@ -103,6 +110,7 @@ void runMain()
     mono_add_internal_call("Orbis.Internals.Kernel::malloc(int)", malloc);
     mono_add_internal_call("Orbis.Internals.Kernel::free(void*)", free);
     mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak", jailbreak);
+    mono_add_internal_call("Orbis.Internals.Kernel::JailbreakCred(long)", def_jailbreak);
     mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
     klog("adding IO internal calls...");
     mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
@@ -119,6 +127,8 @@ void runMain()
 
     //Load freetype
     sceSysmoduleLoadModule(0x009A);
+
+    unjailbreak();
 
     klog("Starting program...");
     char* argv[] = { 0 };
@@ -137,7 +147,7 @@ void run(){
 
 int main()
 {
-    jailbreak();
+    def_jailbreak();
 
     findAppMount(&appRoot);
 
@@ -189,16 +199,6 @@ int main()
     InstallHooks();
 
     sceSystemServiceHideSplashScreen();
-
-/*
-    int tid = 0;
-    scePthreadCreate(&tid, 0, Run, 0, "MonoThread");
-
-    while (1)
-    {
-        sceKernelUsleep(5 * 100000);
-    }
-*/
     
     run();
 

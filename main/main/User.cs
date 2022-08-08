@@ -10,7 +10,7 @@ namespace Orbis
             sceSysUtilSendSystemNotificationWithText(222, Message);
         }
       
-        [DllImport("/system/common/lib/libSceSysUtil.sprx", CharSet = CharSet.Ansi)]
+        [DllImport("libSceSysUtil.sprx", CharSet = CharSet.Ansi)]
         static extern void sceSysUtilSendSystemNotificationWithText(int IconID, string Message);
     }
 }
