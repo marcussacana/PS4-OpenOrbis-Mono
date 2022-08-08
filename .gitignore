@@ -40,3 +40,5 @@ obj/
 *.pkg
 *.gp4
 eboot.bin
+*.elf
+*.oelf
