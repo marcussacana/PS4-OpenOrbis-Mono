@@ -83,12 +83,10 @@ namespace SDL2
 
 		/* IntPtr refers to an SDL_Surface* */
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public static extern IntPtr INTERNAL_IMG_Load(
-			byte[] file
-		);
+		public static extern IntPtr INTERNAL_IMG_Load(IntPtr file);
 		public static IntPtr IMG_Load(string file)
 		{
-			return INTERNAL_IMG_Load(SDL.UTF8_ToNative(file));
+			return INTERNAL_IMG_Load(SDL.INTERNAL_AllocUTF8(file));
 		}
 
 		/* src refers to an SDL_RWops*, IntPtr to an SDL_Surface* */
@@ -105,7 +103,7 @@ namespace SDL2
 		public static extern IntPtr INTERNAL_IMG_LoadTyped_RW(
 			IntPtr src,
 			int freesrc,
-			byte[] type
+			IntPtr type
 		);
 		public static IntPtr IMG_LoadTyped_RW(
 			IntPtr src,
@@ -115,7 +113,7 @@ namespace SDL2
 			return INTERNAL_IMG_LoadTyped_RW(
 				src,
 				freesrc,
-				SDL.UTF8_ToNative(type)
+				SDL.INTERNAL_AllocUTF8(type)
 			);
 		}
 
@@ -123,7 +121,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_IMG_LoadTexture(
 			IntPtr renderer,
-			byte[] file
+			IntPtr file
 		);
 		public static IntPtr IMG_LoadTexture(
 			IntPtr renderer,
@@ -131,7 +129,7 @@ namespace SDL2
 		) {
 			return INTERNAL_IMG_LoadTexture(
 				renderer,
-				SDL.UTF8_ToNative(file)
+				SDL.INTERNAL_AllocUTF8(file)
 			);
 		}
 
@@ -157,7 +155,7 @@ namespace SDL2
 			IntPtr renderer,
 			IntPtr src,
 			int freesrc,
-			byte[] type
+			IntPtr type
 		);
 		public static IntPtr IMG_LoadTextureTyped_RW(
 			IntPtr renderer,
@@ -169,7 +167,7 @@ namespace SDL2
 				renderer,
 				src,
 				freesrc,
-				SDL.UTF8_ToNative(type)
+				SDL.INTERNAL_AllocUTF8(type)
 			);
 		}
 
@@ -184,13 +182,13 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_IMG_SavePNG(
 			IntPtr surface,
-			byte[] file
+			IntPtr file
 		);
 		public static int IMG_SavePNG(IntPtr surface, string file)
 		{
 			return INTERNAL_IMG_SavePNG(
 				surface,
-				SDL.UTF8_ToNative(file)
+				SDL.INTERNAL_AllocUTF8(file)
 			);
 		}
 
@@ -207,14 +205,14 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_IMG_SaveJPG(
 			IntPtr surface,
-			byte[] file,
+			IntPtr file,
 			int quality
 		);
 		public static int IMG_SaveJPG(IntPtr surface, string file, int quality)
 		{
 			return INTERNAL_IMG_SaveJPG(
 				surface,
-				SDL.UTF8_ToNative(file),
+				SDL.INTERNAL_AllocUTF8(file),
 				quality
 			);
 		}

@@ -69,6 +69,14 @@ void* startMono(){
     return domain;
 }
 
+const char* JailedBase = "/app0";
+
+char* getBaseDirectory(){
+    if (jailbroken)
+        return baseDir;
+    return JailedBase;
+}
+
 void runMain()
 {
     auto rootDomain = mono_get_root_domain();
@@ -97,11 +105,13 @@ void runMain()
     }
     
     klog("adding kernel internal calls...");
-    mono_add_internal_call("Orbis.Kernel::Log(void*)", klog);
-    mono_add_internal_call("Orbis.Kernel::malloc(int)", malloc);
-    mono_add_internal_call("Orbis.Kernel::free(void*)", free);
-    mono_add_internal_call("Orbis.Kernel::Jailbreak", jailbreak);
-    mono_add_internal_call("Orbis.Kernel::Unjailbreak", unjailbreak);
+    mono_add_internal_call("Orbis.Internals.Kernel::Log(void*)", klog);
+    mono_add_internal_call("Orbis.Internals.Kernel::malloc(int)", malloc);
+    mono_add_internal_call("Orbis.Internals.Kernel::free(void*)", free);
+    mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak", jailbreak);
+    mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
+    klog("adding IO internal calls...");
+    mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
     klog("adding SDL internal calls...");
     SetSDLInternals();
     klog("internal calls added");
@@ -112,6 +122,9 @@ void runMain()
         klog("Failed to find Orbis.Program.Main() Method");
         return;
     }
+
+    //Load freetype
+    sceSysmoduleLoadModule(0x009A);
 
     klog("Starting program...");
     char* argv[] = { 0 };

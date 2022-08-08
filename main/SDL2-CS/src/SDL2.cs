@@ -39,17 +39,6 @@ namespace SDL2
 
 		#region UTF8 Marshaling
 
-		internal static byte[] UTF8_ToNative(string s)
-		{
-			if (s == null)
-			{
-				return null;
-			}
-
-			// Add a null terminator. That's kind of it... :/
-			return System.Text.Encoding.UTF8.GetBytes(s + '\0');
-		}
-
 		/* This is public because SDL_DropEvent needs it! */
 		public static unsafe string UTF8_ToManaged(IntPtr s, bool freePtr = false)
 		{
@@ -140,16 +129,16 @@ namespace SDL2
 		/* IntPtr refers to an SDL_RWops* */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_RWFromFile(
-			byte[] file,
-			byte[] mode
+			IntPtr file,
+			IntPtr mode
 		);
 		internal static IntPtr INTERNAL_SDL_RWFromFile(
 			string file,
 			string mode
 		) {
 			return INTERNAL_SDL_RWFromFile(
-				UTF8_ToNative(file),
-				UTF8_ToNative(mode)
+				INTERNAL_AllocUTF8(file),
+				INTERNAL_AllocUTF8(mode)
 			);
 		}
 
@@ -385,33 +374,33 @@ namespace SDL2
 		public static extern void SDL_ClearHints();
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public static extern IntPtr INTERNAL_SDL_GetHint(byte[] name);
+		public static extern IntPtr INTERNAL_SDL_GetHint(IntPtr name);
 		public static string SDL_GetHint(string name)
 		{
 			return UTF8_ToManaged(
 				INTERNAL_SDL_GetHint(
-					UTF8_ToNative(name)
+					INTERNAL_AllocUTF8(name)
 				)
 			);
 		}
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_bool INTERNAL_SDL_SetHint(
-			byte[] name,
-			byte[] value
+			IntPtr name,
+			IntPtr value
 		);
 		public static SDL_bool SDL_SetHint(string name, string value)
 		{
 			return INTERNAL_SDL_SetHint(
-				UTF8_ToNative(name),
-				UTF8_ToNative(value)
+				INTERNAL_AllocUTF8(name),
+				INTERNAL_AllocUTF8(value)
 			);
 		}
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_bool INTERNAL_SDL_SetHintWithPriority(
-			byte[] name,
-			byte[] value,
+			IntPtr name,
+			IntPtr value,
 			SDL_HintPriority priority
 		);
 		public static SDL_bool SDL_SetHintWithPriority(
@@ -420,8 +409,8 @@ namespace SDL2
 			SDL_HintPriority priority
 		) {
 			return INTERNAL_SDL_SetHintWithPriority(
-				UTF8_ToNative(name),
-				UTF8_ToNative(value),
+				INTERNAL_AllocUTF8(name),
+				INTERNAL_AllocUTF8(value),
 				priority
 			);
 		}
@@ -429,7 +418,7 @@ namespace SDL2
 		/* Available in 2.0.5 or higher */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_bool INTERNAL_SDL_GetHintBoolean(
-			byte[] name,
+			IntPtr name,
 			SDL_bool default_value
 		);
 		public static SDL_bool SDL_GetHintBoolean(
@@ -437,7 +426,7 @@ namespace SDL2
 			SDL_bool default_value
 		) {
 			return INTERNAL_SDL_GetHintBoolean(
-				UTF8_ToNative(name),
+				INTERNAL_AllocUTF8(name),
 				default_value
 			);
 		}
@@ -458,11 +447,11 @@ namespace SDL2
 
 		/* Use string.Format for arglists */
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public static extern void INTERNAL_SDL_SetError(byte[] fmtAndArglist);
+		public static extern void INTERNAL_SDL_SetError(IntPtr fmtAndArglist);
 		public static void SDL_SetError(string fmtAndArglist)
 		{
 			INTERNAL_SDL_SetError(
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -526,11 +515,11 @@ namespace SDL2
 
 		/* Use string.Format for arglists */
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public static extern void INTERNAL_SDL_Log(byte[] fmtAndArglist);
+		public static extern void INTERNAL_SDL_Log(IntPtr fmtAndArglist);
 		public static void SDL_Log(string fmtAndArglist)
 		{
 			INTERNAL_SDL_Log(
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -538,7 +527,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogVerbose(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogVerbose(
 			int category,
@@ -546,7 +535,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogVerbose(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -554,7 +543,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogDebug(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogDebug(
 			int category,
@@ -562,7 +551,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogDebug(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -570,7 +559,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogInfo(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogInfo(
 			int category,
@@ -578,7 +567,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogInfo(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -586,7 +575,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogWarn(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogWarn(
 			int category,
@@ -594,7 +583,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogWarn(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -602,7 +591,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogError(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogError(
 			int category,
@@ -610,7 +599,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogError(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -618,7 +607,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_LogCritical(
 			int category,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogCritical(
 			int category,
@@ -626,7 +615,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_LogCritical(
 				category,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -635,7 +624,7 @@ namespace SDL2
 		public static extern void INTERNAL_SDL_LogMessage(
 			int category,
 			SDL_LogPriority priority,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogMessage(
 			int category,
@@ -645,7 +634,7 @@ namespace SDL2
 			INTERNAL_SDL_LogMessage(
 				category,
 				priority,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -654,7 +643,7 @@ namespace SDL2
 		public static extern void INTERNAL_SDL_LogMessageV(
 			int category,
 			SDL_LogPriority priority,
-			byte[] fmtAndArglist
+			IntPtr fmtAndArglist
 		);
 		public static void SDL_LogMessageV(
 			int category,
@@ -664,7 +653,7 @@ namespace SDL2
 			INTERNAL_SDL_LogMessageV(
 				category,
 				priority,
-				UTF8_ToNative(fmtAndArglist)
+				INTERNAL_AllocUTF8(fmtAndArglist)
 			);
 		}
 
@@ -808,14 +797,14 @@ namespace SDL2
 		private static extern int INTERNAL_SDL_ShowMessageBox([In()] ref INTERNAL_SDL_MessageBoxData messageboxdata, out int buttonid);
 		
 		/* Ripped from Jameson's LpUtf8StrMarshaler */
-		private static IntPtr INTERNAL_AllocUTF8(string str)
+		internal static IntPtr INTERNAL_AllocUTF8(string str)
 		{
 			if (string.IsNullOrEmpty(str))
 			{
 				return IntPtr.Zero;
 			}
 			byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str + '\0');
-			IntPtr mem = SDL.SDL_malloc((IntPtr) bytes.Length);
+			IntPtr mem = SDL_malloc((IntPtr) bytes.Length);
 			Marshal.Copy(bytes, 0, mem, bytes.Length);
 			return mem;
 		}
@@ -870,8 +859,8 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_ShowSimpleMessageBox(
 			SDL_MessageBoxFlags flags,
-			byte[] title,
-			byte[] message,
+			IntPtr title,
+			IntPtr message,
 			IntPtr window
 		);
 		public static int SDL_ShowSimpleMessageBox(
@@ -882,8 +871,8 @@ namespace SDL2
 		) {
 			return INTERNAL_SDL_ShowSimpleMessageBox(
 				flags,
-				UTF8_ToNative(title),
-				UTF8_ToNative(message),
+				INTERNAL_AllocUTF8(title),
+				INTERNAL_AllocUTF8(message),
 				window
 			);
 		}
@@ -1036,6 +1025,7 @@ namespace SDL2
 		[Flags]
 		public enum SDL_WindowFlags : uint
 		{
+			NONE = 0x00000000,
 			SDL_WINDOW_FULLSCREEN =		0x00000001,
 			SDL_WINDOW_OPENGL =		0x00000002,
 			SDL_WINDOW_SHOWN =		0x00000004,
@@ -1118,7 +1108,7 @@ namespace SDL2
 		/* IntPtr refers to an SDL_Window* */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_CreateWindow(
-			byte[] title,
+			IntPtr title,
 			int x,
 			int y,
 			int w,
@@ -1134,7 +1124,7 @@ namespace SDL2
 			SDL_WindowFlags flags
 		) {
 			return INTERNAL_SDL_CreateWindow(
-				UTF8_ToNative(title),
+				INTERNAL_AllocUTF8(title),
 				x, y, w, h,
 				flags
 			);
@@ -1292,7 +1282,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_GetWindowData(
 			IntPtr window,
-			byte[] name
+			IntPtr name
 		);
 		public static IntPtr SDL_GetWindowData(
 			IntPtr window,
@@ -1300,7 +1290,7 @@ namespace SDL2
 		) {
 			return INTERNAL_SDL_GetWindowData(
 				window,
-				UTF8_ToNative(name)
+				INTERNAL_AllocUTF8(name)
 			);
 		}
 
@@ -1418,21 +1408,21 @@ namespace SDL2
 		/* IntPtr refers to a function pointer */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_GL_GetProcAddress(
-			byte[] proc
+			IntPtr proc
 		);
 		public static IntPtr SDL_GL_GetProcAddress(string proc)
 		{
 			return INTERNAL_SDL_GL_GetProcAddress(
-				UTF8_ToNative(proc)
+				INTERNAL_AllocUTF8(proc)
 			);
 		}
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public static extern int INTERNAL_SDL_GL_LoadLibrary(byte[] path);
+		public static extern int INTERNAL_SDL_GL_LoadLibrary(IntPtr path);
 		public static int SDL_GL_LoadLibrary(string path)
 		{
 			return INTERNAL_SDL_GL_LoadLibrary(
-				UTF8_ToNative(path)
+				INTERNAL_AllocUTF8(path)
 			);
 		}
 
@@ -1445,12 +1435,12 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_bool INTERNAL_SDL_GL_ExtensionSupported(
-			byte[] extension
+			IntPtr extension
 		);
 		public static SDL_bool SDL_GL_ExtensionSupported(string extension)
 		{
 			return INTERNAL_SDL_GL_ExtensionSupported(
-				UTF8_ToNative(extension)
+				INTERNAL_AllocUTF8(extension)
 			);
 		}
 
@@ -1548,7 +1538,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_SetWindowData(
 			IntPtr window,
-			byte[] name,
+			IntPtr name,
 			IntPtr userdata
 		);
 		public static IntPtr SDL_SetWindowData(
@@ -1558,7 +1548,7 @@ namespace SDL2
 		) {
 			return INTERNAL_SDL_SetWindowData(
 				window,
-				UTF8_ToNative(name),
+				INTERNAL_AllocUTF8(name),
 				userdata
 			);
 		}
@@ -1664,7 +1654,7 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void INTERNAL_SDL_SetWindowTitle(
 			IntPtr window,
-			byte[] title
+			IntPtr title
 		);
 		public static void SDL_SetWindowTitle(
 			IntPtr window,
@@ -1672,7 +1662,7 @@ namespace SDL2
 		) {
 			INTERNAL_SDL_SetWindowTitle(
 				window,
-				UTF8_ToNative(title)
+				INTERNAL_AllocUTF8(title)
 			);
 		}
 
@@ -1694,12 +1684,12 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_VideoInit(
-			byte[] driver_name
+			IntPtr driver_name
 		);
 		public static int SDL_VideoInit(string driver_name)
 		{
 			return INTERNAL_SDL_VideoInit(
-				UTF8_ToNative(driver_name)
+				INTERNAL_AllocUTF8(driver_name)
 			);
 		}
 
@@ -1775,12 +1765,12 @@ namespace SDL2
 		/* Only available in 2.0.6 */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_Vulkan_LoadLibrary(
-			byte[] path
+			IntPtr path
 		);
 		public static int SDL_Vulkan_LoadLibrary(string path)
 		{
 			return INTERNAL_SDL_Vulkan_LoadLibrary(
-				UTF8_ToNative(path)
+				INTERNAL_AllocUTF8(path)
 			);
 		}
 
@@ -3126,6 +3116,7 @@ namespace SDL2
 			public SDL_Rect clip_rect;
 			public IntPtr map; // SDL_BlitMap*
 			public int refcount;
+
 		}
 
 		/* surface refers to an SDL_Surface* */
@@ -3545,13 +3536,13 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_SetClipboardText(
-			byte[] text
+			IntPtr text
 		);
 		public static int SDL_SetClipboardText(
 			string text
 		) {
 			return INTERNAL_SDL_SetClipboardText(
-				UTF8_ToNative(text)
+				INTERNAL_AllocUTF8(text)
 			);
 		}
 
@@ -4872,12 +4863,12 @@ namespace SDL2
 		/* Get a scancode from a human-readable name */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_Scancode INTERNAL_SDL_GetScancodeFromName(
-			byte[] name
+			IntPtr name
 		);
 		public static SDL_Scancode SDL_GetScancodeFromName(string name)
 		{
 			return INTERNAL_SDL_GetScancodeFromName(
-				UTF8_ToNative(name)
+				INTERNAL_AllocUTF8(name)
 			);
 		}
 
@@ -4892,11 +4883,11 @@ namespace SDL2
 		/* Get a key code from a human-readable name */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_Keycode INTERNAL_SDL_GetKeyFromName(
-			byte[] name
+			IntPtr name
 		);
 		public static SDL_Keycode SDL_GetKeyFromName(string name)
 		{
-			return INTERNAL_SDL_GetKeyFromName(UTF8_ToNative(name));
+			return INTERNAL_SDL_GetKeyFromName(INTERNAL_AllocUTF8(name));
 		}
 
 		/* Start accepting Unicode text input events, show keyboard */
@@ -5287,18 +5278,18 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void SDL_JoystickGetGUIDString(
 			Guid guid,
-			byte[] pszGUID,
+			IntPtr pszGUID,
 			int cbGUID
 		);
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern Guid INTERNAL_SDL_JoystickGetGUIDFromString(
-			byte[] pchGUID
+			IntPtr pchGUID
 		);
 		public static Guid SDL_JoystickGetGUIDFromString(string pchGuid)
 		{
 			return INTERNAL_SDL_JoystickGetGUIDFromString(
-				UTF8_ToNative(pchGuid)
+				INTERNAL_AllocUTF8(pchGuid)
 			);
 		}
 
@@ -5462,13 +5453,13 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_GameControllerAddMapping(
-			byte[] mappingString
+			IntPtr mappingString
 		);
 		public static int SDL_GameControllerAddMapping(
 			string mappingString
 		) {
 			return INTERNAL_SDL_GameControllerAddMapping(
-				UTF8_ToNative(mappingString)
+				INTERNAL_AllocUTF8(mappingString)
 			);
 		}
 
@@ -5617,13 +5608,13 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_GameControllerAxis INTERNAL_SDL_GameControllerGetAxisFromString(
-			byte[] pchString
+			IntPtr pchString
 		);
 		public static SDL_GameControllerAxis SDL_GameControllerGetAxisFromString(
 			string pchString
 		) {
 			return INTERNAL_SDL_GameControllerGetAxisFromString(
-				UTF8_ToNative(pchString)
+				INTERNAL_AllocUTF8(pchString)
 			);
 		}
 
@@ -5672,13 +5663,13 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern SDL_GameControllerButton INTERNAL_SDL_GameControllerGetButtonFromString(
-			byte[] pchString
+			IntPtr pchString
 		);
 		public static SDL_GameControllerButton SDL_GameControllerGetButtonFromString(
 			string pchString
 		) {
 			return INTERNAL_SDL_GameControllerGetButtonFromString(
-				UTF8_ToNative(pchString)
+				INTERNAL_AllocUTF8(pchString)
 			);
 		}
 
@@ -6272,12 +6263,12 @@ namespace SDL2
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern int INTERNAL_SDL_AudioInit(
-			byte[] driver_name
+			IntPtr driver_name
 		);
 		public static int SDL_AudioInit(string driver_name)
 		{
 			return INTERNAL_SDL_AudioInit(
-				UTF8_ToNative(driver_name)
+				INTERNAL_AllocUTF8(driver_name)
 			);
 		}
 
@@ -6382,9 +6373,9 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void SDL_MixAudio(
 			[Out()] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 2)]
-				byte[] dst,
+				IntPtr dst,
 			[In()] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 2)]
-				byte[] src,
+				IntPtr src,
 			uint len,
 			int volume
 		);
@@ -6393,9 +6384,9 @@ namespace SDL2
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern void SDL_MixAudioFormat(
 			[Out()] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 3)]
-				byte[] dst,
+				IntPtr dst,
 			[In()] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1, SizeParamIndex = 3)]
-				byte[] src,
+				IntPtr src,
 			ushort format,
 			uint len,
 			int volume
@@ -6416,7 +6407,7 @@ namespace SDL2
 		/* uint refers to an SDL_AudioDeviceID */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern uint INTERNAL_SDL_OpenAudioDevice(
-			byte[] device,
+			IntPtr device,
 			int iscapture,
 			ref SDL_AudioSpec desired,
 			out SDL_AudioSpec obtained,
@@ -6430,7 +6421,7 @@ namespace SDL2
 			int allowed_changes
 		) {
 			return INTERNAL_SDL_OpenAudioDevice(
-				UTF8_ToNative(device),
+				INTERNAL_AllocUTF8(device),
 				iscapture,
 				ref desired,
 				out obtained,
@@ -6822,15 +6813,15 @@ namespace SDL2
 		/* Only available in 2.0.1 */
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public static extern IntPtr INTERNAL_SDL_GetPrefPath(
-			byte[] org,
-			byte[] app
+			IntPtr org,
+			IntPtr app
 		);
 		public static string SDL_GetPrefPath(string org, string app)
 		{
 			return UTF8_ToManaged(
 				INTERNAL_SDL_GetPrefPath(
-					UTF8_ToNative(org),
-					UTF8_ToNative(app)
+					INTERNAL_AllocUTF8(org),
+					INTERNAL_AllocUTF8(app)
 				),
 				true
 			);

@@ -1,14 +1,15 @@
-using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 using Orbis.String;
 
-namespace Orbis
+namespace Orbis.Internals
 {
     public unsafe class Kernel
     {
 
+        public static void Log(string Line, params object[] Format)
+        {
+            Log((CString)string.Format(Line, Format));
+        }
         public static void Log(CString Line)
         {
             Log((void*)Line);

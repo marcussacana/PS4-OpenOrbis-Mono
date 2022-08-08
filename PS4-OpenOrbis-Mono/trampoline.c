@@ -63,15 +63,11 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         for (int i = 0; i < countof(hints); i++)
         {
             sprintf(&hintPath, hints[i], baseDir, fname);
-            klogf("Trying Hint: %s", hintPath);
-            
             fp = fopen(hintPath, "r");
             if (fp != 0)
                 break;
             
             sprintf(&hintPath, hints[i], "/app0", fname);
-            klogf("Trying Hint: %s", hintPath);
-            
             fp = fopen(hintPath, "r");
             if (fp != 0)
                 break;

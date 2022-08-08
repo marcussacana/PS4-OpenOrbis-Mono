@@ -26,12 +26,20 @@ namespace Orbis.String
 
         public static implicit operator string(CString Str)
         {
+            if (Str.Address == null)
+                return null;
+            
             var Len =  Str.FixedLength ?? Str.Count();
             return new string(Str.Address, 0, (int)Len, Str.ReadEncoding);
         }
 
         public static implicit operator CString(string Content)
         {
+            if (Content == null)
+            {
+                return (byte*)0;
+            }
+            
             var Buffer = DefaultWriteEncoding.GetBytes(Content + "\x0");
             var Ptr = (byte*)Marshal.AllocHGlobal(Buffer.Length).ToPointer();
 
