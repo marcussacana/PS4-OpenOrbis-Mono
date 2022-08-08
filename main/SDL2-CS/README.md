@@ -1,6 +1,8 @@
+SDL2# PS4
+--------
 This is a modified version SDL2#, to be used in PS4
 
-Project Website: https://github.com/flibitijibibo/SDL2-CS
+Original Project Website: https://github.com/flibitijibibo/SDL2-CS
 
 License
 -------
@@ -19,9 +21,7 @@ is written in a way that can be used for any general C# application.
 
 The wrapper provides bindings for the following libraries:
 - SDL2
-- SDL2_gfx
 - SDL2_image
-- SDL2_mixer
 - SDL2_ttf
 
 Note that SDL2# will not provide every single SDL2 function. This is due to
