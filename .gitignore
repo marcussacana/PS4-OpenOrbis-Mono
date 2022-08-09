@@ -43,3 +43,5 @@ packages/
 eboot.bin
 *.elf
 *.oelf
+
+!mono/*
