@@ -5,7 +5,7 @@ TITLE_ID    := MONO00001
 CONTENT_ID  := IV0000-MONO00001_00-MONOSAMPLE000000
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceVideoOut -lSceAudioOut -lScePad -lSceSysmodule -lSceFreeType -lSDL2 -lSDL2_image
+LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule
 
 # Additional compile flags.
 #EXTRAFLAGS  := 
@@ -13,7 +13,7 @@ LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceVideo
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)
 MONO 		:= $(wildcard mono/**/*)
-LIBMODULES  := $(wildcard sce_module/*)
+LIBMODULES  := $(wildcard sce_module/*) sce_module/libSDL2.sprx
 
 # You likely won't need to touch anything below this point.
 
@@ -62,10 +62,14 @@ pkg.gp4: eboot.bin main.exe sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/i
 	$(TOOLCHAIN)/bin/$(CDIR)/create-gp4 -out $@ --content-id=$(CONTENT_ID) --files "$^"
 	sed -i "s/<dir targ_name=\"sce_sys\">/<dir targ_name=\"mono\">\n\t\t\t<dir targ_name=\"4.5\" \/>\n\t\t<\/dir>\n\t\t<dir targ_name=\"sce_sys\">/" pkg.gp4
 	
-main.exe:
+main.exe: sce_module/libSDL2.sprx
 	msbuild main/main.sln -t:Rebuild -p:Configuration=Release
 	cp -f main/main/bin/x64/Release/main.exe ./main.exe
 	cp -f main/main/bin/x64/Release/*.dll ./mono/4.5/
+
+sce_module/libSDL2.sprx:
+	make -C libSDL2
+	cp -f libSDL2/libSDL2.sprx sce_module/libSDL2.sprx
 
 sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_new $@
@@ -95,4 +99,5 @@ $(INTDIR)/%.o: $(PROJDIR)/%.cpp
 	$(CCX) $(CXXFLAGS) -o $@ $<
 
 clean:
-	rm -f -r $(CONTENT_ID).pkg pkg.gp4 pkg/sce_sys/param.sfo eboot.bin main.exe $(PROJDIR)/x64
+	rm -f -r $(CONTENT_ID).pkg pkg.gp4 sce_module/libSDL2.sprx pkg/sce_sys/param.sfo eboot.bin main.exe $(PROJDIR)/x64
+	make -C libSDL2 clean

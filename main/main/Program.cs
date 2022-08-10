@@ -2,6 +2,7 @@
 using System.IO;
 using Orbis.Internals;
 using SDL2;
+using SDL2.Types;
 using static SDL2.SDL;
 
 namespace Orbis
@@ -20,7 +21,7 @@ namespace Orbis
         public static void Main()
         {
             Kernel.Log("DotNet Main() Called");
-            
+
             User.Notify("Hello World from C#");
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
             {
