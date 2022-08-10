@@ -5,7 +5,6 @@
 #include "trampoline.h"
 #include "mono.h"
 #include "io.h"
-#include "SDL2.h"
 
 struct jbc_cred OriCred;
 
@@ -114,8 +113,6 @@ void runMain()
     mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
     klog("adding IO internal calls...");
     mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
-    klog("adding SDL internal calls...");
-    SetSDLInternals();
     klog("internal calls added");
 
     void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
@@ -155,22 +152,22 @@ int main()
     sprintf(&mainExe, "%s/main.exe", baseDir);
     sprintf(&baseCon, "%s/mono", baseDir);
 
-    char monoLib[0x100] = "\x0";
-    sprintf(&monoLib, "%s/sce_module/libmonosgen-2.0.prx", baseDir);
+    char pkgLib[0x100] = "\x0";
+    sprintf(&pkgLib, "%s/sce_module/libmonosgen-2.0.prx", baseDir);
     
-    auto mono_framework = sceKernelLoadStartModule(monoLib, 0, NULL, 0, 0, 0);
+    auto mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
     auto libkernel_sys = sceKernelLoadStartModule("/system/common/lib/libkernel_sys.sprx", 0, NULL, 0, 0, 0);
     auto libKernel = sceKernelLoadStartModule("libkernel.sprx", 0, NULL, 0, 0, 0);
     
-    if (mono_framework == -1){
+    if (mono_framework & 0x80000000){
 	    klog("DNP: Failed o Load the Mono\n");
     	return -1;
     }
-    if (libkernel_sys == -1){
+    if (libkernel_sys & 0x80000000){
 	    klog("DNP: Failed o Load the libkernel_sys\n");
     	return -1;
     }
-    if (libKernel == -1){
+    if (libKernel & 0x80000000){
 	    klog("DNP: Failed o Load the libKernel\n");
     	return -1;
     }

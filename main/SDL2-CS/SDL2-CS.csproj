@@ -42,9 +42,12 @@
         <Message Importance="High" Text="Loaded property overrides from '$(SDLSettingsPropsFilePath)'" Condition="Exists('$(SDLSettingsPropsFilePath)')" />
     </Target>
     <ItemGroup>
-        <Compile Include="src\ManagedTypes.cs" />
         <Compile Include="src\SDL2.cs" />
         <Compile Include="src\SDL2_image.cs" />
+        <Compile Include="src\Types\NativeStruct.cs" />
+        <Compile Include="src\Types\Rectangle.cs" />
+        <Compile Include="src\Types\Size.cs" />
+        <Compile Include="src\Types\Surface.cs" />
     </ItemGroup>
     <ItemGroup>
         <Reference Include="System" />
