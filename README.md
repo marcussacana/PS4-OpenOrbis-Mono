@@ -9,7 +9,11 @@ in the PKG, you will be able to create your HB even without deal with the OpenOr
  - Install the OpenOrbis SDK
  - Install the Mono SDK
  - Run `make`
- 
+
+### How to debug
+ - Build the homebrew with `make debug`
+ - Install and Start the homebrew (it will freeze, that's ok)
+ - With Monodevelop or Jetbrains, connect the remote debugging at `2222`
  
 ### How it works
 The PS4 default mono runtime allways try load the modules from sprx files,
@@ -38,3 +42,4 @@ Really, I should try do that before create a hook, lol.
 
 ### Special Thanks:
 Lighting Mods, AlAzif, Bucanero, Flatz, sleirsgoevy, OSM-Made and of course, the OpenOrbis team.
+

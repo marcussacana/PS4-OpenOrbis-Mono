@@ -61,6 +61,8 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
     klog("hook called...");
     klogf("Loading Assembly: %s", AssemblyName);
 
+    char* finalPath = AssemblyName;
+
     void* fp = fopen(AssemblyName, "r");
     if (fp == 0)  {
         klog("Error opening file");
@@ -98,25 +100,18 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
             return 0;
         }
         
+        finalPath = hintPath;
         klogf("Hint path matched: %s", hintPath);
     }
-
-    klogf("FHandle: 0x%x", fp);
     
     fseek(fp, 0, SEEK_END);
     long int size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    klogf("FSize: %d", size);
-
     
     char* data = malloc(size);
-    if(data == MAP_FAILED) {
-       klog("malloc failed");
-      return 0;
-    }
-
     int readed = fread(data, 1, size, fp);
+
     fclose(fp);
 
     if (readed != size){
@@ -126,8 +121,32 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 
     int status = 0;
     void* Image = mono_image_open_from_data_with_name(data, size, 0, &status, RefOnly, AssemblyName);
-    klogf("Image: %x", Image);
-    klogf("Status: 0x%x", status);
+
+#ifdef DEBUG
+    if (Image) {
+        char* noExtPath[0x300];
+        char* pdbPath[0x300];
+
+        remove_extension(finalPath, noExtPath);
+        sprintf(pdbPath, "%s.pdb", noExtPath);
+
+        fp = fopen(pdbPath, "r");
+
+        if (fp) {
+            fseek(fp, 0, SEEK_END);
+            size = ftell(fp);
+            fseek(fp, 0, SEEK_SET);
+
+            char* pdb = malloc(size);
+            int readed = fread(pdb, 1, size, fp);
+            fclose(fp);
+
+            mono_debug_open_image_from_memory(Image, pdb, size);
+
+            klogf("Debug symbols loaded: %s", pdbPath);
+        }
+    }
+#endif
     
     if (OpenStatus != 0)
         *OpenStatus = status;
