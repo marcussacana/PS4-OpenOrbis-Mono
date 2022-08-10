@@ -5,15 +5,16 @@ TITLE_ID    := MONO00001
 CONTENT_ID  := IV0000-MONO00001_00-MONOSAMPLE000000
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule
+LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule -lSceMsgDialog
 
 # Additional compile flags.
 #EXTRAFLAGS  := 
+BUILDTYPE   := Release
 
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)
-MONO 		:= $(wildcard mono/**/*)
 LIBMODULES  := $(wildcard sce_module/*) sce_module/libSDL2.sprx
+
 
 # You likely won't need to touch anything below this point.
 
@@ -30,7 +31,7 @@ CPPFILES    := $(wildcard $(PROJDIR)/*.cpp)
 OBJS        := $(patsubst $(PROJDIR)/%.c, $(INTDIR)/%.o, $(CFILES)) $(patsubst $(PROJDIR)/%.cpp, $(INTDIR)/%.o, $(CPPFILES)) $(patsubst $(PROJDIR)/ps4-libjbc/%.c, $(INTDIR)/%.o, $(JBFILES))
 
 # Define final C/C++ flags
-CFLAGS      := -ggdb -O0 --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
+CFLAGS      := --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c $(EXTRAFLAGS) -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include
 CXXFLAGS    := $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1
 LDFLAGS     := --error-limit=0 -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crt1.o
 
@@ -55,17 +56,22 @@ endif
 
 all: $(CONTENT_ID).pkg
 
+	
+$(CONTENT_ID).pkg: main.exe 
 $(CONTENT_ID).pkg: pkg.gp4
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core pkg_build $< .
 
-pkg.gp4: eboot.bin main.exe sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png $(LIBMODULES) $(ASSETS) $(MONO)
-	$(TOOLCHAIN)/bin/$(CDIR)/create-gp4 -out $@ --content-id=$(CONTENT_ID) --files "$^"
+pkg.gp4: eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png $(LIBMODULES) $(ASSETS)
+	$(TOOLCHAIN)/bin/$(CDIR)/create-gp4 -out $@ --content-id=$(CONTENT_ID) --files "$^ $(wildcard mono/**/*)"
 	sed -i "s/<dir targ_name=\"sce_sys\">/<dir targ_name=\"mono\">\n\t\t\t<dir targ_name=\"4.5\" \/>\n\t\t<\/dir>\n\t\t<dir targ_name=\"sce_sys\">/" pkg.gp4
 	
+
 main.exe: sce_module/libSDL2.sprx
-	msbuild main/main.sln -t:Rebuild -p:Configuration=Release
-	cp -f main/main/bin/x64/Release/main.exe ./main.exe
-	cp -f main/main/bin/x64/Release/*.dll ./mono/4.5/
+	msbuild main/main.sln -t:Rebuild -p:Configuration=$(BUILDTYPE)
+	mv -f main/main/bin/x64/$(BUILDTYPE)/main.exe ./main.exe
+	mv -f main/main/bin/x64/$(BUILDTYPE)/main.pdb ./main.pdb
+	-cp -f main/main/bin/x64/$(BUILDTYPE)/*.dll ./mono/4.5/
+	-cp -f main/main/bin/x64/$(BUILDTYPE)/*.pdb ./mono/4.5/
 
 sce_module/libSDL2.sprx:
 	make -C libSDL2
@@ -85,7 +91,6 @@ sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_setentry $@ VERSION --type Utf8 --maxsize 8 --value '$(VERSION)'
 
 eboot.bin: $(INTDIR) $(OBJS)
-	rm -f ./main.exe
 	$(LD) $(INTDIR)/*.o -o $(INTDIR)/$(PROJDIR).elf $(LDFLAGS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(INTDIR)/$(PROJDIR).elf -out=$(INTDIR)/$(PROJDIR).oelf --eboot "eboot.bin" --paid 0x3800000000000011
 	
@@ -93,11 +98,18 @@ $(INTDIR)/%.o: $(PROJDIR)/ps4-libjbc/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 	
 $(INTDIR)/%.o: $(PROJDIR)/%.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(DEBUG) $(CFLAGS) -o $@ $<
 
 $(INTDIR)/%.o: $(PROJDIR)/%.cpp
-	$(CCX) $(CXXFLAGS) -o $@ $<
+	$(CCX) $(DEBUG) $(CXXFLAGS) -o $@ $<
+	
+
+debug: DEBUG      := --define-macro DEBUG
+debug: BUILDTYPE  := Debug
+debug: all
+
+clear: clean
 
 clean:
-	rm -f -r $(CONTENT_ID).pkg pkg.gp4 sce_module/libSDL2.sprx pkg/sce_sys/param.sfo eboot.bin main.exe $(PROJDIR)/x64
+	rm -f -r $(CONTENT_ID).pkg pkg.gp4 sce_module/libSDL2.sprx pkg/sce_sys/param.sfo eboot.bin main.exe main.pdb mono/4.5/*.pdb $(PROJDIR)/x64
 	make -C libSDL2 clean

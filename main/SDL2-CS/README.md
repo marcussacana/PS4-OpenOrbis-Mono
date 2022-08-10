@@ -21,7 +21,6 @@ is written in a way that can be used for any general C# application.
 
 The wrapper provides bindings for the following libraries:
 - SDL2
-- SDL2_gfx
 - SDL2_image
 
 Note that SDL2# will not provide every single SDL2 function. This is due to

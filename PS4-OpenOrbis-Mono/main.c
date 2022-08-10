@@ -51,12 +51,22 @@ int unjailbreak(){
 
 void* startMono(){
 
+#ifdef DEBUG
+    klog("Initializing Debugger...");
+
+    mono_debugger_agent_parse_options("address=0.0.0.0:2222,transport=dt_socket,server=y");
+    mono_debug_init(1);
+
+    const char* options[] = { "--soft-breakpoints" };
+
+    mono_jit_parse_options(sizeof(options)/sizeof(char*), (char**)options);
+#endif
+
     klog("Starting Mono...");
 
     auto domain = mono_get_root_domain();
     if (!domain){
     	mono_set_dirs(baseDir, baseCon);
-    	//domain = mono_init_from_assembly("main", mainLib);
         domain = mono_jit_init("main");
     }
     
@@ -64,6 +74,10 @@ void* startMono(){
         klog("Failed to init the mono domain");
     	return 0;
     }
+
+#ifdef DEBUG
+    mono_debug_domain_create(domain);
+#endif
     
     klog("Mono domain Initialized");
     return domain;
@@ -125,7 +139,9 @@ void runMain()
     //Load freetype
     sceSysmoduleLoadModule(0x009A);
 
+#ifndef DEBUG
     unjailbreak();
+#endif
 
     klog("Starting program...");
     char* argv[] = { 0 };
@@ -138,6 +154,7 @@ void run(){
     if (rootDomain == 0)
         return;
 
+    sceSystemServiceHideSplashScreen();
     runMain();
     sceSystemServiceLoadExec("exit", NULL);
 }
@@ -186,6 +203,11 @@ int main()
     sceKernelDlsym(mono_framework, "mono_assembly_get_image", (void**)&mono_assembly_get_image);
     sceKernelDlsym(mono_framework, "mono_assembly_load_from_full", (void**)&mono_assembly_load_from_full);
     sceKernelDlsym(mono_framework, "mono_add_internal_call", (void**)&mono_add_internal_call);
+    sceKernelDlsym(mono_framework, "mono_debugger_agent_parse_options", (void**)&mono_debugger_agent_parse_options);
+    sceKernelDlsym(mono_framework, "mono_debug_init", (void**)&mono_debug_init);
+    sceKernelDlsym(mono_framework, "mono_debug_domain_create", (void**)&mono_debug_domain_create);
+    sceKernelDlsym(mono_framework, "mono_jit_parse_options", (void**)&mono_jit_parse_options);
+    sceKernelDlsym(mono_framework, "mono_debug_open_image_from_memory", (void**)&mono_debug_open_image_from_memory);
     
     sceKernelDlsym(libKernel, "sceKernelJitCreateSharedMemory", (void**)&JitCreateSharedMemory);
     sceKernelDlsym(libKernel, "sceKernelJitCreateAliasOfSharedMemory", (void**)&JitCreateAliasOfSharedMemory);
@@ -194,8 +216,6 @@ int main()
     sceKernelDlsym(libkernel_sys, "sceKernelLoadStartModuleInternalForMono", (void**)&sceKernelLoadStartModuleInternalForMono);
 
     InstallHooks();
-
-    sceSystemServiceHideSplashScreen();
     
     run();
 
