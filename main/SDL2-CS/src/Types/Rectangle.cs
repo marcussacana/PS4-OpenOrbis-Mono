@@ -1,58 +1,64 @@
 using System;
-using System.Runtime.InteropServices;
 
 namespace SDL2.Types
 {
-    public class Surface
+    public class Rectangle
     {
-        public SDL.SDL_Surface Inner;
-        private IntPtr? Address;
-        
-        public static explicit operator SDL.SDL_Surface(Surface Struct)
+        public int X;
+        public int Y;
+        public int Width;
+        public int Height;
+
+        public Size Size
         {
-            if (Struct == IntPtr.Zero)
+            get => new Size(Width, Height);
+            set
             {
-                throw new NullReferenceException("The given struct is null");
+                Width = value.Width;
+                Height = value.Height;
             }
-            return Struct.Inner;
         }
-        public static implicit operator Surface(SDL.SDL_Surface Struct)
+
+        public Point Point
         {
-            var NStruct = new Surface();
-            NStruct.Inner = Struct;
-            
-            return NStruct;
+            get => new Point(X, Y);
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+            }
+        }
+
+        public Rectangle(int X, int Y, int Width, int Height)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.Width = Width;
+            this.Height = Height;
         }
         
-        public static implicit operator Surface(IntPtr Ptr)
+        public Rectangle(Point Location, Size Size) : this(Location.X, Location.Y, Size.Width, Size.Height) {}
+
+        private NativeStruct<SDL.SDL_Rect> NativeRect = null;
+        public static implicit operator NativeStruct<SDL.SDL_Rect>(Rectangle Rect)
         {
-            if (Ptr == IntPtr.Zero)
+            if (Rect.NativeRect == null)
             {
-                return new Surface()
+                Rect.NativeRect = new NativeStruct<SDL.SDL_Rect>(new SDL.SDL_Rect()
                 {
-                    Address = IntPtr.Zero
-                };
-            }
-            
-            var MSurface = new Surface();
-            MSurface.Address = Ptr;
-            MSurface.Inner = (SDL.SDL_Surface)Marshal.PtrToStructure(Ptr, typeof(SDL.SDL_Surface));
-            return MSurface;
-        }
-			
-        public static implicit operator IntPtr(Surface Data)
-        {
-            if (Data.Address == null)
-            {
-                int Size = Marshal.SizeOf(typeof(SDL.SDL_Surface));
-                Data.Address = Marshal.AllocHGlobal(Size);
+                    x = Rect.X,
+                    y = Rect.Y,
+                    w = Rect.Width,
+                    h = Rect.Height
+                });
             }
 
-            if (Data.Address == IntPtr.Zero)
-                return IntPtr.Zero;
-				
-            Marshal.StructureToPtr(Data.Inner, Data.Address.Value, true);
-            return Data.Address.Value;
+            Rect.NativeRect.Inner.x = Rect.X;
+            Rect.NativeRect.Inner.y = Rect.Y;
+            Rect.NativeRect.Inner.w = Rect.Width;
+            Rect.NativeRect.Inner.h = Rect.Height;
+            
+            return Rect.NativeRect;
         }
     }
 }
