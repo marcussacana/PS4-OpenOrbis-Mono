@@ -1,17 +1,26 @@
 using System;
 using System.Runtime.InteropServices;
+using SDL2.Interface;
 using static SDL2.SDL;
 
 namespace SDL2.Types
 {
-    public class NativeStruct<T> : IDisposable where T : struct  
+    public class NativeStruct<T> : INative, IDisposable where T : struct  
     {
         public T Inner;
         private IntPtr? Address;
 
-        public NativeStruct(object dummy = null)
+        public IntPtr Handler => (IntPtr)this;
+
+        public NativeStruct()
         {
             Inner = new T();
+            Address = null;
+        }
+
+        public NativeStruct(T Default)
+        {
+            Inner = Default;
             Address = null;
         }
 
