@@ -1,6 +1,6 @@
 namespace SDL2.Types
 {
-    public struct Size
+    public class Size
     {
         public Size(int Width, int Height)
         {

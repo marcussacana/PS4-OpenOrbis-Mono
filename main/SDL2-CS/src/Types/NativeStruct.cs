@@ -66,6 +66,9 @@ namespace SDL2.Types
 			
         public static implicit operator IntPtr(NativeStruct<T> Data)
         {
+            if (Data == null)
+                return IntPtr.Zero;
+            
             if (Data.Address == null)
             {
                 int Size = Marshal.SizeOf(typeof(T));

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>SixLabors.ImageSharp</AssemblyName>
+    <AssemblyTitle>SixLabors.ImageSharp</AssemblyTitle>
+    <RootNamespace>SixLabors.ImageSharp</RootNamespace>
+    <PackageId>SixLabors.ImageSharp</PackageId>
+    <PackageIcon>sixlabors.imagesharp.128.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/SixLabors/ImageSharp/</RepositoryUrl>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageTags>Image Resize Crop Gif Jpg Jpeg Bitmap Pbm Png Tga Tiff WebP NetCore</PackageTags>
+    <Description>A new, fully featured, fully managed, cross-platform, 2D graphics API for .NET</Description>
+    <Configurations>Debug;Release</Configurations>
+    <TargetFramework>net45</TargetFramework>
+    <LangVersion>default</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Bump to V3 prior to tagged release.-->
+    <MinVerMinimumMajorMinor>3.0</MinVerMinimumMajorMinor>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile />
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="$(SIXLABORS_TESTING_PREVIEW) == true">
+      <PropertyGroup>
+        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <IsTrimmable>true</IsTrimmable>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <IsTrimmable>true</IsTrimmable>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\shared-infrastructure\branding\icons\imagesharp\sixlabors.imagesharp.128.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Formats\Jpeg\Components\Block8x8F.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Block8x8F.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Formats\Jpeg\Components\Block8x8F.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Block8x8F.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Abgr32.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Abgr32.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelOperations{TPixel}.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PixelOperations{TPixel}.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Argb32.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Argb32.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgr24.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Bgr24.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgra32.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Bgra32.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgra5551.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Bgra5551.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\L16.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>L16.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\L8.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>L8.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\La16.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>La16.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\La32.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>La32.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgb24.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Rgb24.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgb48.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Rgb48.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgba32.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Rgba32.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgba64.PixelOperations.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Rgba64.PixelOperations.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelBlenders\DefaultPixelBlenders.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DefaultPixelBlenders.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PixelFormats\PixelBlenders\PorterDuffFunctions.Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PorterDuffFunctions.Generated.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Formats\ImageExtensions.Save.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ImageExtensions.Save.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Formats\Jpeg\Components\Block8x8F.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Block8x8F.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="Formats\Jpeg\Components\Block8x8F.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Block8x8F.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Abgr32.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Abgr32.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelOperations{TPixel}.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PixelOperations{TPixel}.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Argb32.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Argb32.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgr24.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Bgr24.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgra32.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Bgra32.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Bgra5551.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Bgra5551.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\L8.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>L8.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\L16.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>L16.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\La16.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>La16.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\La32.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>La32.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgb24.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Rgb24.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgba32.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Rgba32.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgb48.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Rgb48.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelImplementations\PixelOperations\Generated\Rgba64.PixelOperations.Generated.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Rgba64.PixelOperations.Generated.cs</LastGenOutput>
+    </None>
+    <None Update="PixelFormats\PixelBlenders\PorterDuffFunctions.Generated.tt">
+      <LastGenOutput>PorterDuffFunctions.Generated.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="PixelFormats\PixelBlenders\DefaultPixelBlenders.Generated.tt">
+      <LastGenOutput>DefaultPixelBlenders.Generated.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="Formats\ImageExtensions.Save.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ImageExtensions.Save.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="System.Memory" Version="4.5.2" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <Import Project="..\..\shared-infrastructure\src\SharedInfrastructure\SharedInfrastructure.projitems" Label="Shared" />
+</Project>

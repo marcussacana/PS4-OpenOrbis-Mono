@@ -19,6 +19,7 @@ namespace SDL2.Events
         public JoyButtonEvent(SDL.SDL_JoyButtonEvent Args, Type ButtonState)
         {
             this.Args = Args;
+            this.ButtonState = ButtonState;
         }
     }
 }

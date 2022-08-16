@@ -10,21 +10,20 @@ namespace SDL2.Object
 {
     public abstract class Element : IDisposable
     {
-        
+
+        #region Proprieties
         private static Dictionary<string, Element> Elements = new Dictionary<string, Element>();
+        
         public readonly string Name;
+
+        public uint LastDrawTick = 0;
         
-        public Element(string Name)
-        {
-            this.Name = Name;
-            Elements.Add(Name, this);
-        }
-        
-        public virtual IList<Element> Childs { get; } = new List<Element>();
+        public bool Invalidated { get; set; }
+        public readonly ObservableList<Element> Childs;
 
         public abstract Element Parent { get; set; }
         
-        public abstract INative Renderer { get; set; }
+        public abstract Renderer Renderer { get; set; }
         public abstract INative Texture { get; set; }
 
         public NativeStruct<SDL_Rect> TextureCopyArea { get; set; } = null;
@@ -34,14 +33,59 @@ namespace SDL2.Object
             get => new Point(ScreenLocation.X - (Parent?.ScreenLocation.X ?? 0), ScreenLocation.Y - (Parent?.ScreenLocation.Y ?? 0));
             set
             {
-                ScreenLocation.X = Parent.ScreenLocation.X + value.X;
-                ScreenLocation.Y = Parent.ScreenLocation.Y + value.Y;
+                ScreenLocation = new Point(Parent.ScreenLocation.X + value.X, Parent.ScreenLocation.Y + value.Y);
+                Invalidated = true;
             }
         }
-        public Point ScreenLocation { get; set; } = Point.Zero;
-        public virtual Size Size { get; set; } = new Size();
         
-        public NativeStruct<SDL_Rect> Area => new Rectangle(ScreenLocation, Size);
+        Point _ScreenLocation = Point.Zero;
+        public Point ScreenLocation
+        {
+            get => _ScreenLocation;
+            set
+            {
+                _ScreenLocation = value;
+                Area.Inner.x = value.X;
+                Area.Inner.y = value.Y;
+                Invalidated = true;
+            }
+        }
+
+        private Size _Size;
+        public Size Size
+        {
+            get => _Size;
+            set
+            {
+                _Size = value;
+                Area.Inner.w = Size.Width;
+                Area.Inner.h = Size.Height;
+                Invalidated = true;
+            }
+        }
+
+        public NativeStruct<SDL_Rect> Area { get; private set; }
+        
+        public bool Visible { get; set; }
+        
+        #endregion
+        
+        public Element(string Name)
+        {
+            this.Name = Name;
+            Elements.Add(Name, this);
+
+            Visible = true;
+            
+            Area = new NativeStruct<SDL_Rect>();
+            
+            ScreenLocation = Point.Zero;
+            Size = new Size(0, 0);
+            
+            Area = new Rectangle(_ScreenLocation, _Size);
+            Childs = new ObservableList<Element>(() => { Invalidated = true; });
+        }
+
         
 
         /// <summary>
@@ -50,6 +94,9 @@ namespace SDL2.Object
         /// <param name="Tick">The current frame tick</param>
         public virtual bool NeedsRedraw(uint Tick)
         {
+            if (Invalidated || LastDrawTick == 0)
+                return true;
+            
             if (Childs == null)
                 return false;
 
@@ -64,9 +111,15 @@ namespace SDL2.Object
         {
             if (Renderer != null && Texture != null)
             {
-                int Status = SDL_RenderCopy(Renderer.Handler, Texture.Handler, TextureCopyArea, Area);
-                if (Status < 0)
-                    throw new SDLException();
+                LastDrawTick = Tick;
+                Invalidated = false;
+
+                if (Visible)
+                {
+                    int Status = SDL_RenderCopy(Renderer.Handler, Texture.Handler, TextureCopyArea, Area);
+                    if (Status < 0)
+                        throw new SDLException();
+                }
             }
 
             if (Childs == null)
