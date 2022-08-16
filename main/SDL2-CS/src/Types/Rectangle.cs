@@ -37,7 +37,7 @@ namespace SDL2.Types
             this.Height = Height;
         }
         
-        public Rectangle(Point Location, Size Size) : this(Location.X, Location.Y, Size.Width, Size.Height) {}
+        public Rectangle(Point Location, Size Size) : this(Location.X, Location.Y, Size?.Width ?? 0, Size?.Height ?? 0) {}
 
         private NativeStruct<SDL.SDL_Rect> NativeRect = null;
         public static implicit operator NativeStruct<SDL.SDL_Rect>(Rectangle Rect)

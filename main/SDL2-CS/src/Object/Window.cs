@@ -13,11 +13,11 @@ namespace SDL2.Object
         
         #region Proprieties
         public sealed override Element Parent { get; set; } = null;
-        public sealed override INative Renderer { get; set; }
+        public sealed override Renderer Renderer { get; set; }
         public sealed override INative Texture { get; set; } = null;
         public IntPtr Handler { get; private set; }
 
-        private uint _FPS = 60;
+        private uint _FPS = 30;
 
         public uint FPS
         {
@@ -25,11 +25,11 @@ namespace SDL2.Object
             set
             {
                 _FPS = value;
-                FrameDelay = 1000 / value;
+                Renderer.DefaultFrameDelay = 1000 / value;
             }
         }
 
-        public override Size Size
+        public new Size Size
         {
             get
             {
@@ -79,7 +79,6 @@ namespace SDL2.Object
 
         #region Fields
         private static bool SDLInitialized = false;
-        private uint FrameDelay;
         private bool Quit;
         #endregion
 
@@ -87,7 +86,7 @@ namespace SDL2.Object
         public Window(int Width, int Height) : this("SDLWindow", Width, Height) { }
         public Window(string Title, int Width, int Height, SDL_WindowFlags Flags = SDL_WindowFlags.NONE) : base(Title)
         {
-            if (!SDLInitialized && SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
+            if (!SDLInitialized && SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS) != 0)
                 throw new SDLException();
 
             SDLInitialized = true;
@@ -96,7 +95,7 @@ namespace SDL2.Object
             if (Handler == IntPtr.Zero)
                 throw new SDLException();
 
-            Renderer = new Renderer(SDL_CreateSoftwareRenderer(Surface));
+            Renderer = new Renderer(SDL_CreateSoftwareRenderer(Surface), FPS);
         }
         #endregion
 
@@ -107,14 +106,17 @@ namespace SDL2.Object
             Quit = false;
             while (!Quit)
             {
-                var FrameTime = SDL_GetTicks();
+                var FrameTick = SDL_GetTicks();
+                uint NextFrameTick = LastDrawTick + Renderer.DefaultFrameDelay;
+
+                OnLoopBegin(FrameTick, NextFrameTick);
 
                 ProcessEvents();
                 
-                if (!NeedsRedraw(FrameTime))
+                if (!NeedsRedraw(FrameTick))
                 {
-                    if (FrameTime < FrameDelay)
-                        SDL_Delay(FrameDelay - FrameTime);
+                    if (NextFrameTick < FrameTick)
+                        SDL_Delay(FrameTick - NextFrameTick);
                     
                     continue;
                 }
@@ -127,7 +129,7 @@ namespace SDL2.Object
                 if (Status < 0)
                     throw new SDLException();
 
-                OnDraw(FrameTime);
+                OnDraw(FrameTick);
                 
                 Status = SDL_UpdateWindowSurface(Handler);
                 if (Status < 0)
@@ -171,7 +173,11 @@ namespace SDL2.Object
         {
             Quit = true;
         }
-        
+
+        public virtual void OnLoopBegin(uint FrameTime, uint NextFrameTime)
+        {
+            
+        }
 
         #endregion
 

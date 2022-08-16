@@ -2,8 +2,8 @@ namespace SDL2.Types
 {
     public class Point
     {
-        public int X;
-        public int Y;
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
         public Point(int X, int Y)
         {
