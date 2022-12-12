@@ -48,3 +48,6 @@ eboot.bin
 !mono/*
 !mono/4.5
 !mono/4.5/*
+
+
+.vs/

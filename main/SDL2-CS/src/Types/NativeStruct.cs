@@ -1,7 +1,7 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SDL2.Interface;
-using static SDL2.SDL;
 
 namespace SDL2.Types
 {

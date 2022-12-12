@@ -32,15 +32,15 @@ namespace Orbis
                 Joystick.Open(0);
         }
 
-        public override void OnLoopBegin(uint FrameTime, uint NextFrameTime)
+        public override void OnCycleBegin(uint FrameTime, uint NextFrameTime)
         {
             if (FrameTime < NextFrameTime)
                 return;
 
             int X = XAccel * LogoSpeed / 2;
             int Y = YAccel * LogoSpeed / 2;
-            Logo.ParentLocation = new Point(Logo.ParentLocation.X + X, Logo.ParentLocation.Y + Y);
-            
+
+            Logo.ParentLocation.Sum(X, Y);
             Collision();
         }
 
