@@ -1,6 +1,8 @@
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using SDL2.Exceptions;
 using SDL2.Interface;
 using SDL2.Types;
@@ -13,41 +15,59 @@ namespace SDL2.Object
 
         #region Proprieties
         private static Dictionary<string, Element> Elements = new Dictionary<string, Element>();
-        
+
         public readonly string Name;
 
         public uint LastDrawTick = 0;
-        
-        public bool Invalidated { get; set; }
+
+        public bool Invalidated { get; set; } = true;
+
         public readonly ObservableList<Element> Childs;
 
         public abstract Element Parent { get; set; }
-        
+
         public abstract Renderer Renderer { get; set; }
         public abstract INative Texture { get; set; }
 
         public NativeStruct<SDL_Rect> TextureCopyArea { get; set; } = null;
 
+        Point _ParentLocation = Point.Zero;
+
+        /// <summary>
+        /// Location of this Element relative to the Parent Element
+        /// </summary>
         public Point ParentLocation
         {
-            get => new Point(ScreenLocation.X - (Parent?.ScreenLocation.X ?? 0), ScreenLocation.Y - (Parent?.ScreenLocation.Y ?? 0));
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _ParentLocation;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                ScreenLocation = new Point(Parent.ScreenLocation.X + value.X, Parent.ScreenLocation.Y + value.Y);
-                Invalidated = true;
+                if (_ParentLocation != value)
+                {
+                    ParentLocation.Set(value.X, value.Y);
+                }
             }
         }
-        
+
         Point _ScreenLocation = Point.Zero;
+
+        /// <summary>
+        /// Location of this Element in the Screen
+        /// </summary>
         public Point ScreenLocation
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _ScreenLocation;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                _ScreenLocation = value;
-                Area.Inner.x = value.X;
-                Area.Inner.y = value.Y;
-                Invalidated = true;
+                if (Area.Inner.x != value.X || Area.Inner.y != value.Y)
+                {
+                    _ScreenLocation.Set(value.X, value.Y);
+                }
             }
         }
 
@@ -64,6 +84,9 @@ namespace SDL2.Object
             }
         }
 
+        /// <summary>
+        /// Area in the Screen to draw this element, when manually modified, you must invalidate the Element
+        /// </summary>
         public NativeStruct<SDL_Rect> Area { get; private set; }
         
         public bool Visible { get; set; }
@@ -80,6 +103,11 @@ namespace SDL2.Object
             Area = new NativeStruct<SDL_Rect>();
             
             ScreenLocation = Point.Zero;
+            ScreenLocation.OnChanged = (This) => RefreshScreenLocation();
+
+            ParentLocation = Point.Zero;
+            ParentLocation.OnChanged = (This) => ApplyParentLocation();
+
             Size = new Size(0, 0);
             
             Area = new Rectangle(_ScreenLocation, _Size);
@@ -94,7 +122,7 @@ namespace SDL2.Object
         /// <param name="Tick">The current frame tick</param>
         public virtual bool NeedsRedraw(uint Tick)
         {
-            if (Invalidated || LastDrawTick == 0)
+            if (Invalidated)
                 return true;
             
             if (Childs == null)
@@ -112,7 +140,6 @@ namespace SDL2.Object
             if (Renderer != null && Texture != null)
             {
                 LastDrawTick = Tick;
-                Invalidated = false;
 
                 if (Visible)
                 {
@@ -133,6 +160,14 @@ namespace SDL2.Object
 
         public virtual void Dispose()
         {
+            if (Childs != null)
+            {
+                foreach (var Child in Childs)
+                {
+                    Child.Dispose();
+                }
+            }
+
             TextureCopyArea.Dispose();
             Area.Dispose();
 
@@ -144,6 +179,37 @@ namespace SDL2.Object
 
             if (Elements.ContainsKey(Name))
                 Elements.Remove(Name);
+        }
+
+        public void InvalidateLocation()
+        {
+            RefreshScreenLocation();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void RefreshScreenLocation()
+        {
+            Area.Inner.x = _ScreenLocation.X;
+            Area.Inner.y = _ScreenLocation.Y;
+            RefreshParentLocationFromScreen();
+            Invalidated = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ApplyParentLocation()
+        {
+            ScreenLocation.Set(Parent.ScreenLocation.X + ParentLocation.X, Parent.ScreenLocation.Y + ParentLocation.Y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void RefreshParentLocationFromScreen()
+        {
+            if (Parent == null)
+                return;
+
+            var ParentScreenLocation = Parent?.ScreenLocation ?? throw new NullReferenceException("Failed to get the parent location");
+
+            _ParentLocation.Set(ScreenLocation.X - ParentScreenLocation.X, ScreenLocation.Y - ParentScreenLocation.Y);
         }
     }
 }

@@ -54,9 +54,11 @@ ifeq ($(UNAME_S),Darwin)
 		CDIR    := macos
 endif
 
+#DotNet Bundle Fix
+
 all: $(CONTENT_ID).pkg
 
-	
+$(CONTENT_ID).pkg: export DOTNET_BUNDLE_EXTRACT_BASE_DIR=$(TOOLCHAIN)/bin/$(CDIR)/tmp
 $(CONTENT_ID).pkg: main.exe 
 $(CONTENT_ID).pkg: pkg.gp4
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core pkg_build $< .

@@ -109,7 +109,7 @@ namespace SDL2.Object
                 var FrameTick = SDL_GetTicks();
                 uint NextFrameTick = LastDrawTick + Renderer.DefaultFrameDelay;
 
-                OnLoopBegin(FrameTick, NextFrameTick);
+                OnCycleBegin(FrameTick, NextFrameTick);
 
                 ProcessEvents();
                 
@@ -174,7 +174,12 @@ namespace SDL2.Object
             Quit = true;
         }
 
-        public virtual void OnLoopBegin(uint FrameTime, uint NextFrameTime)
+        /// <summary>
+        /// A Method that is called in the begin of each draw loop cycle
+        /// </summary>
+        /// <param name="FrameTime"></param>
+        /// <param name="NextFrameTime"></param>
+        public virtual void OnCycleBegin(uint FrameTime, uint NextFrameTime)
         {
             
         }
