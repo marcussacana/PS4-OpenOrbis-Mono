@@ -1,55 +1,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <orbis/SystemService.h>
-#include "ps4-libjbc/jailbreak.h"
 #include "trampoline.h"
 #include "mono.h"
 #include "io.h"
+#include "jailbreak_man.h"
 
-struct jbc_cred OriCred;
-
-int jailbroken = 0;
-
-int jailbreak(U64 authID)
+int def_jailbreak()
 {
-    if (jailbroken)
-        return 0;
-
-    struct jbc_cred cr;
-    if(jbc_get_cred(&cr))
-        return -1;
-    if(jbc_get_cred(&OriCred))
-        return -1;
-    if(jbc_jailbreak_cred(&cr))
-        return -1;
-    
-    if (authID){
-        cr.jdir = 0;
-        cr.sceProcType = authID;
-        cr.sonyCred = 0x40001c0000000000;
-        cr.sceProcCap = 0x900000000000ff00;
-    }
-    if(jbc_set_cred(&cr))
-        return -1;
-
-    jailbroken = 1;
-    return 0;
-}
-
-int def_jailbreak(){
     return jailbreak(0);
 }
 
-int unjailbreak(){
-    if (!jailbroken)
-        return 0;
-    if(jbc_set_cred(&OriCred))
-        return -1;
-    jailbroken = 0;
-    return 0;
-}
-
-void* startMono(){
+void* startMono()
+{
 
 #ifdef DEBUG
     klog("Initializing Debugger...");
@@ -59,33 +22,34 @@ void* startMono(){
 
     const char* options[] = { "--soft-breakpoints" };
 
-    mono_jit_parse_options(sizeof(options)/sizeof(char*), (char**)options);
+    mono_jit_parse_options(sizeof(options) / sizeof(char*), (char**)options);
 #endif
 
     klog("Starting Mono...");
 
     auto domain = mono_get_root_domain();
-    if (!domain){
-    	mono_set_dirs(baseDir, baseCon);
+    if (!domain) {
+        mono_set_dirs(baseDir, baseCon);
         domain = mono_jit_init("main");
     }
-    
-    if (!domain){
+
+    if (!domain) {
         klog("Failed to init the mono domain");
-    	return 0;
+        return 0;
     }
 
 #ifdef DEBUG
     mono_debug_domain_create(domain);
 #endif
-    
+
     klog("Mono domain Initialized");
     return domain;
 }
 
 const char* JailedBase = "/app0";
 
-char* getBaseDirectory(){
+char* getBaseDirectory()
+{
     if (jailbroken)
         return baseDir;
     return JailedBase;
@@ -94,44 +58,42 @@ char* getBaseDirectory(){
 void runMain()
 {
     auto rootDomain = mono_get_root_domain();
-    if (!rootDomain){
+    if (!rootDomain) {
         klog("get_root_domain failed");
         return;
     }
 
-    klog("img open");
     void* mainImage = hookLoadSprxAssembly(mainExe, 0, 0, 0);
-
-    klog("asm open");
     void* mainAssembly = mono_assembly_load_from_full(mainImage, mainExe, 0, 0);
-    if (!mainAssembly){
+    
+    if (!mainAssembly) {
         klog("Failed to get the main assembly");
         return;
     }
 
-    klogf("mainAssembly: %x", mainAssembly);
+    klogf("Main Assembly: %x", mainAssembly);
 
     void* programClass = mono_class_from_name(mainImage, "Orbis", "Program");
-    
-    if (!programClass){
-        klog("Get program class Failed");
+
+    if (!programClass) {
+        klog("Failed to find the class: Orbis.Program");
         return;
     }
-    
-    klog("adding kernel internal calls...");
+
+    klog("Adding kernel internal calls...");
     mono_add_internal_call("Orbis.Internals.Kernel::Log(void*)", klog);
     mono_add_internal_call("Orbis.Internals.Kernel::malloc(int)", malloc);
     mono_add_internal_call("Orbis.Internals.Kernel::free(void*)", free);
     mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak", jailbreak);
     mono_add_internal_call("Orbis.Internals.Kernel::JailbreakCred(long)", def_jailbreak);
     mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
-    klog("adding IO internal calls...");
+    klog("Adding IO internal calls...");
     mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
-    klog("internal calls added");
+    klog("Internal calls added.");
 
     void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
 
-    if (!methodMain){
+    if (!methodMain) {
         klog("Failed to find Orbis.Program.Main() Method");
         return;
     }
@@ -146,10 +108,10 @@ void runMain()
     klog("Starting program...");
     char* argv[] = { 0 };
     mono_runtime_invoke(methodMain, 0, argv, 0);
-
 }
 
-void run(){
+void run()
+{
     void* rootDomain = startMono();
     if (rootDomain == 0)
         return;
@@ -171,22 +133,22 @@ int main()
 
     char pkgLib[0x100] = "\x0";
     sprintf(&pkgLib, "%s/sce_module/libmonosgen-2.0.prx", baseDir);
-    
+
     auto mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
     auto libkernel_sys = sceKernelLoadStartModule("/system/common/lib/libkernel_sys.sprx", 0, NULL, 0, 0, 0);
     auto libKernel = sceKernelLoadStartModule("libkernel.sprx", 0, NULL, 0, 0, 0);
-    
-    if (mono_framework & 0x80000000){
-	    klog("DNP: Failed o Load the Mono\n");
-    	return -1;
+
+    if (mono_framework & 0x80000000) {
+        klog("Failed o Load the Mono\n");
+        return -1;
     }
-    if (libkernel_sys & 0x80000000){
-	    klog("DNP: Failed o Load the libkernel_sys\n");
-    	return -1;
+    if (libkernel_sys & 0x80000000) {
+        klog("Failed o Load the libkernel_sys\n");
+        return -1;
     }
-    if (libKernel & 0x80000000){
-	    klog("DNP: Failed o Load the libKernel\n");
-    	return -1;
+    if (libKernel & 0x80000000) {
+        klog("Failed o Load the libKernel\n");
+        return -1;
     }
 
     sceKernelDlsym(mono_framework, "mono_set_dirs", (void**)&mono_set_dirs);
@@ -208,7 +170,7 @@ int main()
     sceKernelDlsym(mono_framework, "mono_debug_domain_create", (void**)&mono_debug_domain_create);
     sceKernelDlsym(mono_framework, "mono_jit_parse_options", (void**)&mono_jit_parse_options);
     sceKernelDlsym(mono_framework, "mono_debug_open_image_from_memory", (void**)&mono_debug_open_image_from_memory);
-    
+
     sceKernelDlsym(libKernel, "sceKernelJitCreateSharedMemory", (void**)&JitCreateSharedMemory);
     sceKernelDlsym(libKernel, "sceKernelJitCreateAliasOfSharedMemory", (void**)&JitCreateAliasOfSharedMemory);
     sceKernelDlsym(libKernel, "sceKernelJitMapSharedMemory", (void**)&JitMapSharedMemory);
@@ -216,7 +178,7 @@ int main()
     sceKernelDlsym(libkernel_sys, "sceKernelLoadStartModuleInternalForMono", (void**)&sceKernelLoadStartModuleInternalForMono);
 
     InstallHooks();
-    
+
     run();
 
     return 0;

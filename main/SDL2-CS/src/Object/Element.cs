@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,7 +17,7 @@ namespace SDL2.Object
 
         public readonly string Name;
 
-        public uint LastDrawTick = 0;
+        public uint LastDrawTick;
 
         public bool Invalidated { get; set; } = true;
 
@@ -103,10 +102,10 @@ namespace SDL2.Object
             Area = new NativeStruct<SDL_Rect>();
             
             ScreenLocation = Point.Zero;
-            ScreenLocation.OnChanged = (This) => RefreshScreenLocation();
+            ScreenLocation.OnChanged = RefreshScreenLocation;
 
             ParentLocation = Point.Zero;
-            ParentLocation.OnChanged = (This) => ApplyParentLocation();
+            ParentLocation.OnChanged = ApplyParentLocation;
 
             Size = new Size(0, 0);
             
@@ -180,25 +179,15 @@ namespace SDL2.Object
             if (Elements.ContainsKey(Name))
                 Elements.Remove(Name);
         }
-
-        public void InvalidateLocation()
-        {
-            RefreshScreenLocation();
-        }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void RefreshScreenLocation()
+        void RefreshScreenLocation(int XDelta, int YDelta)
         {
             Area.Inner.x = _ScreenLocation.X;
             Area.Inner.y = _ScreenLocation.Y;
             RefreshParentLocationFromScreen();
+            ApplyChildLocationDelta(XDelta, YDelta);
             Invalidated = true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void ApplyParentLocation()
-        {
-            ScreenLocation.Set(Parent.ScreenLocation.X + ParentLocation.X, Parent.ScreenLocation.Y + ParentLocation.Y);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -210,6 +199,21 @@ namespace SDL2.Object
             var ParentScreenLocation = Parent?.ScreenLocation ?? throw new NullReferenceException("Failed to get the parent location");
 
             _ParentLocation.Set(ScreenLocation.X - ParentScreenLocation.X, ScreenLocation.Y - ParentScreenLocation.Y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ApplyParentLocation(int XDelta, int YDelta)
+        {
+            ScreenLocation.Sum(XDelta, YDelta);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ApplyChildLocationDelta(int XDelta, int YDelta)
+        {
+            foreach (var Child in Childs)
+            {
+                Child.ScreenLocation.Sum(XDelta, YDelta);
+            }
         }
     }
 }

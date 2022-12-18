@@ -67,5 +67,6 @@ $(INTDIR)/%.o.stub: $(PROJDIR)/%.cpp
 all: $(TARGET)
 
 clean:
-	rm -f $(TARGET) $(INTDIR)/$(PROJDIR).elf $(INTDIR)/$(PROJDIR)/oelf $(OBJS)
+	rm -f $(TARGET) $(INTDIR)/$(PROJDIR).elf $(INTDIR)/$(PROJDIR).oelf $(INTDIR)/$(PROJDIR)/oelf $(OBJS)
+
 

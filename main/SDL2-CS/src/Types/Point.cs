@@ -5,7 +5,10 @@ namespace SDL2.Types
 {
     public class Point
     {
-        internal Action<Point> OnChanged;
+        /// <summary>
+        /// OnChanged(XDelta, YDelta)
+        /// </summary>
+        internal Action<int, int> OnChanged;
 
         public int X { get; private set; }
         public int Y { get; private set; }
@@ -17,27 +20,30 @@ namespace SDL2.Types
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Set(int X, int Y)
+        public void Set(int NewX, int NewY)
         {
-            if (X == this.X && Y == this.Y)
+            if (NewX == X && NewY == Y)
                 return;
 
-            this.X = X;
-            this.Y = Y;
+            var XDelta = NewX - X;
+            var YDelta = NewY - Y;
 
-            OnChanged?.Invoke(this);
+            X = NewX;
+            Y = NewY;
+
+            OnChanged?.Invoke(XDelta, YDelta);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Sum(int X, int Y)
+        public void Sum(int XDiff, int YDiff)
         {
-            if (X == 0 && Y == 0)
+            if (XDiff == 0 && YDiff == 0)
                 return;
 
-            this.X += X;
-            this.Y += Y;
+            X += XDiff;
+            Y += YDiff;
 
-            OnChanged?.Invoke(this);
+            OnChanged?.Invoke(XDiff, YDiff);
         }
 
         public static Point Zero => new Point(0, 0);
