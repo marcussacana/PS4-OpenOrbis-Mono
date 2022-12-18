@@ -2,9 +2,8 @@
 
 //stolen from https://github.com/bucanero/apollo-ps4/blob/a893147a54ad7b9c610bf06c4a1b5ee8af5067d9/source/orbis_jbc.c
 
-
 #define countof(_array) (sizeof(_array) / sizeof(_array[0]))
-#define SYS_dynlib_get_info         593
+#define SYS_dynlib_get_info 593
 
 asm("orbis_syscall:\n"
     "movq $0, %rax\n"
@@ -12,7 +11,7 @@ asm("orbis_syscall:\n"
     "syscall\n"
     "jb err\n"
     "retq\n"
-"err:\n"
+    "err:\n"
     "pushq %rax\n"
     "callq __error\n"
     "popq %rcx\n"
@@ -21,7 +20,6 @@ asm("orbis_syscall:\n"
     "movq $0xFFFFFFFFFFFFFFFF, %rdx\n"
     "retq\n");
 int orbis_syscall(int num, ...);
-
 
 int _sceKernelGetModuleInfo(OrbisKernelModule handle, OrbisKernelModuleInfo* info)
 {
@@ -34,11 +32,9 @@ int _sceKernelGetModuleInfo(OrbisKernelModule handle, OrbisKernelModuleInfo* inf
     return orbis_syscall(SYS_dynlib_get_info, handle, info);
 }
 
-
 int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
 {
     OrbisKernelModuleInfo tmpInfo;
-    
 
     OrbisKernelModule handles[256];
     size_t numModules;
@@ -55,8 +51,7 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
         return ret;
     }
 
-    for (size_t i = 0; i < numModules; ++i)
-    {
+    for (size_t i = 0; i < numModules; ++i) {
         ret = _sceKernelGetModuleInfo(handles[i], &tmpInfo);
         if (ret) {
             klogf("sceKernelGetModuleInfo failed %x", ret);
@@ -72,14 +67,13 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
     return ORBIS_KERNEL_ERROR_ENOENT;
 }
 
-int get_module_base(const char* name, uint64_t* base, * size)
+int get_module_base(const char* name, uint64_t* base, *size)
 {
     OrbisKernelModuleInfo moduleInfo;
     int ret;
 
     ret = sceKernelGetModuleInfoByName(name, &moduleInfo);
-    if (ret)
-    {
+    if (ret) {
         return 0;
     }
 

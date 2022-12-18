@@ -5,7 +5,7 @@ using SDL2.Exceptions;
 using SDL2.Interface;
 using SDL2.Types;
 using SixLabors.ImageSharp;
-
+using SixLabors.ImageSharp.Formats.Tga;
 using static SDL2.SDL;
 using static SDL2.SDL_image;
 
@@ -25,13 +25,18 @@ namespace SDL2.Object
             }
             else
             {
-                IntPtr RawMem = IntPtr.Zero;
-                int RawMemSize = 0;
+                IntPtr RawMem;
+                int RawMemSize;
                 
                 using (MemoryStream Mem = new MemoryStream())
                 {
                     var IMG = Image.Load(Path);
-                    IMG.SaveAsTga(Mem);
+                    var Encoder = new TgaEncoder()
+                    {
+                        BitsPerPixel = TgaBitsPerPixel.Pixel32,
+                        Compression = TgaCompression.None
+                    };
+                    IMG.SaveAsTga(Mem, Encoder);
                     var Buffer = Mem.ToArray();
                     
                     RawMem = Marshal.AllocHGlobal(Buffer.Length);
@@ -73,8 +78,8 @@ namespace SDL2.Object
             Invalidated = true;
         }
         
-        public override Element Parent { get; set; }
-        public override Renderer Renderer { get; set; }
-        public override INative Texture { get; set; }
+        public sealed override Element Parent { get; set; }
+        public sealed override Renderer Renderer { get; set; }
+        public sealed override INative Texture { get; set; }
     }
 }

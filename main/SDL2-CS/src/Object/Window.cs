@@ -39,7 +39,7 @@ namespace SDL2.Object
             set => SDL_SetWindowSize(Handler, value.Width, value.Height);
         }
 
-        private NativeStruct<SDL_Surface> _Surface = null;
+        private NativeStruct<SDL_Surface> _Surface;
 
         public NativeStruct<SDL_Surface> Surface
         {
@@ -78,7 +78,7 @@ namespace SDL2.Object
         #endregion
 
         #region Fields
-        private static bool SDLInitialized = false;
+        private static bool SDLInitialized;
         private bool Quit;
         #endregion
 

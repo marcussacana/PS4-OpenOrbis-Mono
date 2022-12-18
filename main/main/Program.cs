@@ -16,14 +16,14 @@ namespace Orbis
         
         const int FramesPerSecond = 60;
         const int FrameDelay = 1000 / FramesPerSecond;
+
         public static void Main()
         {
-            Kernel.Log("DotNet Main() Called");
-
             User.Notify("Hello World from C#");
+            
             var Window = new SampleWindow();
             Window.JoyButtonEvent += WindowOnJoyButtonEvent;
-            
+
             Window.Run();
         }
 

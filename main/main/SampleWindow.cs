@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Orbis.Internals;
 using SDL2.Object;
-using SDL2.Types;
 
 namespace Orbis
 {
@@ -23,7 +22,7 @@ namespace Orbis
         {
             
             string BaseDir = IO.GetAppBaseDirectory();
-            string TGAPath = Path.Combine(BaseDir, "assets", "images", "dvd-logo.tga");
+            string TGAPath = Path.Combine(BaseDir, "assets", "images", "dvd-logo.png");
 
             Logo = new ImageElement(this, TGAPath);
             Logo.ChangeColor((byte)Rand.Next(256), (byte)Rand.Next(256), (byte)Rand.Next(256));
