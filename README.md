@@ -5,13 +5,21 @@ If you want, you can use the pre-built binaries and just rebuild the "main" C# p
 and by replacing the main.exe inside the pkg and/or adding any new assemblies,
 in the PKG, you will be able to create your HB even without deal with the OpenOrbis SDK.
  
-### How to build
+### How to build (Linux)
  - Install the OpenOrbis SDK
  - Install the Mono SDK
  - Run `make`
+ 
+### How to build (Windows)
+ - Install and Build the OpenOrbis SDK
+ - Install the Visual Studio
+ - Install LLVM `choco install llvm`
+ - Run the `Developer Command Prompt for VS`
+ - Open this repo directory in the cmd
+ - Run `build-windows.bat`
 
-### How to debug
- - Build the homebrew with `make debug`
+### How to debug 
+ - Build the homebrew with `make debug` or `build-windows.bat debug`
  - Install and Start the homebrew (it will freeze, that's ok)
  - With Monodevelop or Jetbrains, connect the remote debugging at `2222`
  

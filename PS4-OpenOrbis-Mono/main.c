@@ -6,7 +6,7 @@
 #include "io.h"
 #include "jailbreak_man.h"
 
-int def_jailbreak()
+static int def_jailbreak()
 {
     return jailbreak(0);
 }
@@ -27,7 +27,7 @@ void* startMono()
 
     klog("Starting Mono...");
 
-    auto domain = mono_get_root_domain();
+    void* domain = mono_get_root_domain();
     if (!domain) {
         mono_set_dirs(baseDir, baseCon);
         domain = mono_jit_init("main");
@@ -57,7 +57,7 @@ char* getBaseDirectory()
 
 void runMain()
 {
-    auto rootDomain = mono_get_root_domain();
+    void* rootDomain = mono_get_root_domain();
     if (!rootDomain) {
         klog("get_root_domain failed");
         return;
