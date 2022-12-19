@@ -99,12 +99,18 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         klogf("Hint path matched: %s", hintPath);
     }
 
+    klog("Reading File...");
+		
     fseek(fp, 0, SEEK_END);
     long int size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+	
+	klogf("File size: %i", size);
 
     char* data = malloc(size);
     int readed = fread(data, 1, size, fp);
+	
+	klogf("Readed: %i", readed);
 
     fclose(fp);
 
@@ -113,6 +119,8 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         return 0;
     }
 
+	klog("Loading Assembly Image");
+	
     int status = 0;
     void* Image = mono_image_open_from_data_with_name(data, size, 0, &status, RefOnly, AssemblyName);
 
@@ -144,6 +152,8 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 #endif
 
     if (OpenStatus != 0)* OpenStatus = status;
+	
+	klogf("Assembly Image: %x", Image);
 
     return Image;
 }

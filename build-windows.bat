@@ -50,15 +50,17 @@ set targetname=libSDL2
 set intdir=x64\Debug
 set outputElf=%intdir%\%targetname%.elf
 set outputOelf=%intdir%\%targetname%.oelf
+set outputStub=%targetname%_stub.so
 set outputPrx=%intdir%\%targetname%.sprx
-cd libSDL2
+set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceVideoOut -lSceAudioOut -lScePad -lSceSysmodule -lSceFreeType -lSDL2 -lSDL2_image
+cd libSDL2\libSDL2
 mkdir %intdir%
 call :PRX
 
 Rem PRX cleanup
 copy /y "%outputPrx%" %outputPath%\sce_module\%targetname%.sprx
 del "%outputPrx%"
-cd ..
+cd ..\..
 
 cd main
 set outputPath=
@@ -159,7 +161,7 @@ goto :eof
 
 
 :PRX
-Rem Compile object files for all the source files
+Rem Compile object files for all the source files 
 for %%f in (*.c) do (
     clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" %extra_flags% -c -o %intdir%\%%~nf.o %%~nf.c
 )
@@ -177,7 +179,7 @@ ld.lld -m elf_x86_64 -pie --script "%OO_PS4_TOOLCHAIN%\link.x" --eh-frame-hdr -o
 
 Rem Create stub shared libraries
 for %%f in (*.c) do (
-    clang -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -I"%OO_PS4_TOOLCHAIN%\include" -o %intdir%\%%~nf.o.stub %%~nf.cpp
+    clang -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -I"%OO_PS4_TOOLCHAIN%\include" -o %intdir%\%%~nf.o.stub %%~nf.c
 )
 
 for %%f in (*.cpp) do (
@@ -197,11 +199,13 @@ goto :eof
 del /s /q pkg.gp4 eboot.bin pkg_fixed.gp4 libSDL2.sprx main.exe main.pdb
 del /s /q %PKG_CONTENT_ID%.pkg
 rmdir /s /q PS4-OpenOrbis-Mono\x64
-rmdir /s /q libSDL2\x64
+rmdir /s /q libSDL2\libSDL2\x64
 rmdir /s /q x64
 rmdir /s /q main\main\bin
 rmdir /s /q main\main\obj
 rmdir /s /q main\SDL2-CS\bin
 rmdir /s /q main\SDL2-CS\obj
 del /s *.out
+del /s *.so
+del /s *.o
 goto :eof
