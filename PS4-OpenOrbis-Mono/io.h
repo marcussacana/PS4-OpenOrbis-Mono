@@ -5,6 +5,6 @@ extern char mainExe[0x100];
 
 
 void klog(const char* str);
-void klogf(const char* str, void* val);
+void klogf(const char* str, ...);
 void findAppMount(char* path);
 
