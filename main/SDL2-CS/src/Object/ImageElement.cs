@@ -16,7 +16,7 @@ namespace SDL2.Object
     public class ImageElement : Element
     {
         #region Constructor
-        public ImageElement(Element Parent, string Path) : base(Path)
+        public ImageElement(Element Parent, string Path) : base(Parent, Path)
         {
             NativeStruct<SDL_Surface> Surface;
             if (System.IO.Path.GetExtension(Path).EndsWith(".tga", StringComparison.InvariantCultureIgnoreCase))
@@ -53,9 +53,6 @@ namespace SDL2.Object
 
             if (Surface.Handler == IntPtr.Zero)
                 throw new SDLException();
-
-            this.Parent = Parent;
-            Renderer = Parent.Renderer;
             
             var gpuTexture = SDL_CreateTextureFromSurface(Renderer.Handler, Surface);
 
@@ -67,8 +64,6 @@ namespace SDL2.Object
                 throw new SDLException();
 
             Texture = new Texture(gpuTexture);
-            
-            Parent.Childs.Add(this);
         }
         #endregion
 

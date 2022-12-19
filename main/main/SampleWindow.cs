@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Orbis.Internals;
 using SDL2.Object;
+using SDL2.Types.FreeType;
 
 namespace Orbis
 {
@@ -17,6 +18,8 @@ namespace Orbis
         
         private int LogoSpeed = 8;
         private ImageElement Logo;
+
+        private TextElement Label;
         
         public SampleWindow() : base(WINDOW_WIDTH, WINDOW_HEIGHT)
         {
@@ -26,6 +29,15 @@ namespace Orbis
 
             Logo = new ImageElement(this, TGAPath);
             Logo.ChangeColor((byte)Rand.Next(256), (byte)Rand.Next(256), (byte)Rand.Next(256));
+
+            string TTFPath = Path.Combine(BaseDir, "assets", "fonts", "Gontserrat-Regular.ttf");
+            
+            Label = new TextElement(this, "labelTest");
+            TextElement.InitFont(Label, TTFPath, 64);
+            Label.ParentLocation.Set(10, 10);
+
+            Label.Text = "Hello World from C#";
+
 
             if (Joystick.Online > 0)
                 Joystick.Open(0);

@@ -67,14 +67,16 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         char hintPath[0x300] = "\x0";
         char* fname = extract_file_name(AssemblyName);
 
-        const char* hints[] = { "%s/mono/4.5/%s",
+        const char* hints[] = { 
+            "%s/mono/4.5/%s",
             "%s/mono/4.0/%s",
             "%s/mono/3.5/%s",
             "%s/mono/3.0/%s",
             "%s/mono/2.0/%s",
             "%s/mono/1.0/%s",
             "%s/mono/%s",
-            "%s/%s" };
+            "%s/%s"
+        };
 
         for (int i = 0; i < countof(hints); i++) {
             sprintf(&hintPath, hints[i], "/app0", fname);
@@ -139,9 +141,9 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
             klogf("Debug symbols loaded: %s", pdbPath);
         }
     }
-    #endif
+#endif
 
-        if (OpenStatus != 0)* OpenStatus = status;
+    if (OpenStatus != 0)* OpenStatus = status;
 
     return Image;
 }
@@ -169,29 +171,64 @@ uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void*
         char* orifname = extract_file_name(path);
 
         char hintPath[0x300] = "\x0";
-        const char* hints[] = { "%s/sce_module/%s",
-            "%s/%s" };
+        char* hints[] = { 
+            "%s/sce_module/%s",
+            "%s/%s",
+            "%s/sce_module/%s.sprx",
+            "%s/%s.sprx"
+        };
 
         for (int i = 0; i < countof(hints); i++) {
             sprintf(&hintPath, hints[i], baseDir, fname);
+            klogf("SPRX Hint Path: %s", hintPath);
             rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
             if (rst & 0x80000000 == 0)
                 break;
 
             sprintf(&hintPath, hints[i], "/app0", fname);
+            klogf("SPRX Hint Path: %s", hintPath);
             rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
             if (rst & 0x80000000 == 0)
                 break;
+        }
+        
+        if (rst & 0x80000000)
+        {
+            char* MountID = sceKernelGetFsSandboxRandomWord();
+            
+            char hintA[0x300] = "\x0";
+            char hintB[0x300] = "\x0";
+            
+            sprintf(&hintA, "%%s/%s/%%s", MountID);
+            sprintf(&hintB, "%%s/%s/%%s.sprx", MountID);
+            
+            hints[0] = hintA;
+            hints[1] = hintB;
+            hints[2] = "/system/common/lib/%s";
+            hints[3] = "/system/common/lib/%s.sprx";
 
-            sprintf(&hintPath, hints[i], baseDir, orifname);
-            rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-            if (rst & 0x80000000 == 0)
-                break;
-
-            sprintf(&hintPath, hints[i], "/app0", orifname);
-            rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-            if (rst & 0x80000000 == 0)
-                break;
+            for (int i = 0; i < countof(hints); i++) {
+            
+            	if (i > 1)
+                    sprintf(&hintPath, hints[i], fname);
+                else
+                    sprintf(&hintPath, hints[i], "/app0", fname);
+                
+                klogf("SPRX Hint Path: %s", hintPath);
+                rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
+                if (rst & 0x80000000 == 0)
+                    break;
+                    
+            	if (i > 1)
+                    sprintf(&hintPath, hints[i], fname);
+                else
+                    sprintf(&hintPath, hints[i], appRoot, fname);
+                    
+                klogf("SPRX Hint Path: %s", hintPath);
+                rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
+                if (rst & 0x80000000 == 0)
+                    break;
+            }
         }
 
         if (rst & 0x80000000 == 0)
