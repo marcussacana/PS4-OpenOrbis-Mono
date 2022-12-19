@@ -113,8 +113,13 @@ namespace SDL2.Object
             Childs = new ObservableList<Element>(() => { Invalidated = true; });
         }
 
+        public Element(Element Parent, string Name) : this(Name)
+        {
+            this.Parent = Parent;
+            Renderer = Parent.Renderer;
+            Parent.Childs.Add(this);
+        }
         
-
         /// <summary>
         /// Checks if the given element or any of the childs must be redraw
         /// </summary>

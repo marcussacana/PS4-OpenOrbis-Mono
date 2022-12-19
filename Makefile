@@ -5,7 +5,7 @@ TITLE_ID    := MONO00001
 CONTENT_ID  := IV0000-MONO00001_00-MONOSAMPLE000000
 
 # Libraries linked into the ELF.
-LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule -lSceMsgDialog
+LIBS        := -lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule -lSceMsgDialog -lSceFreeType
 
 # Additional compile flags.
 #EXTRAFLAGS  := 
@@ -13,7 +13,7 @@ BUILDTYPE   := Release
 
 # Asset and module directories.
 ASSETS 		:= $(wildcard assets/**/*)
-LIBMODULES  := $(wildcard sce_module/*) sce_module/libSDL2.sprx sce_module/libFreeType.sprx
+LIBMODULES  := $(wildcard sce_module/*) sce_module/libSDL2.sprx
 
 
 # You likely won't need to touch anything below this point.
@@ -68,7 +68,7 @@ pkg.gp4: eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo 
 	sed -i "s/<dir targ_name=\"sce_sys\">/<dir targ_name=\"mono\">\n\t\t\t<dir targ_name=\"4.5\" \/>\n\t\t<\/dir>\n\t\t<dir targ_name=\"sce_sys\">/" pkg.gp4
 	
 
-main.exe: sce_module/libSDL2.sprx sce_module/libFreeType.sprx
+main.exe: sce_module/libSDL2.sprx
 	msbuild main/main.sln -t:Rebuild -p:Configuration=$(BUILDTYPE)
 	mv -f main/main/bin/x64/$(BUILDTYPE)/main.exe ./main.exe
 	mv -f main/main/bin/x64/$(BUILDTYPE)/main.pdb ./main.pdb
@@ -78,10 +78,6 @@ main.exe: sce_module/libSDL2.sprx sce_module/libFreeType.sprx
 sce_module/libSDL2.sprx:
 	make -C libSDL2
 	cp -f libSDL2/libSDL2.sprx sce_module/libSDL2.sprx
-	
-sce_module/libFreeType.sprx:
-	make -C libFreeType
-	cp -f libFreeType/libFreeType.sprx sce_module/libFreeType.sprx
 
 sce_sys/param.sfo: Makefile
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core sfo_new $@
@@ -117,6 +113,5 @@ debug: all
 clear: clean
 
 clean:
-	rm -f -r $(CONTENT_ID).pkg pkg.gp4 sce_module/libSDL2.sprx sce_module/libFreeType.sprx pkg/sce_sys/param.sfo eboot.bin main.exe main.pdb mono/4.5/*.pdb $(PROJDIR)/x64
+	rm -f -r $(CONTENT_ID).pkg pkg.gp4 sce_module/libSDL2.sprx pkg/sce_sys/param.sfo eboot.bin main.exe main.pdb mono/4.5/*.pdb $(PROJDIR)/x64
 	make -C libSDL2 clean
-	make -C libFreeType clean

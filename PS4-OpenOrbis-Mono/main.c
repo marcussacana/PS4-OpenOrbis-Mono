@@ -101,9 +101,9 @@ void runMain()
     //Load freetype
     sceSysmoduleLoadModule(0x009A);
 
-#ifndef DEBUG
-    unjailbreak();
-#endif
+//#ifndef DEBUG
+//    unjailbreak();
+//#endif
 
     klog("Starting program...");
     char* argv[] = { 0 };
