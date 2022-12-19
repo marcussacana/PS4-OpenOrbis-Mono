@@ -261,6 +261,6 @@ void InstallHooks()
 
     //MUST UPDATE
     //6.72: 0x18CC60
-    void* AllocJIT = MonoAddr + 0x18CC60;
+    void* AllocJIT = ((void*)MonoAddr) + 0x18CC60;
     WriteJump(AllocJIT, hookLoadSprxAssembly, 0);
 }
