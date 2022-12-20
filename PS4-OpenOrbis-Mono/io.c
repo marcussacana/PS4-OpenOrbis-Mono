@@ -1,5 +1,6 @@
 #include <orbis/libkernel.h>
 #include <dirent.h>
+#include <stdarg.h>
 
 char appRoot[0x100] = "\x0";
 char baseCon[0x100] = "\x0";
@@ -8,21 +9,25 @@ char mainExe[0x100] = "\x0";
 
 void klog(const char* str)
 {
-    char buff[0x300];
-    sprintf(&buff, "%s\n", str);
+    char buff[0x600];
+    sprintf(&buff, "[OpenOrbisMono] %s\n", str);
     sceKernelDebugOutText(0, buff);
 }
 
-void klogf(const char* str, void* val)
+void klogf(const char* str, ...)
 {
-    char buff[0x300];
-    char buff2[0x300];
-    sprintf(&buff, "%s\n", str);
-    sprintf(&buff2, &buff, val);
-    sceKernelDebugOutText(0, buff2);
+    char buff[0x600];
+    
+    va_list arg;
+    va_start(arg, str);
+    vsprintf(buff, str, arg);
+    va_end(arg);
+    
+    klog(buff);
 }
 
-int direxists(const char* path){
+int direxists(const char* path)
+{
     void* dp = opendir(path);
     if (dp == 0)
         return 0;
@@ -30,17 +35,16 @@ int direxists(const char* path){
     return 1;
 }
 
-void findAppMount(char* path){
+void findAppMount(char* path)
+{
     void* dp;
-    struct dirent *ep;
+    struct dirent* ep;
 
     char* MountID = sceKernelGetFsSandboxRandomWord();
 
     dp = opendir("/mnt/sandbox/");
-    if (dp != 0)
-    {
-        while (ep = readdir(dp))
-        {
+    if (dp != 0) {
+        while (ep = readdir(dp)) {
             char sbPath[0x100];
             sprintf(&sbPath, "/mnt/sandbox/%s/%s", ep->d_name, MountID);
 
@@ -51,6 +55,6 @@ void findAppMount(char* path){
             klogf("mount dir found: %s", path);
             break;
         }
-      closedir(dp);
+        closedir(dp);
     }
 }

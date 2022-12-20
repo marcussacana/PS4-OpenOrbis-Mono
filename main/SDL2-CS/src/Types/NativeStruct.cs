@@ -1,17 +1,26 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static SDL2.SDL;
+using SDL2.Interface;
 
 namespace SDL2.Types
 {
-    public class NativeStruct<T> : IDisposable where T : struct  
+    public class NativeStruct<T> : INative, IDisposable where T : struct  
     {
         public T Inner;
         private IntPtr? Address;
 
-        public NativeStruct(object dummy = null)
+        public IntPtr Handler => (IntPtr)this;
+
+        public NativeStruct()
         {
             Inner = new T();
+            Address = null;
+        }
+
+        public NativeStruct(T Default)
+        {
+            Inner = Default;
             Address = null;
         }
 
@@ -57,6 +66,9 @@ namespace SDL2.Types
 			
         public static implicit operator IntPtr(NativeStruct<T> Data)
         {
+            if (Data == null)
+                return IntPtr.Zero;
+            
             if (Data.Address == null)
             {
                 int Size = Marshal.SizeOf(typeof(T));
