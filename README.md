@@ -23,6 +23,9 @@ in the PKG, you will be able to create your HB even without deal with the OpenOr
  - Install and Start the homebrew (it will freeze, that's ok)
  - With Monodevelop or Jetbrains, connect the remote debugging at `2222`
  
+### Notes
+ - The Mono runtime needs to be in a jailbroken process to be able to use the PS4 JIT features.
+ 
 ### How it works
 The PS4 default mono runtime allways try load the modules from sprx files,
 in this example, at `/PS4-OpenOrbis-Mono/trampoline.c` a hook in the mono runtime is

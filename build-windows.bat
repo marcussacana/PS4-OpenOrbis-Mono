@@ -17,6 +17,12 @@ set extra_flags=
 
 set BUILDTYPE=Release
 
+if "%VSCMD_VER%"=="" (
+	echo You must run this batch script from Visual Studio Developer Command Prompt
+	if %0 == "%~0" pause
+	goto :eof
+)
+
 if "%1"=="clean" goto :CLEAN
 
 if "%1"=="clear" goto :CLEAN
@@ -65,7 +71,8 @@ cd ..\..
 cd main
 set outputPath=
 set targetname=
-msbuild main.sln -t:Restore;Rebuild -p:Configuration=%BUILDTYPE%
+msbuild main.sln -t:Restore -p:Configuration=%BUILDTYPE%
+msbuild main.sln -t:Rebuild -p:Configuration=%BUILDTYPE%
 cd ..
 
 copy /y main\main\bin\x64\%BUILDTYPE%\main.exe .\
@@ -109,7 +116,7 @@ set mono_libs=
 for %%f in (mono\\4.5\\*) do set mono_libs=!mono_libs! mono/4.5/%%~nxf
 
 Rem Create gp4
-%OO_PS4_TOOLCHAIN%\bin\windows\create-gp4.exe -out pkg.gp4 --content-id=%PKG_CONTENT_ID% --files "eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png mono/config %module_files% %asset_audio_files% %asset_fonts_files% %asset_images_files% %asset_misc_files% %asset_videos_files% %mono_libs%"
+%OO_PS4_TOOLCHAIN%\bin\windows\create-gp4.exe -out pkg.gp4 --content-id=%PKG_CONTENT_ID% --files "eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png sce_sys/pic0.png sce_sys/pic1.png mono/config %module_files% %asset_audio_files% %asset_fonts_files% %asset_images_files% %asset_misc_files% %asset_videos_files% %mono_libs%"
 
 Rem Fix gp4
 set quote=^"

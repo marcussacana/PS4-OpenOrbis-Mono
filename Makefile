@@ -63,12 +63,13 @@ $(CONTENT_ID).pkg: main.exe
 $(CONTENT_ID).pkg: pkg.gp4
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core pkg_build $< .
 
-pkg.gp4: eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png $(LIBMODULES) $(ASSETS)
+pkg.gp4: eboot.bin main.exe main.pdb sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png sce_sys/pic0.png sce_sys/pic1.png $(LIBMODULES) $(ASSETS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-gp4 -out $@ --content-id=$(CONTENT_ID) --files "$^ $(wildcard mono/**/*)"
 	sed -i "s/<dir targ_name=\"sce_sys\">/<dir targ_name=\"mono\">\n\t\t\t<dir targ_name=\"4.5\" \/>\n\t\t<\/dir>\n\t\t<dir targ_name=\"sce_sys\">/" pkg.gp4
 	
 
 main.exe: sce_module/libSDL2.sprx
+	msbuild main/main.sln -t:Restore -p:Configuration=$(BUILDTYPE)
 	msbuild main/main.sln -t:Rebuild -p:Configuration=$(BUILDTYPE)
 	mv -f main/main/bin/x64/$(BUILDTYPE)/main.exe ./main.exe
 	mv -f main/main/bin/x64/$(BUILDTYPE)/main.pdb ./main.pdb

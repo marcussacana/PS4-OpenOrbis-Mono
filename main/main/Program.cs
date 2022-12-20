@@ -20,10 +20,13 @@ namespace Orbis
         public static void Main()
         {
             User.Notify("Hello World from C#");
-            
+
+            Util.PrepareAsemblies();
+
             var Window = new SampleWindow();
             Window.JoyButtonEvent += WindowOnJoyButtonEvent;
 
+            UserService.HideSplashScreen();
             Window.Run();
         }
 

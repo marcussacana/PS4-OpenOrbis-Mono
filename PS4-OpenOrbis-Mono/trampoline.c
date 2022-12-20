@@ -26,6 +26,21 @@ void WriteJump(void* Address, void* Destination, char* OriInstructions)
     memcpy(Address, JumpInstructions, sizeof(JumpInstructions));
 }
 
+void* FindInternalFunction(void* Address){
+    sceKernelMprotect((void*)Address, 0x20, PROT_READ | PROT_WRITE | PROT_EXEC);
+	for (int i = 0; i < 0x20; i++){
+		uint32_t* pDWORD = (uint32_t*)(Address+i);
+		if (*pDWORD == 0x90909090){
+			uint8_t* pJmp = ((uint8_t*)pDWORD) - 5;
+			if (*pJmp != 0xE9)
+				return 0;
+			pDWORD = (uint32_t*)(pJmp+1);
+			return pJmp + 5 + *pDWORD;
+		}
+	}
+	return 0;
+}
+
 void remove_extension(const char* path, char* new_path)
 {
     int len = strlen(path);
@@ -41,17 +56,27 @@ void remove_extension(const char* path, char* new_path)
 char* extract_file_name(char* path)
 {
     int len = strlen(path);
-    int flag = 0;
 
     for (int i = len - 1; i > 0; i--) {
         if (path[i] == '\\' || path[i] == '//' || path[i] == '/') {
-            flag = 1;
-            path = path + i + 1;
-            break;
+            return path + i + 1;
         }
     }
 
     return path;
+}
+
+char* extract_extension(char* path)
+{
+    int len = strlen(path);
+
+    for (int i = len - 1; i > 0; i--) {
+        if (path[i] == '.') {
+            return path + i;
+        }
+    }
+
+    return 0;
 }
 
 void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly)
@@ -98,19 +123,13 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         finalPath = hintPath;
         klogf("Hint path matched: %s", hintPath);
     }
-
-    klog("Reading File...");
 		
     fseek(fp, 0, SEEK_END);
     long int size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-	
-	klogf("File size: %i", size);
 
     char* data = malloc(size);
     int readed = fread(data, 1, size, fp);
-	
-	klogf("Readed: %i", readed);
 
     fclose(fp);
 
@@ -118,8 +137,6 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         klog("Error reading the file");
         return 0;
     }
-
-	klog("Loading Assembly Image");
 	
     int status = 0;
     void* Image = mono_image_open_from_data_with_name(data, size, 0, &status, RefOnly, AssemblyName);
@@ -160,45 +177,64 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 
 char OriData[sizeof(JumpInstructions)];
 
+typedef (*SceKernelLoadStartModuleInternal)(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status);
+
+SceKernelLoadStartModuleInternal sceKernelLoadStartModuleMod;
+
 uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status)
 {
-    int notJailbroken = 0;
-    if (!jailbroken) {
-        notJailbroken = 1;
-        jailbreak(0); //Since we need diable the hook temporally, we need jailbreak to patch the memory.
-    }
-
-    sceKernelMprotect((void*)sceKernelLoadStartModule, sizeof(JumpInstructions), PROT_READ | PROT_WRITE | PROT_EXEC);
-    memcpy(sceKernelLoadStartModule, OriData, sizeof(JumpInstructions)); //disable hook - lazy to do a proper hooking
-
     klogf("sceKernelLoadStartModule: %s", path);
-    auto rst = sceKernelLoadStartModule(path, args, argp, flags, option, status);
+    uint32_t rst = sceKernelLoadStartModuleMod(path, args, argp, flags, option, status);
+    
     if (rst & 0x80000000) {
         char altPath[0x300] = "\x0";
         remove_extension(path, altPath);
 
         char* fname = extract_file_name(altPath);
         char* orifname = extract_file_name(path);
-
+		char* extension = extract_extension(fname);
+		
+		uint8_t IsAssembly = extension != 0 && ((strcmp(extension, ".dll") == 0) || (strcmp(extension, ".dll") == 0));
+			
+		char* RootDir = "/app0";
+		
+		
+		if (jailbroken){
+			char tmp[0x300];
+			sprintf(&tmp, "%s/app0", appRoot);
+			RootDir = tmp;
+		}
+		
         char hintPath[0x300] = "\x0";
+
         char* hints[] = { 
             "%s/sce_module/%s",
             "%s/%s",
-            "%s/sce_module/%s.sprx",
-            "%s/%s.sprx"
+            "%s/mono/4.5/%s",
+            "%s/mono/4.5/%s.sprx"
         };
+		
+		int HintsCount = countof(hints);
 
-        for (int i = 0; i < countof(hints); i++) {
-            sprintf(&hintPath, hints[i], baseDir, fname);
-            klogf("SPRX Hint Path: %s", hintPath);
-            rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-            if (rst & 0x80000000 == 0)
+        for (int i = 0; i < HintsCount; i++) {
+            sprintf(&hintPath, hints[i], RootDir, fname);
+            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+            if (rst < 0x80000000)
                 break;
-
+			
+            sprintf(&hintPath, hints[i], RootDir, orifname);
+            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+            if (rst < 0x80000000)
+                break;
+			
             sprintf(&hintPath, hints[i], "/app0", fname);
-            klogf("SPRX Hint Path: %s", hintPath);
-            rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-            if (rst & 0x80000000 == 0)
+            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+            if (rst < 0x80000000)
+                break;
+			
+            sprintf(&hintPath, hints[i], "/app0", orifname);
+            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+            if (rst < 0x80000000)
                 break;
         }
         
@@ -209,49 +245,63 @@ uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void*
             char hintA[0x300] = "\x0";
             char hintB[0x300] = "\x0";
             
-            sprintf(&hintA, "%%s/%s/%%s", MountID);
-            sprintf(&hintB, "%%s/%s/%%s.sprx", MountID);
+            sprintf(&hintA, "%s/%s/common/lib/%%s", appRoot, MountID);
+            sprintf(&hintB, "/%s/common/lib/%%s", MountID);
             
             hints[0] = hintA;
-            hints[1] = hintB;
-            hints[2] = "/system/common/lib/%s";
+            hints[1] = "/system/common/lib/%s";
+			
+			//Hints[2] and Hints[3] append the .sprx extension,
+			//we are ignoring if the original extension is a dll,
+			//if not, the mono can load a different sprx of the /mono/4.5 directory
+            hints[2] = hintB;
             hints[3] = "/system/common/lib/%s.sprx";
 
-            for (int i = 0; i < countof(hints); i++) {
-            
-            	if (i > 1)
-                    sprintf(&hintPath, hints[i], fname);
-                else
-                    sprintf(&hintPath, hints[i], "/app0", fname);
-                
-                klogf("SPRX Hint Path: %s", hintPath);
-                rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-                if (rst & 0x80000000 == 0)
+            for (int i = 0; i < HintsCount; i++) {
+            	sprintf(&hintPath, hints[i], fname);
+                rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+                if (rst < 0x80000000)
                     break;
-                    
-            	if (i > 1)
-                    sprintf(&hintPath, hints[i], fname);
-                else
-                    sprintf(&hintPath, hints[i], appRoot, fname);
-                    
-                klogf("SPRX Hint Path: %s", hintPath);
-                rst = sceKernelLoadStartModule(hintPath, args, argp, flags, option, status);
-                if (rst & 0x80000000 == 0)
+			
+            	sprintf(&hintPath, hints[i], orifname);
+                rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
+                if (rst < 0x80000000)
                     break;
             }
         }
-
-        if (rst & 0x80000000 == 0)
+		
+        if (rst < 0x80000000)
             klogf("Hint path matched: %s", hintPath);
+    } else {
+        klog("Original Path Loaded");
     }
 
-    WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, 0); //re-enable hook
-
-    if (notJailbroken) {
-        unjailbreak();
-    }
 
     return rst;
+}
+
+uint32_t SceKernelLoadStartModuleAlt(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status){
+    int notJailbroken = 0;
+    if (!jailbroken) {
+		klog("[WARN] SceKernelLoadStartModuleAlt called without Jailbreak");
+        notJailbroken = 1;
+        jailbreak(0); //Since we need diable the hook temporally, we need jailbreak to patch the memory.
+    }
+	
+	//disable hook - lazy to do a proper hooking
+    sceKernelMprotect((void*)sceKernelLoadStartModule, sizeof(JumpInstructions), PROT_READ | PROT_WRITE | PROT_EXEC);
+    memcpy(sceKernelLoadStartModule, OriData, sizeof(JumpInstructions)); 
+	
+	uint32_t rst = sceKernelLoadStartModule(path, args, argp, flags, option, status);
+	
+	//re-enable hook
+    WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, 0); 
+	
+    if (notJailbroken) {
+        unjailbreak(1);
+    }
+	
+	return rst;
 }
 
 void InstallHooks()
@@ -265,10 +315,19 @@ void InstallHooks()
     if (MonoAddr == 0) {
         klog("Failed to get libmonosgen-2.0.sprx address");
     }
-
-    //This hook has made for the DLLImport search in more paths before fail
-    WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, &OriData);
-
+	
+	sceKernelLoadStartModuleMod = (SceKernelLoadStartModuleInternal)FindInternalFunction(sceKernelLoadStartModule);
+	
+	if (sceKernelLoadStartModuleMod){
+		klogf("SceKernelLoadStartModuleInternal successfully loaded");
+	} else {
+		klogf("SceKernelLoadStartModuleInternal failed");
+		sceKernelLoadStartModuleMod = SceKernelLoadStartModuleAlt;
+	}
+	
+	//This hook has made for the DLLImport search in more paths before fail
+	WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, &OriData);
+	
     //MUST UPDATE
     //6.72: 0x18CC60
     void* AllocJIT = ((void*)MonoAddr) + 0x18CC60;

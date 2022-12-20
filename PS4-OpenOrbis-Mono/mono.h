@@ -28,6 +28,8 @@ extern int (*JitCreateSharedMemory)(int flags, size_t size, int protection, void
 extern int (*JitCreateAliasOfSharedMemory)(int handle, int protection, void** destinationHandle);
 extern int (*JitMapSharedMemory)(int handle, int protection, void **destination);
 
+extern uint32_t (*sceKernelLoadStartModule_sys)(const char *, size_t, const void *, uint32_t, void *, void *);
+
 extern void* (*sceKernelLoadStartModuleInternalForMono)(const char *moduleFileName, size_t args, const void *argp, uint32_t flags, void* pOpt, int *pRes);
 
 typedef long long unsigned int U64;
