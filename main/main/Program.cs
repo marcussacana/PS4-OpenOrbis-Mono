@@ -19,7 +19,7 @@ namespace Orbis
 
         public static void Main()
         {
-            User.Notify("Hello World from C#");
+            User.Notify(User.PlaystationButtons, "Hello World from C#");
 
             Util.PrepareAsemblies();
 
