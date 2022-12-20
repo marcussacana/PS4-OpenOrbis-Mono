@@ -84,11 +84,7 @@
 #include <SDL2/SDL_video.h> 
 #include <SDL2/SDL_vulkan.h>
 
-#ifndef __cplusplus 
-#define EXPORT extern __attribute__((visibility("default"))) __attribute__((used))
-#else
-#define EXPORT extern "C" __attribute__((visibility("default"))) __attribute__((used))
-#endif
+#define EXPORT __attribute__((used))
 
 EXPORT void* sceSDL_GetHintBoolean = SDL_GetHintBoolean;
 EXPORT void* sceSDL_GetError = SDL_GetError;
