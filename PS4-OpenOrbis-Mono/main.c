@@ -17,7 +17,7 @@ void* startMono()
 #endif
 
 #ifdef DEBUG
-    klog("Initializing Debugger...");
+    klog("Initializing Debugger at port 2222...");
 
     mono_debugger_agent_parse_options("address=0.0.0.0:2222,transport=dt_socket,server=y");
     mono_debug_init(1);

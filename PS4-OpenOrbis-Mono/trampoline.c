@@ -26,15 +26,31 @@ void WriteJump(void* Address, void* Destination, char* OriInstructions)
     memcpy(Address, JumpInstructions, sizeof(JumpInstructions));
 }
 
+//The KernelLoadStartModule export is just a check if you didn't set
+//flags arguments, if not, it jump for the real function,
+//we will use that to be able to keep the hook allways enabled,
+//by calling the real LoadStartModule function directly
 void* FindInternalFunction(void* Address){
+	
+	//Since is just reading maybe this isn't required, but in any case, better be sure.
     sceKernelMprotect((void*)Address, 0x20, PROT_READ | PROT_WRITE | PROT_EXEC);
+	
 	for (int i = 0; i < 0x20; i++){
 		uint32_t* pDWORD = (uint32_t*)(Address+i);
+		
+		//find the function end (end with NOPs)
 		if (*pDWORD == 0x90909090){
+			
+			//The last instruction is a jmp to the real LoadStartModule function
 			uint8_t* pJmp = ((uint8_t*)pDWORD) - 5;
+			
 			if (*pJmp != 0xE9)
-				return 0;
+				return 0;//Whatever if fails, we still can do the dirty way disabling the hook temporally
+			
+			//Get the Jmp Offset
 			pDWORD = (uint32_t*)(pJmp+1);
+			
+			//Calculate the jump offset
 			return pJmp + 5 + *pDWORD;
 		}
 	}
@@ -79,15 +95,23 @@ char* extract_extension(char* path)
     return 0;
 }
 
+#ifdef DEBUG
+#define LOG LOG
+#define LOGF LOGf
+#else
+#define LOG(x)
+#define LOGF(x,...)
+#endif
+
 void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly)
 {
-    klogf("Loading Assembly: %s", AssemblyName);
+    LOGF("Loading Assembly: %s", AssemblyName);
 
     char* finalPath = AssemblyName;
 
     void* fp = fopen(AssemblyName, "r");
     if (fp == 0) {
-        klog("Error opening file");
+        LOG("Error opening file");
 
         char hintPath[0x300] = "\x0";
         char* fname = extract_file_name(AssemblyName);
@@ -116,12 +140,12 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         }
 
         if (fp == 0) {
-            klog("No valid hints");
+            LOG("No valid hints");
             return 0;
         }
 
         finalPath = hintPath;
-        klogf("Hint path matched: %s", hintPath);
+        LOGF("Hint path matched: %s", hintPath);
     }
 		
     fseek(fp, 0, SEEK_END);
@@ -134,7 +158,7 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
     fclose(fp);
 
     if (readed != size) {
-        klog("Error reading the file");
+        LOG("Error reading the file");
         return 0;
     }
 	
@@ -163,14 +187,14 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 
             mono_debug_open_image_from_memory(Image, pdb, size);
 
-            klogf("Debug symbols loaded: %s", pdbPath);
+            LOGF("Debug symbols loaded: %s", pdbPath);
         }
     }
 #endif
 
     if (OpenStatus != 0)* OpenStatus = status;
 	
-	klogf("Assembly Image: %x", Image);
+	LOGF("Assembly Image: %x", Image);
 
     return Image;
 }
@@ -183,7 +207,7 @@ SceKernelLoadStartModuleInternal sceKernelLoadStartModuleMod;
 
 uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status)
 {
-    klogf("sceKernelLoadStartModule: %s", path);
+    LOGF("sceKernelLoadStartModule: %s", path);
     uint32_t rst = sceKernelLoadStartModuleMod(path, args, argp, flags, option, status);
     
     if (rst & 0x80000000) {
@@ -271,9 +295,9 @@ uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void*
         }
 		
         if (rst < 0x80000000)
-            klogf("Hint path matched: %s", hintPath);
+            LOGF("Hint path matched: %s", hintPath);
     } else {
-        klog("Original Path Loaded");
+        LOG("Original Path Loaded");
     }
 
 
@@ -319,9 +343,9 @@ void InstallHooks()
 	sceKernelLoadStartModuleMod = (SceKernelLoadStartModuleInternal)FindInternalFunction(sceKernelLoadStartModule);
 	
 	if (sceKernelLoadStartModuleMod){
-		klogf("SceKernelLoadStartModuleInternal successfully loaded");
+		LOGF("SceKernelLoadStartModuleInternal successfully loaded");
 	} else {
-		klogf("SceKernelLoadStartModuleInternal failed");
+		LOGF("SceKernelLoadStartModuleInternal failed");
 		sceKernelLoadStartModuleMod = SceKernelLoadStartModuleAlt;
 	}
 	
