@@ -95,14 +95,6 @@ char* extract_extension(char* path)
     return 0;
 }
 
-#ifdef DEBUG
-#define LOG LOG
-#define LOGF LOGf
-#else
-#define LOG(x)
-#define LOGF(x,...)
-#endif
-
 void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly)
 {
     LOGF("Loading Assembly: %s", AssemblyName);
