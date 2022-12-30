@@ -25,6 +25,7 @@ in the PKG, you will be able to create your HB even without deal with the OpenOr
  
 ### Notes
  - The Mono runtime needs to be in a jailbroken process to be able to use the PS4 JIT features.
+ - A Homebrew template for Windows is available, [Download Here](https://github.com/marcussacana/PS4-OpenOrbis-Mono/releases/download/2.0/DotNet.Homebrew.Template.7z)
  
 ### How it works
 The PS4 default mono runtime allways try load the modules from sprx files,
