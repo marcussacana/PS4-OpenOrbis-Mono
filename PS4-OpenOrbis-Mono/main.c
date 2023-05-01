@@ -8,6 +8,10 @@ static int def_jailbreak()
     return jailbreak(0);
 }
 
+int isJailbroken() {
+	return jailbroken;
+}
+
 void* startMono()
 {
 
@@ -89,6 +93,9 @@ void runMain()
     mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak", jailbreak);
     mono_add_internal_call("Orbis.Internals.Kernel::JailbreakCred(long)", def_jailbreak);
     mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
+	mono_add_internal_call("Orbis.Internals.Kernel::IsJailbroken", isJailbroken);
+	mono_add_internal_call("Orbis.Internals.Kernel::LoadStartModule", sceKernelLoadStartModule);
+	mono_add_internal_call("Orbis.Internals.Kernel::GetModuleBase", get_module_base);
     klog("Adding IO internal calls...");
     mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
     klog("Adding User Service internal calls...");
