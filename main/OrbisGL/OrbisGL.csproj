@@ -21,6 +21,7 @@
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -30,22 +31,51 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="System" />
+        <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+          <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
+        </Reference>
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
+        <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+          <HintPath>..\packages\System.Memory.4.5.2\lib\netstandard1.1\System.Memory.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+        </Reference>
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Class1.cs" />
+        <Compile Include="Enums.cs" />
+        <Compile Include="Constants.cs" />
+        <Compile Include="GL\BufferAttribute.cs" />
+        <Compile Include="GL\IRenderable.cs" />
+        <Compile Include="GL\Object.cs" />
+        <Compile Include="GL\Program.cs" />
+        <Compile Include="GL\Texture.cs" />
+        <Compile Include="GL\Window.cs" />
+        <Compile Include="Shader.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="State.cs" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\ImageSharp\src\ImageSharp\ImageSharp.csproj">
+        <Project>{3716a6c7-74ed-4288-81e9-c58dedf5092e}</Project>
+        <Name>ImageSharp</Name>
+      </ProjectReference>
       <ProjectReference Include="..\SharpGLES\SharpGLES\SharpGLES.csproj">
         <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
         <Name>SharpGLES</Name>
       </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="GL2D\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,56 +1,22 @@
-﻿using System;
-using System.IO;
-using Orbis.Internals;
-using SDL2.Events;
-using SDL2.Object;
-using SDL2.Types;
-using static SDL2.SDL;
+﻿using SharpGLES;
+using System;
 
 namespace Orbis
 {
-    internal class Program
+
+    public static class Program
     {
-
-        private const int DVDSpeed = 8;
-        
-        
-        const int FramesPerSecond = 60;
-        const int FrameDelay = 1000 / FramesPerSecond;
-
-        public static void Main()
-        {
-            User.Notify(User.PlaystationButtons, "Hello World from C#");
-
-            Util.PrepareAsemblies();
-
-            var Window = new SampleWindow();
-            Window.JoyButtonEvent += WindowOnJoyButtonEvent;
-
-            UserService.HideSplashScreen();
-            Window.Run();
-        }
-
-        private static void WindowOnJoyButtonEvent(object sender, JoyButtonEvent e)
-        {
-            if (e.ButtonState != JoyButtonEvent.Type.Up)
-                return;
+        public static void Main(string[] args) {
             
-            switch (e.Button)
-            {
-                case DS4Button.SCE_PAD_BUTTON_CROSS:
-                    User.Notify("Cross");
-                    break;
-                case DS4Button.SCE_PAD_BUTTON_SQUARE:
-                    User.Notify("Square is shit");
-                    break;
-                case DS4Button.SCE_PAD_BUTTON_CIRCLE:
-                    User.Notify("Circle");
-                    break;
-                case DS4Button.SCE_PAD_BUTTON_TRIANGLE:
-                    User.Notify("Triangle");
-                    break;
-            }
         }
 
+        
+
+
+
+       
+
+      
     }
+
 }

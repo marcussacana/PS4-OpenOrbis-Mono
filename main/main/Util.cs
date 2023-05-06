@@ -9,12 +9,13 @@ namespace Orbis
     {
         public static void PrepareAsemblies()
         {
-            bool NewAssembly = false; 
+            bool NewAssembly = true; 
             var AllMethods = BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
             List<Assembly> Ready = new List<Assembly>();
 
             while (NewAssembly)
             {
+                NewAssembly = false;
                 foreach (var Asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     if (Ready.Contains(Asm))
