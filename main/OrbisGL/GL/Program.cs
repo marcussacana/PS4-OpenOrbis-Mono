@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SharpGLES;
 
 namespace OrbisGL.GL
 {
     public class Program
     {
+        public int AttributeCount => Attribs.Count;
+        public int VerticeSize => CurrentAttribOffset;
+        
         public readonly int Handler;
         public Program(int hProgram)
         {

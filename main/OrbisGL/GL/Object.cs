@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using OrbisGL.GL;
 using SharpGLES;
 
 namespace OrbisGL.GL
@@ -134,8 +133,22 @@ namespace OrbisGL.GL
             Program.ApplyAttributes();
             
             BuildBuffers();
-            
-            //Pixel Position Normalization, Render, Disposing
+
+            GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);
+
+            if (GLIndexBuffer != 0)
+            {
+                GLES20.BindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, GLIndexBuffer);
+                
+                GLES20.DrawElements(RenderMode, IndexBuffer.Count, GLES20.GL_UNSIGNED_BYTE, IntPtr.Zero);
+            }
+            else
+            {
+                GLES20.DrawArrays(RenderMode, 0, ArrayBuffer.Count / Program.VerticeSize);
+            }
+
+
+            //Render, Disposing
         }
     }
 }

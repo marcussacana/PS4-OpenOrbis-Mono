@@ -18,7 +18,7 @@
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
         <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <DefineConstants>DEBUG;TRACE;ORBIS</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,7 +28,7 @@
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
+        <DefineConstants>TRACE;ORBIS</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -51,6 +51,7 @@
     <ItemGroup>
         <Compile Include="Enums.cs" />
         <Compile Include="Constants.cs" />
+        <Compile Include="GL2D\Coordinates2D.cs" />
         <Compile Include="GL\BufferAttribute.cs" />
         <Compile Include="GL\IRenderable.cs" />
         <Compile Include="GL\Object.cs" />
@@ -70,9 +71,6 @@
         <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
         <Name>SharpGLES</Name>
       </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="GL2D\" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
