@@ -4,8 +4,8 @@ namespace OrbisGL.GL2D
 {
     public static class Coordinates2D
     {
-        internal static uint Width;
-        internal static uint Height;
+        internal static int Width;
+        internal static int Height;
 
         public static float XUnity { get; internal set; }
         public static float YUnity { get; internal set; }

@@ -264,8 +264,8 @@ namespace SharpGLES
 		//public static extern IntPtr eglCreatePlatformWindowSurface (EGLDisplay dpy, EGLConfig config, void *native_window, const EGLAttrib *attrib_list);
 		//public static extern IntPtr eglCreatePlatformPixmapSurface (EGLDisplay dpy, EGLConfig config, void *native_pixmap, const EGLAttrib *attrib_list);
 		//EGLAPI EGLBoolean EGLAPIENTRY eglWaitSync (EGLDisplay dpy, EGLSync sync, EGLint flags);
-
 		
+#if ORBIS
 		//Definitions by OpenOrbis and Flatz
 		public static extern bool scePigletSetConfigurationVSH(ScePglConfig Config); 
 		
@@ -312,7 +312,7 @@ namespace SharpGLES
 		public const uint ORBIS_PGL_MAX_VIDEO_SHARED_MEM          = 0x20000000;
 		public const uint ORBIS_PGL_MAX_VIDEO_PRIV_MEM            = 0x20000000;
 		
-
+#endif
 		public static IntPtr EGL_D3D11_ONLY_DISPLAY_ANGLE = (IntPtr)(-3);
 	}
 }

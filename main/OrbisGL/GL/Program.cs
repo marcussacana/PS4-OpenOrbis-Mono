@@ -5,24 +5,27 @@ using SharpGLES;
 
 namespace OrbisGL.GL
 {
-    public class Program
+    public class GLProgram : IDisposable
     {
         public int AttributeCount => Attribs.Count;
-        public int VerticeSize => CurrentAttribOffset;
+
+        public int VerticeSize => MaxAttribOffset;
         
         public readonly int Handler;
-        public Program(int hProgram)
+        public GLProgram(int hProgram)
         {
             Handler = hProgram;
         }
 
-        private int CurrentAttribOffset = 0;
+        private int MaxAttribOffset = 0;
         private List<BufferAttribute> Attribs = new List<BufferAttribute>();
         
         public void AddBufferAttribute(BufferAttribute Attribute)
         {
             GLES20.UseProgram(Handler);
-            
+
+            GLES20.BindAttribLocation(Handler, Attribs.Count, Attribute.Name);
+
             var Position = GLES20.GetAttribLocation(Handler, Attribute.Name);
             if (Position < 0)
                 throw new KeyNotFoundException($"{Attribute.Name} Attribute Not Found");
@@ -32,20 +35,32 @@ namespace OrbisGL.GL
             Attribute.AttributeIndex = Position;
             Attribute.AttributeSize = GetArraySize(Attribute.Size);
             Attribute.AttributeType = GetGLType(Attribute.Type, Attribute.Size);
-            Attribute.AttributeOffset = CurrentAttribOffset;
+            Attribute.AttributeOffset = MaxAttribOffset;
             
             Attribs.Add(Attribute);
             
-            CurrentAttribOffset += GetPrimitiveSize(Attribute.Type) * GetArraySize(Attribute.Size);
+            MaxAttribOffset += GetPrimitiveSize(Attribute.Type) * GetArraySize(Attribute.Size);
         }
+
+
 
         internal void ApplyAttributes()
         {
             for (int i = 0; i < Attribs.Count; i++)
             {
                 var Attrib = Attribs[i];
-                GLES20.VertexAttribPointer(Attrib.AttributeIndex, Attrib.AttributeSize, Attrib.AttributeType, false, CurrentAttribOffset, new IntPtr(Attrib.AttributeOffset));
+                GLES20.EnableVertexAttribArray(Attrib.AttributeIndex);
+                GLES20.VertexAttribPointer(Attrib.AttributeIndex, Attrib.AttributeSize, Attrib.AttributeType, false, MaxAttribOffset, new IntPtr(Attrib.AttributeOffset));
             }
+        }
+
+        public void SetUniform(string Name, RGBColor Value, byte Alpha) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value, Alpha);
+
+        public void SetUniform(int Location, RGBColor Value, byte Alpha)
+        {
+            GLES20.UseProgram(Handler);
+            var AlphaF = Alpha / 255F;
+            GLES20.Uniform4f(Location, Value.RedF, Value.GreenF, Value.BlueF, AlphaF);
         }
 
         public void SetUniform(string Name, int Value)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
@@ -111,59 +126,19 @@ namespace OrbisGL.GL
             switch (Type)
             {
                 case AttributeType.SByte:
-                    if (Size == AttributeSize.None)
-                        return GLES20.GL_BYTE;
-                    throw new Exception("Unexpected Attribute Size");
+                    return GLES20.GL_BYTE;
                 case AttributeType.Byte:
-                    if (Size == AttributeSize.None)
-                        return GLES20.GL_UNSIGNED_BYTE;
-                    throw new Exception("Unexpected Attribute Size");
+                    return GLES20.GL_UNSIGNED_BYTE;
                 case AttributeType.Short:
-                    if (Size == AttributeSize.None)
-                        return GLES20.GL_SHORT;
-                    throw new Exception("Unexpected Attribute Size");
+                    return GLES20.GL_SHORT;
                 case AttributeType.UShort:
-                    if (Size == AttributeSize.None)
-                        return GLES20.GL_UNSIGNED_SHORT;
-                    throw new Exception("Unexpected Attribute Size");
+                    return GLES20.GL_UNSIGNED_SHORT;
                 case AttributeType.Int:
-                    switch (Size)
-                    {
-                        case AttributeSize.None:
-                            return GLES20.GL_INT;
-                        case AttributeSize.Vector2:
-                            return GLES20.GL_INT_VEC2;
-                        case AttributeSize.Vector3:
-                            return GLES20.GL_INT_VEC3;
-                        case AttributeSize.Vector4:
-                            return GLES20.GL_INT_VEC4;
-                        default:
-                            throw new Exception("Unexpected Attribute Size");
-                    }
+                    return GLES20.GL_INT;
                 case AttributeType.UInt:
-                    if (Size == AttributeSize.None)
-                        return GLES20.GL_UNSIGNED_INT;
-                    throw new Exception("Unexpected Attribute Size");
+                    return GLES20.GL_UNSIGNED_INT;
                 case AttributeType.Float:
-                    switch (Size)
-                    {
-                        case AttributeSize.None:
-                            return GLES20.GL_FLOAT;
-                        case AttributeSize.Vector2:
-                            return GLES20.GL_FLOAT_VEC2;
-                        case AttributeSize.Vector3:
-                            return GLES20.GL_FLOAT_VEC3;
-                        case AttributeSize.Vector4:
-                            return GLES20.GL_FLOAT_VEC4;
-                        case AttributeSize.FloatMatrix2:
-                            return GLES20.GL_FLOAT_MAT2;
-                        case AttributeSize.FloatMatrix3:
-                            return GLES20.GL_FLOAT_MAT3;
-                        case AttributeSize.FloatMatrix4:
-                            return GLES20.GL_FLOAT_MAT4;
-                        default:
-                            throw new Exception("Unexpected Attribute Size");
-                    }
+                    return GLES20.GL_FLOAT;
                 default:
                     throw new Exception("Unexpected Attribute Type");
             }
@@ -209,6 +184,11 @@ namespace OrbisGL.GL
             }
 
             throw new Exception("Unexpected Attribute Type");
+        }
+
+        public void Dispose()
+        {
+            GLES20.DeleteProgram(Handler);
         }
     }
 }

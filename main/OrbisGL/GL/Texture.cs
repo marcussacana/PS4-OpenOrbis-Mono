@@ -40,7 +40,7 @@ namespace OrbisGL.GL
         {
             GLES20.BindTexture(TextureType, TextureID);
 
-            fixed (byte* pData = &Data)
+            fixed (byte* pData = Data)
             {
                 GLES20.TexImage2D(TextureType, 0, (int)Format, Width, Height, 0, (int)Format, GLES20.GL_UNSIGNED_BYTE, new IntPtr(pData));
                 GLES20.TexParameteri(TextureType, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);

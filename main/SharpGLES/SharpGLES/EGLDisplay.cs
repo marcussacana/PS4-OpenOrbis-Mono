@@ -6,8 +6,9 @@ namespace SharpGLES
 {
 	public class EGLDisplay : IDisposable
 	{
-		private uint Width, Height;
-		
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+
 		private IntPtr _nativeDisplay = IntPtr.Zero;
 		private IntPtr _display;
 		private IntPtr _surface;
@@ -21,7 +22,7 @@ namespace SharpGLES
 		/// <param name="handle">Used only In PC</param>
 		/// <param name="Width">Used only In PS4</param>
 		/// <param name="Height">Used only In PS4</param>
-		public EGLDisplay(IntPtr handle, uint Width, uint Height)
+		public EGLDisplay(IntPtr handle, int Width, int Height)
 		{
 			this.Width = Width;
 			this.Height = Height;
@@ -52,7 +53,7 @@ namespace SharpGLES
 		{
 			EGL.SwapBuffers(_display, _surface);
 		}
-
+#if ORBIS
 		private unsafe void InitializeShaderCompiler()
 		{
 			if (GLES20.HasShaderCompiler)
@@ -101,7 +102,6 @@ namespace SharpGLES
 			GLES20.HasShaderCompiler = true;
 			Kernel.Log("OpenGL Shader Compiler Enabled");
 		}
-
 		private const uint KB = 1024;
 		private const uint MB = KB * 1024;
 		private const uint GB = MB * 1024;
@@ -137,6 +137,7 @@ namespace SharpGLES
 			
 		}
 		
+#endif
 		private void InitializeWindow()
 		{
 #if !ORBIS
@@ -198,10 +199,9 @@ namespace SharpGLES
 			};
 #endif
 
-			int configCount;
 			IntPtr configs;
 
-			if (!EGL.ChooseConfig(_display, configAttributes, out configs, 1, out configCount))
+			if (!EGL.ChooseConfig(_display, configAttributes, out configs, 1, out _))
 			{
 				throw new EGLException("ChooseConfig failed.");
 			}

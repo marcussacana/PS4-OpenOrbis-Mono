@@ -6,9 +6,13 @@ namespace SharpGLES
 {
 	public static class GLES20
 	{
+#if ORBIS
 		public static bool HasShaderCompiler { get; internal set; } = false;
+#else
+        public static bool HasShaderCompiler { get; internal set; } = true;
+#endif
 
-		const string Path = @"libGLESv2.dll";
+        const string Path = @"libGLESv2.dll";
 
 		public const int GL_ES_VERSION_2_0 = 1;
 		public const int GL_DEPTH_BUFFER_BIT = 0x00000100;
@@ -504,9 +508,13 @@ namespace SharpGLES
 		[DllImport(Path, EntryPoint = "glGetError")]
 		public static extern int GetError();
 
-		//public static extern void glGetFloatv (int pname, float params);
-		//public static extern void glGetFramebufferAttachmentParameteriv (int target, int attachment, int pname, int params);
-		//public static extern void glGetIntegerv (int pname, int params);
+        //public static extern void glGetFloatv (int pname, float params);
+        //public static extern void glGetFramebufferAttachmentParameteriv (int target, int attachment, int pname, int params);
+
+
+        [DllImport(Path, EntryPoint = "glGetIntegerv")]
+        public unsafe static extern void GetInteger(int pname, void* Data);
+
 
 		[DllImport(Path, EntryPoint = "glGetProgramiv")]
 		public static extern void GetProgramiv(int program, int pname, int[] parameters);
@@ -614,11 +622,8 @@ namespace SharpGLES
 
 		[DllImport(Path, EntryPoint = "glSampleCoverage")]
 		public static extern void SampleCoverage (float value, bool invert);
-
-		[DllImport(Path, EntryPoint = "glScissor")]
+        [DllImport(Path, EntryPoint = "glScissor")]
 		public static extern void Scissor (int x, int y, int width, int height);
-
-		//public static extern void glShaderBinary (int n, const int* shaders, int binaryformat, IntPtr binary, int length);
 
 		public static void ShaderSource(int shader, string source)
 		{
@@ -628,7 +633,57 @@ namespace SharpGLES
 		[DllImport(Path, EntryPoint = "glShaderSource")]
 		public static extern void ShaderSource(int shader, int count, string[] source, int length);
 
-		[DllImport(Path, EntryPoint = "glStencilFunc")]
+#if ORBIS
+
+		[DllImport(Path, EntryPoint = "glShaderBinary")]
+        public static extern void ShaderBinary(int n, int[] shaders, int binaryformat, IntPtr binary, int length);
+#else
+
+
+        [DllImport(Path, EntryPoint = "glProgramBinaryOES")]
+        public static extern void ProgramBinary(int program, int binaryFormat, IntPtr Buffer, int Length);
+#endif
+
+
+		public unsafe static byte[] GetShaderBinary(int hShader, out int BinaryFormat)
+		{
+			int BuffSize = 1024 * 1024 * 5;
+
+            IntPtr Buffer = Marshal.AllocHGlobal(BuffSize);
+
+			BinaryFormat = PrecompiledFormat;
+			GetShaderBinary(hShader, BuffSize, out int Size, ref BinaryFormat, Buffer);
+
+			if (Size <= 0)
+			{
+				throw new Exception("Failed to get the compiled shader binary");
+			}
+
+			byte[] Data = new byte[Size];
+
+			fixed (byte* pData = Data)
+			{
+				byte* pBuffer = (byte*)Buffer.ToPointer();
+
+				for (int i = 0; i < Size; i++)
+					pData[i] = pBuffer[i];
+			}
+
+			Marshal.FreeHGlobal(Buffer);
+
+			return Data;
+		}
+
+#if ORBIS
+		public const int PrecompiledFormat = 0;
+		[DllImport(Path, EntryPoint = "glPigletGetShaderBinarySCE")]
+#else
+		public const int PrecompiledFormat = 0x9130;//GL_SGX_PROGRAM_BINARY_IMG
+        [DllImport(Path, EntryPoint = "glGetProgramBinaryOES")]
+#endif
+        static extern void GetShaderBinary(int program, int bufSize, out int length, ref int binaryFormat, IntPtr binary);
+
+        [DllImport(Path, EntryPoint = "glStencilFunc")]
 		public static extern void StencilFunc (int func, int @ref, int mask);
 
 		[DllImport(Path, EntryPoint = "glStencilFuncSeparate")]

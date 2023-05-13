@@ -6,11 +6,11 @@ using SharpGLES;
 
 namespace OrbisGL.GL
 {
-    public class Object : IRenderable
+    public class GLObject : IRenderable
     {
         private bool BufferInvalidated = true;
         
-        private Program Program;
+        private GLProgram Program;
         private int RenderMode = 0;
 
         private List<byte> ArrayBuffer = new List<byte>();
@@ -24,20 +24,35 @@ namespace OrbisGL.GL
 
         private Texture Texture;
 
-        public Object(Program Program, RenderMode Mode)
+        public GLObject(GLProgram Program, RenderMode Mode)
         {
             this.Program = Program;
             this.RenderMode = (int)Mode;
         }
 
-        public unsafe void AddVertex(params float[] Points)
+        public unsafe void AddArray(params float[] Points)
         {
             BufferInvalidated = true;
-            fixed (byte* pPoints = &Points)
+            fixed (void* Pointer = Points)
             {
+                byte* pPoints = (byte*)Pointer;
                 for (int i = 0; i < Points.Length * sizeof(float); i++)
                     ArrayBuffer.Add(pPoints[i]);
             }
+        }
+
+        public unsafe void AddArray(byte Alpha, params RGBColor[] Colors)
+        {
+            var AlphaF = Alpha/255f;
+            BufferInvalidated = true;
+            for (int i = 0; i < Colors.Length; i++)
+            {
+                ArrayBuffer.AddRange(BitConverter.GetBytes(Colors[i].RedF));
+                ArrayBuffer.AddRange(BitConverter.GetBytes(Colors[i].GreenF));
+                ArrayBuffer.AddRange(BitConverter.GetBytes(Colors[i].BlueF));
+                ArrayBuffer.AddRange(BitConverter.GetBytes(AlphaF));
+            }
+
         }
 
         public void AddIndex(params byte[] Indexes)
@@ -65,12 +80,13 @@ namespace OrbisGL.GL
             if (ArrayBuffer.Count > 0)
             {
                 pArrayBuffer = Marshal.AllocHGlobal(ArrayBuffer.Count);
-                fixed (byte* Buffer = &ArrayBuffer)
+                var Buffer = ArrayBuffer.ToArray();
+                fixed (byte* pBuffer = Buffer)
                 {
                     byte* nBuffer = (byte*)pArrayBuffer.ToPointer();
 
                     for (int i = 0; i < ArrayBuffer.Count; i++)
-                        nBuffer[i] = Buffer[i];
+                        nBuffer[i] = pBuffer[i];
                 }
 
                 if (GLArrayBuffer == 0)
@@ -79,19 +95,19 @@ namespace OrbisGL.GL
                 }
                 
                 GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);
-                GLES20.BufferData(GLES20.GL_ARRAY_BUFFER, ArrayBuffer.Count, pArrayBuffer, GLES20.GL_STATIC_DRAW);
-                
+                GLES20.BufferData(GLES20.GL_ARRAY_BUFFER, ArrayBuffer.Count, pArrayBuffer, GLES20.GL_STATIC_DRAW);                
             }
             
             if (IndexBuffer.Count > 0)
             {
                 pIndexBuffer = Marshal.AllocHGlobal(IndexBuffer.Count);
-                fixed (byte* Buffer = &IndexBuffer)
+                var Buffer = IndexBuffer.ToArray();
+                fixed (byte* pBuffer = Buffer)
                 {
                     byte* nBuffer = (byte*)pIndexBuffer.ToPointer();
 
                     for (int i = 0; i < IndexBuffer.Count; i++)
-                        nBuffer[i] = Buffer[i];
+                        nBuffer[i] = pBuffer[i];
                 }
                 
                 if (GLIndexBuffer == 0)
@@ -120,7 +136,7 @@ namespace OrbisGL.GL
         public void FreeBuffer()
         {
             if (pIndexBuffer != IntPtr.Zero)    
-                Marshal.FreeHGlobal(pArrayBuffer);
+                Marshal.FreeHGlobal(pIndexBuffer);
 
             if (pArrayBuffer != IntPtr.Zero)
                 Marshal.FreeHGlobal(pArrayBuffer);
@@ -130,11 +146,11 @@ namespace OrbisGL.GL
         {
             GLES20.UseProgram(Program.Handler);
             
-            Program.ApplyAttributes();
-            
             BuildBuffers();
 
             GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);
+
+            Program.ApplyAttributes();
 
             if (GLIndexBuffer != 0)
             {
@@ -149,6 +165,22 @@ namespace OrbisGL.GL
 
 
             //Render, Disposing
+        }
+
+        public void Dispose()
+        {
+            Program?.Dispose();
+            Texture?.Dispose();
+            int Count = 0;
+            
+            int[] Buffers = new int[2];
+            if (GLArrayBuffer != 0)
+                Buffers[Count++] = GLArrayBuffer;
+
+            if (GLIndexBuffer != 0)
+                Buffers[Count++] = GLIndexBuffer;
+            
+            GLES20.DeleteBuffers(Count, Buffers);
         }
     }
 }
