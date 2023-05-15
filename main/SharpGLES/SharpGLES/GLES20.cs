@@ -8,11 +8,12 @@ namespace SharpGLES
 	{
 #if ORBIS
 		public static bool HasShaderCompiler { get; internal set; } = false;
+		const string Path = @"libGLESv2.dll";
 #else
         public static bool HasShaderCompiler { get; internal set; } = true;
+        const string Path = @"libGLESv2.dll";
 #endif
 
-        const string Path = @"libGLESv2.dll";
 
 		public const int GL_ES_VERSION_2_0 = 1;
 		public const int GL_DEPTH_BUFFER_BIT = 0x00000100;

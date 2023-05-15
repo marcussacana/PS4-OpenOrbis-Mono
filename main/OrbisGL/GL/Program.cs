@@ -19,7 +19,8 @@ namespace OrbisGL.GL
 
         private int MaxAttribOffset = 0;
         private List<BufferAttribute> Attribs = new List<BufferAttribute>();
-        
+
+        public void AddBufferAttribute(string Name, AttributeType Type, AttributeSize Size) => AddBufferAttribute(new BufferAttribute(Name, Type, Size));
         public void AddBufferAttribute(BufferAttribute Attribute)
         {
             GLES20.UseProgram(Handler);

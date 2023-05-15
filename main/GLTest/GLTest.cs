@@ -12,6 +12,7 @@ namespace GLTest
 {
     public partial class GLTest : Form
     {
+#if !ORBIS
         GLControl GLControl;
         public GLTest()
         {
@@ -20,7 +21,7 @@ namespace GLTest
                 GLControl = new GLControl(500, 500);
                 this.Controls.Add(GLControl);
         }
-
+#endif
 const string Vertex =
 @"
 attribute vec3 Position;
@@ -65,6 +66,7 @@ void main(void) {
 
         private void button1_Click(object sender, EventArgs e)
         {
+#if !ORBIS
             var hProg = Shader.GetProgram(Vertex, FragmentColor);
             
             var Prog = new GLProgram(hProg);
@@ -87,10 +89,12 @@ void main(void) {
             Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
 
             GLControl.GLDisplay.Objects.Add(Obj);
+#endif
        }
 
         private void button2_Click(object sender, EventArgs e)
         {
+#if !ORBIS
             var Objs = GLControl.GLDisplay.Objects.ToArray();
             GLControl.GLDisplay.Objects.Clear();
 
@@ -98,10 +102,12 @@ void main(void) {
             {
                 Obj.Dispose();
             }
+#endif
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+#if !ORBIS
             var ProgFile = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Program-*.bin");
 
             if (!ProgFile.Any())
@@ -139,6 +145,7 @@ void main(void) {
             Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
 
             GLControl.GLDisplay.Objects.Add(Obj);
+#endif
         }
     }
 }

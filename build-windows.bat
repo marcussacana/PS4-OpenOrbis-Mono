@@ -11,20 +11,17 @@ set PKG_CONTENT_ID="IV0000-MONO00001_00-MONOSAMPLE000000"
 
 set sys_authinfo="000000000000000000000000001C004000FF000000000080000000000000000000000000000000000000008000400040000000000000008000000000000000080040FFFF000000F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 
-
-Rem Libraries to link in
-set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule -lSceMsgDialog -lSceFreeType
-
-
-set extra_flags=
-
+set REMOTE=false
 set BUILDTYPE=Release
+set outputPath=%cd%
 
 if "%VSCMD_VER%"=="" (
 	echo You must run this batch script from Visual Studio Developer Command Prompt
 	if %0 == "%~0" pause
 	goto :eof
 )
+
+set extra_flags=
 
 if "%1"=="clean" goto :CLEAN
 
@@ -35,10 +32,43 @@ if "%1"=="debug" (
 	set extra_flags=-DDEBUG
 )
 
+if "%1"=="remote_debug" (
+	set BUILDTYPE=Debug
+	set extra_flags=-DDEBUG
+	set REMOTE=true
+)
+
+REM ==================== libMonoUtils =========================
+set targetname=libMonoUtils
+set intdir=x64\Debug
+set outputElf=%intdir%\%targetname%.elf
+set outputOelf=%intdir%\%targetname%.oelf
+set outputStub=%targetname%.so
+set outputPrx=%intdir%\%targetname%.sprx
+set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule
+cd libMonoUtils\libMonoUtils
+mkdir %intdir%
+call :PRX
+
+copy /y "%outputPrx%" %outputPath%\sce_module\%targetname%.sprx
+del "%outputPrx%"
+REM copy /y "%outputStub%" "%OO_PS4_TOOLCHAIN%\lib"
+cd ..\..\
+
+if not exist "%outputPath%\sce_module\%targetname%.sprx" (
+	echo %targetname%.sprx FAILED TO BUILD
+	pause
+	goto :eof
+)
+
+REM ===================== EBOOT.BIN ========================
+Rem Libraries to link in eboot.bin
+set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule -lSceFreeType
+
+
 Rem Read the script arguments into local vars
 set intdir=x64\Debug
 set targetname=PS4-OpenOrbis-Mono
-set outputPath=%cd%
 
 set outputElf=%intdir%\%targetname%.elf
 set outputOelf=%intdir%\%targetname%.oelf
@@ -50,27 +80,18 @@ cd %targetname%
 mkdir %intdir%
 call :EBOOT
 
+if not exist "eboot.bin" (
+	echo EBOOT.BIN FAILED TO BUILD
+	pause
+	goto :eof
+)
+
 Rem Eboot cleanup
 copy /y "eboot.bin" %outputPath%\eboot.bin
 del "eboot.bin"
 cd ..
 
-set targetname=libSDL2
-set intdir=x64\Debug
-set outputElf=%intdir%\%targetname%.elf
-set outputOelf=%intdir%\%targetname%.oelf
-set outputStub=%targetname%_stub.so
-set outputPrx=%intdir%\%targetname%.sprx
-set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceVideoOut -lSceAudioOut -lScePad -lSceSysmodule -lSceFreeType -lSDL2 -lSDL2_image
-cd libSDL2\libSDL2
-mkdir %intdir%
-call :PRX
-
-Rem PRX cleanup
-copy /y "%outputPrx%" %outputPath%\sce_module\%targetname%.sprx
-del "%outputPrx%"
-cd ..\..
-
+REM ======================== MAIN.EXE ========================
 cd main
 set outputPath=
 set targetname=
@@ -78,10 +99,18 @@ msbuild main.sln -t:Restore -p:Configuration=%BUILDTYPE%
 msbuild main.sln -t:Rebuild -p:Configuration=%BUILDTYPE%
 cd ..
 
+if not exist "main\main\bin\x64\%BUILDTYPE%\main.exe" (
+	echo main.exe FAILED TO BUILD
+	pause
+	exit
+)
+
 copy /y main\main\bin\x64\%BUILDTYPE%\main.exe .\
 copy /y main\main\bin\x64\%BUILDTYPE%\main.pdb .\
 copy /y main\main\bin\x64\%BUILDTYPE%\*.dll .\mono\4.5\
 copy /y main\main\bin\x64\%BUILDTYPE%\*.pdb .\mono\4.5\
+
+REM ====================== FINAL PKG ===========================
 
 Rem Create param.sfo
 %OO_PS4_TOOLCHAIN%\bin\windows\PkgTool.Core.exe sfo_new sce_sys/param.sfo
@@ -97,6 +126,19 @@ Rem Create param.sfo
 %OO_PS4_TOOLCHAIN%\bin\windows\PkgTool.Core.exe sfo_setentry sce_sys/param.sfo TITLE_ID --type Utf8 --maxsize 12 --value %PKG_TITLE_ID%
 %OO_PS4_TOOLCHAIN%\bin\windows\PkgTool.Core.exe sfo_setentry sce_sys/param.sfo VERSION --type Utf8 --maxsize 8 --value %PKG_VERSION%
 
+
+if "%REMOTE%"=="true" (
+	mkdir "app"
+	copy /y eboot.bin .\app
+	copy /y *.exe .\app
+	copy /y *.pdb .\app
+	copy /y *.dll .\app
+	xcopy /e /y mono .\app\mono\
+	xcopy /e /y sce_module .\app\sce_module\
+	xcopy /e /y sce_sys .\app\sce_sys\
+	winnfsd . /
+	goto :eof
+)
 
 Rem Get a list of assets for packaging
 set module_files=
@@ -142,13 +184,15 @@ goto :eof
 
 Rem Compile object files for all the source files
 
-cd ps4-libjbc
-for %%f in (*.c) do (
-    clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %%~nf.o %%~nf.c
-)
+if exist ps4-libjbc (
+	cd ps4-libjbc
+	for %%f in (*.c) do (
+		clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %%~nf.o %%~nf.c
+	)
 
-cd ..
-move ps4-libjbc\*o %intdir%
+	cd ..
+	move ps4-libjbc\*o %intdir%
+)
 
 for %%f in (*.c) do (
     clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %intdir%\%%~nf.o %%~nf.c
@@ -173,6 +217,16 @@ goto :eof
 
 
 :PRX
+if exist ps4-libjbc (
+	cd ps4-libjbc
+	for %%f in (*.c) do (
+		clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" -I"%OO_PS4_TOOLCHAIN%\\include\\c++\\v1" %extra_flags% -c -o %%~nf.o %%~nf.c
+		clang -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -I"%OO_PS4_TOOLCHAIN%\include" -o ..\%intdir%\%%~nf.o.stub %%~nf.c
+	)
+
+	cd ..
+	move ps4-libjbc\*.o %intdir%
+)
 Rem Compile object files for all the source files 
 for %%f in (*.c) do (
     clang --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -I"%OO_PS4_TOOLCHAIN%\\include" %extra_flags% -c -o %intdir%\%%~nf.o %%~nf.c
@@ -211,12 +265,13 @@ goto :eof
 del /s /q pkg.gp4 eboot.bin pkg_fixed.gp4 libSDL2.sprx main.exe main.pdb
 del /s /q %PKG_CONTENT_ID%.pkg
 rmdir /s /q PS4-OpenOrbis-Mono\x64
-rmdir /s /q libSDL2\libSDL2\x64
+rmdir /s /q libMonoUtils\libMonoUtils\x64
 rmdir /s /q x64
 rmdir /s /q main\main\bin
 rmdir /s /q main\main\obj
 rmdir /s /q main\SDL2-CS\bin
 rmdir /s /q main\SDL2-CS\obj
+rmdir /s /q app
 del /s *.out
 del /s *.so
 del /s *.o

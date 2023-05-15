@@ -57,7 +57,7 @@
     <Compile Include="GLES20.cs" />
     <Compile Include="EGLDC.cs" />
     <Compile Include="EGL.cs" />
-    <Compile Include="PS4Kernel.cs" />
+    <Compile Include="MonoUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

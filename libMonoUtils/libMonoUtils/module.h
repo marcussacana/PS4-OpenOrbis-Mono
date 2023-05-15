@@ -15,7 +15,7 @@
 
 #define MAP_SHARED 1
 #define MAP_PRIVATE 2
-#define MAP_TYPE 0xf
+#define MAP_TYPE 0x0f
 #define MAP_FIXED 0x10
 #define MAP_ANONYMOUS 0x1000
 #define MAP_32BIT 0x80000
@@ -26,4 +26,4 @@
 #define MS_ASYNC 0x0001
 #define MS_INVALIDATE 0x0002
 
-int get_module_base(const char* name, uint64_t* base, uint64_t* size);
+extern int get_module_base(const char* name, uint64_t* base, uint64_t* size);

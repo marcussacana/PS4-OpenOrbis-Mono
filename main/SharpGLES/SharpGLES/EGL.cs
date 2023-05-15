@@ -267,6 +267,7 @@ namespace SharpGLES
 		
 #if ORBIS
 		//Definitions by OpenOrbis and Flatz
+		[DllImport(Path, EntryPoint = "scePigletSetConfigurationVSH")]
 		public static extern bool scePigletSetConfigurationVSH(ScePglConfig Config); 
 		
 		[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -286,8 +287,8 @@ namespace SharpGLES
 			public ulong maxMappedFlexibleMemory;
 			public ulong minFlexibleMemoryChunkSize;
 
-			public uint dbgPosCmd_0x40;
-			public uint dbgPosCmd_0x44;
+			public int dbgPosCmd_0x40;
+			public int dbgPosCmd_0x44;
 			public uint dbgPosCmd_0x48;
 			public uint dbgPosCmd_0x4C;
 			public byte dbgPosCmd_0x50;

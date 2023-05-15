@@ -1,16 +1,19 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <orbis/SystemService.h>
+#include <orbis/Sysmodule.h>
+#include <stdio.h>
 #include "main.h"
 
-static int def_jailbreak()
+const char* JailedBase = "/app0";
+
+char* getBaseDirectory()
 {
-    return jailbreak(0);
+    if (isJailbroken())
+        return baseDir;
+    return JailedBase;
 }
 
-int isJailbroken() {
-	return jailbroken;
-}
 
 void* startMono()
 {
@@ -30,10 +33,11 @@ void* startMono()
 
     mono_jit_parse_options(sizeof(options) / sizeof(char*), (char**)options);
 #endif
-
+	
     klog("Starting Mono...");
 
     void* domain = mono_get_root_domain();
+	
     if (!domain) {
         mono_set_dirs(baseDir, baseCon);
         domain = mono_jit_init("main");
@@ -50,15 +54,6 @@ void* startMono()
 
     klog("Mono domain Initialized");
     return domain;
-}
-
-const char* JailedBase = "/app0";
-
-char* getBaseDirectory()
-{
-    if (jailbroken)
-        return baseDir;
-    return JailedBase;
 }
 
 void runMain()
@@ -85,23 +80,8 @@ void runMain()
         klog("Failed to find the class: Orbis.Program");
         return;
     }
-
-    klog("Adding Kernel internal calls...");
-    mono_add_internal_call("Orbis.Internals.Kernel::Log(void*)", klog);
-    mono_add_internal_call("Orbis.Internals.Kernel::malloc(int)", malloc);
-    mono_add_internal_call("Orbis.Internals.Kernel::free(void*)", free);
-    mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak", jailbreak);
-    mono_add_internal_call("Orbis.Internals.Kernel::JailbreakCred(long)", def_jailbreak);
-    mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
-	mono_add_internal_call("Orbis.Internals.Kernel::IsJailbroken", isJailbroken);
-	mono_add_internal_call("Orbis.Internals.Kernel::LoadStartModule", sceKernelLoadStartModule);
-	mono_add_internal_call("Orbis.Internals.Kernel::GetModuleBase", get_module_base);
-    klog("Adding IO internal calls...");
-    mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
-    klog("Adding User Service internal calls...");
-    mono_add_internal_call("Orbis.Internals.UserService::HideSplashScreen", sceSystemServiceHideSplashScreen);
-    mono_add_internal_call("Orbis.Internals.UserService::NativeLoadExec", sceSystemServiceLoadExec);
-    klog("Internal calls added.");
+	
+	
 
     void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
 
@@ -130,38 +110,57 @@ void run()
 
 int main()
 {
-    def_jailbreak();
+	klog("Main Begin");
+	
+	char* sandboxWord = sceKernelGetFsSandboxRandomWord();
+	
+	char syslib[0x100] = "\x0";
+	sprintf(&syslib, "/%s/common/lib/libkernel.sprx", sandboxWord);
+	
+    int libKernel = sceKernelLoadStartModule(syslib, 0, NULL, 0, 0, 0);	
+	int libMonoUtil = sceKernelLoadStartModule("/app0/sce_module/libMonoUtils.sprx", 0, NULL, 0, 0, 0);
+	
+    if (libMonoUtil & 0x80000000) {
+        klog("Failed o Load the MonoUtil Library");
+        return -1;
+    }	
+    if (libKernel & 0x80000000) {
+        klog("Failed o Load the libKernel");
+        return -1;
+    }
+	
+    sceKernelDlsym(libMonoUtil, "jailbreak", (void**)&jailbreak);
+    sceKernelDlsym(libMonoUtil, "unjailbreak", (void**)&unjailbreak);
+    sceKernelDlsym(libMonoUtil, "isJailbroken", (void**)&isJailbroken);	
+    sceKernelDlsym(libMonoUtil, "get_module_base", (void**)&get_module_base);
+	
+    jailbreak(0);
 
     findAppMount(&appRoot);
 
     sprintf(&baseDir, "%s/app0", appRoot);
     sprintf(&mainExe, "%s/main.exe", baseDir);
     sprintf(&baseCon, "%s/mono", baseDir);
-
+	
     char pkgLib[0x100] = "\x0";
     sprintf(&pkgLib, "%s/sce_module/libmonosgen-2.0.prx", baseDir);
-
-    auto mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
-    auto libKernel = sceKernelLoadStartModule("libkernel.sprx", 0, NULL, 0, 0, 0);
 	
-    auto libKernel_sys = sceKernelLoadStartModule("/system/common/lib/libkernel_sys.sprx", 0, NULL, 0, 0, 0);
+	int libSceSystemService = sceKernelLoadStartModule("/system/common/lib/libSceSystemService.sprx", 0, NULL, 0, 0, 0);
+	int libSceNet = sceKernelLoadStartModule("/system/common/lib/libSceNet.sprx", 0, NULL, 0, 0, 0);
+    int mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
 
+	if (libSceNet & 0x80000000){
+        klog("Failed o Load the libSceNet");
+        return -1;		
+	}
+	if (libSceSystemService & 0x80000000){
+        klog("Failed o Load the libSceSystemService");
+        return -1;		
+	}
     if (mono_framework & 0x80000000) {
-        klog("Failed o Load the Mono\n");
+        klog("Failed o Load the Mono");
         return -1;
-    }
-    if (libKernel & 0x80000000) {
-        klog("Failed o Load the libKernel\n");
-        return -1;
-    }
-    if (libKernel_sys & 0x80000000) {
-        klog("Failed o Load the libKernel_sys\n");
-        return -1;
-    }
-    if (libKernel & 0x80000000) {
-        klog("Failed o Load the libKernel\n");
-        return -1;
-    }
+    }	
 
     sceKernelDlsym(mono_framework, "mono_set_dirs", (void**)&mono_set_dirs);
     sceKernelDlsym(mono_framework, "mono_jit_init", (void**)&mono_jit_init);
@@ -187,9 +186,9 @@ int main()
     sceKernelDlsym(libKernel, "sceKernelJitCreateAliasOfSharedMemory", (void**)&JitCreateAliasOfSharedMemory);
     sceKernelDlsym(libKernel, "sceKernelJitMapSharedMemory", (void**)&JitCreateAliasOfSharedMemory);
 
-    sceKernelDlsym(libKernel_sys, "sceKernelLoadStartModule", (void**)&sceKernelLoadStartModule_sys);
+    sceKernelDlsym(libKernel, "sceKernelLoadStartModule", (void**)&sceKernelLoadStartModule_sys);
 	
-    sceKernelDlsym(libKernel_sys, "sceKernelLoadStartModuleInternalForMono", (void**)&sceKernelLoadStartModuleInternalForMono);
+    sceKernelDlsym(libKernel, "sceKernelLoadStartModuleInternalForMono", (void**)&sceKernelLoadStartModuleInternalForMono);
 	
     InstallHooks();
 

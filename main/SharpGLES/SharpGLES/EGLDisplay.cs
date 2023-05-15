@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Orbis.Internals;
 
 namespace SharpGLES
 {
@@ -46,7 +45,9 @@ namespace SharpGLES
 
 			EGL.DestroyContext(_display, _context);
 
+#if !ORBIS
 			EGLDC.ReleaseDC(_handle, _nativeDisplay);
+#endif
 		}
 
 		public void SwapBuffers()
@@ -58,27 +59,28 @@ namespace SharpGLES
 		{
 			if (GLES20.HasShaderCompiler)
 				return;
-			
-			var ShaderModule  = Kernel.LoadStartModule("libSceShaccVSH.prx", out _);
+
+			var ShaderModule =
+				MonoUtils.LoadStartModule("libSceShaccVSH.prx", out _);
 
 			if ((ShaderModule & 0x80000000) != 0)
 			{
-				Kernel.Log("OpenGL Shader Compiler Unavailable");
+				MonoUtils.Log("OpenGL Shader Compiler Unavailable");
 				return;
 			}
 			
 			
-			Kernel.Log("OpenGL Shader Compiler Found - Applying Patches...");
-			if (!Kernel.GetModuleBase(EGL.Path, out long BaseAddress, out long Size))
+			MonoUtils.Log("OpenGL Shader Compiler Found - Applying Patches...");
+			if (!MonoUtils.GetModuleBase(EGL.Path, out IntPtr BaseAddress, out UIntPtr Size))
 			{
-				Kernel.Log("OpenGL Shader Compiler Unavailable - Failed to find the Piglet Base Address");
+				MonoUtils.Log("OpenGL Shader Compiler Unavailable - Failed to find the Piglet Base Address");
 				return;
 			}
 
-			bool Jailbroken = Kernel.IsJailbroken();
+			bool Jailbroken = MonoUtils.IsJailbroken();
 
 			if (!Jailbroken)
-				Kernel.Jailbreak();
+				MonoUtils.Jailbreak(0);
 			
 			//THX FLATZ I'M YOUR FAN
 			/* XXX: patches below are given for Piglet module from 4.74 Devkit PUP */
@@ -100,14 +102,14 @@ namespace SharpGLES
 			*((int*)BaseAddress +0xB2E24) = ShaderModule;
 
 			GLES20.HasShaderCompiler = true;
-			Kernel.Log("OpenGL Shader Compiler Enabled");
+			MonoUtils.Log("OpenGL Shader Compiler Enabled");
 		}
 		private const uint KB = 1024;
 		private const uint MB = KB * 1024;
 		private const uint GB = MB * 1024;
 		private void InitializePiglet()
 		{
-			var Module  = Kernel.LoadStartModule(EGL.Path, out _);
+			var Module  = MonoUtils.LoadStartModule(EGL.Path, out _);
 
 			if ((Module & 0x80000000) != 0)
 			{

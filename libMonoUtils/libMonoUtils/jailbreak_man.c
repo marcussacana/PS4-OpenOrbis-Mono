@@ -1,4 +1,3 @@
-#include "mono.h"
 #include "jailbreak_man.h"
 #include "ps4-libjbc/jailbreak.h"
 
@@ -29,7 +28,7 @@ int jailbreak(U64 authID)
         return -1;
 
     jailbroken = 1;
-    return 0;
+    return 1;
 }
 
 
@@ -40,5 +39,9 @@ int unjailbreak()
     if(jbc_set_cred(&OriCred))
         return -1;
     jailbroken = 0;
-    return 0;
+    return 1;
+}
+
+int isJailbroken() {
+	return jailbroken;
 }

@@ -2,10 +2,10 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include "memory.h"
+#include <stdlib.h>
+#include <string.h>
 #include "mono.h"
 #include "io.h"
-#include "jailbreak_man.h"
 
 uint8_t JumpInstructions[] = {
     0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, // jmp QWORD PTR[Address]
@@ -193,7 +193,7 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 
 char OriData[sizeof(JumpInstructions)];
 
-typedef (*SceKernelLoadStartModuleInternal)(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status);
+typedef uint32_t (*SceKernelLoadStartModuleInternal)(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status);
 
 SceKernelLoadStartModuleInternal sceKernelLoadStartModuleMod;
 
@@ -215,7 +215,7 @@ uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void*
 		char* RootDir = "/app0";
 		
 		
-		if (jailbroken){
+		if (isJailbroken()){
 			char tmp[0x300];
 			sprintf(&tmp, "%s/app0", appRoot);
 			RootDir = tmp;
@@ -298,7 +298,7 @@ uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void*
 
 uint32_t SceKernelLoadStartModuleAlt(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status){
     int notJailbroken = 0;
-    if (!jailbroken) {
+    if (!isJailbroken()) {
 		klog("[WARN] SceKernelLoadStartModuleAlt called without Jailbreak");
         notJailbroken = 1;
         jailbreak(0); //Since we need diable the hook temporally, we need jailbreak to patch the memory.
@@ -332,7 +332,7 @@ void InstallHooks()
         klog("Failed to get libmonosgen-2.0.sprx address");
     }
 	
-	sceKernelLoadStartModuleMod = (SceKernelLoadStartModuleInternal)FindInternalFunction(sceKernelLoadStartModule);
+	sceKernelLoadStartModuleMod = (SceKernelLoadStartModuleInternal)FindInternalFunction(sceKernelLoadStartModule_sys);
 	
 	if (sceKernelLoadStartModuleMod){
 		LOGF("SceKernelLoadStartModuleInternal successfully loaded");
@@ -342,7 +342,7 @@ void InstallHooks()
 	}
 	
 	//This hook has made for the DLLImport search in more paths before fail
-	WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, &OriData);
+	WriteJump(sceKernelLoadStartModule_sys, hookSceKernelLoadStartModule, &OriData);
 	
     //MUST UPDATE
     //6.72: 0x18CC60

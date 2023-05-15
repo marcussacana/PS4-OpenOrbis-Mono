@@ -13,6 +13,7 @@ namespace GLTest
 
     public partial class GLControl : Panel
     {
+#if !ORBIS
         public Display GLDisplay;
         public GLControl(int Width, int Height)
         {
@@ -40,7 +41,6 @@ namespace GLTest
         [DllImport("user32.dll")]
         static extern UIntPtr SetTimer(IntPtr hWnd, int nIDEvent, uint uElapse, IntPtr lpTimerFunc);
 
-
         protected override void OnPaint(PaintEventArgs e)
         {
             GLDisplay?.DrawOnce();
@@ -51,7 +51,7 @@ namespace GLTest
         {
             base.OnHandleCreated(e);
 
-            GLDisplay = new Display(Handle, Width, Height, 30);
+            GLDisplay = new Display(Width, Height, 30, Handle);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -60,6 +60,6 @@ namespace GLTest
 
             base.OnHandleDestroyed(e);
         }
-
+#endif
     }
 }

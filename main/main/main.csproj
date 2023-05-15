@@ -59,11 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Internals\IO.cs" />
-    <Compile Include="Internals\Kernel.cs" />
-    <Compile Include="Internals\UserService.cs" />
+    <Compile Include="MainDisplay.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShaderSource.cs" />
     <Compile Include="String\CString.cs" />
     <Compile Include="String\StringBufferA.cs" />
     <Compile Include="User.cs" />
@@ -73,6 +72,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OrbisGL\OrbisGL.csproj">
+      <Project>{7EF00BD1-A3C4-45FB-BF5C-44DB18F28EC9}</Project>
+      <Name>OrbisGL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharpGLES\SharpGLES\SharpGLES.csproj">
       <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
       <Name>SharpGLES</Name>

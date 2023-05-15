@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using SharpGLES;
 
@@ -17,32 +18,41 @@ namespace OrbisGL.GL
 
         public readonly IList<IRenderable> Objects = new List<IRenderable>();
 
+        /// <summary>
+        /// Create an OpenGL ES 2 Environment 
+        /// </summary>
+        /// <param name="Width">Sets the rendering Width</param>
+        /// <param name="Height">Sets the rendering Height</param>
+        /// <param name="FramePerSecond">Set the default frame delay</param>
+        /// <param name="Handler">(WINDOWS ONLY) Set the Control Render Handler</param>
+        public Display(int Width, int Height, int FramePerSecond, IntPtr? Handler = null)
+        {
 #if ORBIS
-        public Display(uint Width, uint Height, int FramePerSecond)
-        {
-            var Handler = IntPtr.Zero;
-            FrameDelay = SCE_SECOND / FramePerSecond;
+            FrameDelay = Constants.SCE_SECOND / FramePerSecond;
 #else
-        public Display(IntPtr Handler, int Width, int Height, int FramePerSecond)
-        {
             FrameDelay = 1000 / FramePerSecond;
 #endif
             
             GL2D.Coordinates2D.Width = this.Width = Width;
             GL2D.Coordinates2D.Height = this.Height = Height;
             
-            GL2D.Coordinates2D.XUnity = GL2D.Coordinates2D.XToPoint(1);
-            GL2D.Coordinates2D.YUnity = GL2D.Coordinates2D.YToPoint(1);
+            GL2D.Coordinates2D.XUnity = Math.Abs(-1 - GL2D.Coordinates2D.XToPoint(1));
+            GL2D.Coordinates2D.YUnity = Math.Abs(-1 - GL2D.Coordinates2D.YToPoint(1));
 
-            this.Handler = Handler;
+            this.Handler = Handler ?? IntPtr.Zero;
+            
+#if ORBIS
+            GLDisplay = new EGLDisplay(IntPtr.Zero, Width, Height);
+#endif
         }
 
 
         public void Run() => Run(CancellationToken.None);
         public virtual void Run(CancellationToken Abort)
         {
+#if !ORBIS
             GLDisplay = new EGLDisplay(Handler, Width, Height);
-
+#endif
             long LastDrawTick = 0;
             while (!Abort.IsCancellationRequested)
             {

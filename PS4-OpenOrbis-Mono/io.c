@@ -1,6 +1,7 @@
 #include <orbis/libkernel.h>
 #include <dirent.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 char appRoot[0x100] = "\x0";
 char baseCon[0x100] = "\x0";

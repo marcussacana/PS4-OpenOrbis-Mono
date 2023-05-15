@@ -1,4 +1,6 @@
 #include <orbis/libkernel.h>
+#include <string.h>
+#include "module.h"
 
 //stolen from https://github.com/bucanero/apollo-ps4/blob/a893147a54ad7b9c610bf06c4a1b5ee8af5067d9/source/orbis_jbc.c
 
@@ -47,16 +49,13 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
 
     ret = sceKernelGetModuleList(handles, countof(handles), &numModules);
     if (ret) {
-        klog("sceKernelGetModuleList failed");
         return ret;
     }
 
     for (size_t i = 0; i < numModules; ++i) {
         ret = _sceKernelGetModuleInfo(handles[i], &tmpInfo);
-        if (ret) {
-            klogf("sceKernelGetModuleInfo failed %x", ret);
-            continue;
-        }
+        if (ret)
+			continue;
 
         if (strcmp(tmpInfo.name, name) == 0) {
             memcpy(info, &tmpInfo, sizeof(tmpInfo));
@@ -67,7 +66,7 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
     return ORBIS_KERNEL_ERROR_ENOENT;
 }
 
-int get_module_base(const char* name, uint64_t* base, *size)
+int get_module_base(const char* name, uint64_t* base, size_t* size)
 {
     OrbisKernelModuleInfo moduleInfo;
     int ret;

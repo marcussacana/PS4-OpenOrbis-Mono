@@ -1,7 +1,6 @@
 #include "trampoline.h"
 #include "mono.h"
 #include "io.h"
-#include "jailbreak_man.h"
 
 void (*mono_set_dirs)(const char* lib, const char* etc);
 void* (*mono_jit_init)(const char* domain_name);
@@ -33,3 +32,8 @@ int (*JitMapSharedMemory)(int handle, int protection, void **destination);
 uint32_t (*sceKernelLoadStartModule_sys)(const char *, size_t, const void *, uint32_t, void *, void *);
 
 void* (*sceKernelLoadStartModuleInternalForMono)(const char *moduleFileName, size_t args, const void *argp, uint32_t flags, void* pOpt, int *pRes);
+
+int (*jailbreak)(U64 authID);
+int (*unjailbreak)();
+int (*isJailbroken)();
+int (*get_module_base)(const char* name, uint64_t* base, uint64_t* size);
