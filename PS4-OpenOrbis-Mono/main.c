@@ -109,7 +109,7 @@ void runMain()
         return;
     }
 
-    klogf("Main Assembly: %llx", mainAssembly);
+    klogf("Main Assembly: %x", mainAssembly);
 
     void* programClass = mono_class_from_name(mainImage, "Orbis", "Program");
 

@@ -48,6 +48,8 @@ namespace SharpGLES
 
 #if !ORBIS
 			EGLDC.ReleaseDC(_handle, _nativeDisplay);
+#else
+			Marshal.FreeHGlobal(_handle);
 #endif
 		}
 
@@ -107,7 +109,7 @@ namespace SharpGLES
 			*((byte*)BaseAddress + 0xB2E21) = 1;
 			
 			/* Inform Piglet that we have shader compiler module loaded */
-			*((int*)BaseAddress + 0xB2E24) = ShaderModule;
+			*(int*)(BaseAddress + 0xB2E24) = ShaderModule;
 
 			if (!Jailbroken)
 				Kernel.Unjailbreak();
@@ -133,6 +135,7 @@ namespace SharpGLES
 			Config.flags = EGL.ORBIS_PGL_FLAGS_USE_COMPOSITE_EXT | EGL.ORBIS_PGL_FLAGS_USE_FLEXIBLE_MEMORY | 0x60;
 			Config.processOrder = 1;
 			Config.systemSharedMemorySize = 250 * MB;
+			Config.videoSharedMemorySize = 512 * MB;
 			Config.maxMappedFlexibleMemory = 170 * MB;
 			Config.drawCommandBufferSize = 1 * MB;
 			Config.lcueResourceBufferSize = 1 * MB;
@@ -146,8 +149,6 @@ namespace SharpGLES
 			{
 				throw new Exception("Set Piglet configuration Failed");
 			}
-			
-			
 		}
 		
 #endif
@@ -177,6 +178,15 @@ namespace SharpGLES
 			{
 				throw new EGLException("BindAPI failed.");
 			}
+#if ORBIS
+			_handle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(EGL.ScePglWindow)));
+			var Window = new EGL.ScePglWindow()
+			{
+				uWidth =  (uint)Width,
+				uHeight =  (uint)Height
+			};
+			Marshal.StructureToPtr(Window, _handle, false);
+#endif
 		}
 
 		private void InitializeEL()
@@ -218,20 +228,33 @@ namespace SharpGLES
 			{
 				throw new EGLException("ChooseConfig failed.");
 			}
-
+			
+#if ORBIS
 			int[] surfaceAttributes =
 			{
-				EGLX.EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL.EGL_TRUE, EGL.EGL_NONE, EGL.EGL_NONE
+				EGL.EGL_RENDER_BUFFER, EGL.EGL_BACK_BUFFER, 
+				EGL.EGL_NONE, EGL.EGL_NONE
 			};
+#else
+			int[] surfaceAttributes =
+			{
+				EGLX.EGL_POST_SUB_BUFFER_SUPPORTED_NV, EGL.EGL_TRUE, 
+				EGL.EGL_NONE, EGL.EGL_NONE
+			};
+#endif
 
 			_surface = EGL.CreateWindowSurface(_display, configs, _handle, surfaceAttributes);
-
+			
 			int[] contextAttibutes =
 			{
-				EGL.EGL_CONTEXT_CLIENT_VERSION, 2, EGL.EGL_NONE
+				EGL.EGL_CONTEXT_CLIENT_VERSION, 2, 
+				EGL.EGL_NONE
 			};
-
+			
 			_context = EGL.CreateContext(_display, configs, IntPtr.Zero, contextAttibutes);
+
+			if (_context == IntPtr.Zero)
+				throw new Exception("Failed to Create the EGL Context");
 
 			EGL.MakeCurrent(_display, _surface, _surface, _context);
 

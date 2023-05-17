@@ -306,10 +306,6 @@ void InstallHooks()
         LOG("Failed to get libmonosgen-2.0.sprx address");
     }
 	
-#ifdef DEBUG
-	LOGF("libmonosgen location: 0x%llx", MonoAddr);
-#endif
-	
     //MUST UPDATE
     //6.72: 0x18CC60
 	//Hint: one of the few functions that references the string ".sprx"

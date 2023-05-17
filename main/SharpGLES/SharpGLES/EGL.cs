@@ -330,6 +330,14 @@ namespace SharpGLES
 			[FieldOffset(0x78)]
 			public ulong unk_0x78;
 		}
+		
+		[StructLayout(LayoutKind.Sequential)]
+		public struct ScePglWindow {
+			public uint uID;      /* must be in [0-7] range. */
+			public uint uWidth;
+			public uint uHeight;
+			public uint uPadding; /* to make it the same size as two ulonglongs. */
+		}
 
 		
 		public const uint ORBIS_PGL_MAX_PROCESS_ORDER             = 2         ;

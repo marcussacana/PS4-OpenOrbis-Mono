@@ -8,7 +8,7 @@ namespace SharpGLES
 	{
 #if ORBIS
 		public static bool HasShaderCompiler { get; internal set; } = false;
-		const string Path = @"libGLESv2.dll";
+		const string Path = @"libScePigletv2VSH.sprx";
 #else
         public static bool HasShaderCompiler { get; internal set; } = true;
         const string Path = @"libGLESv2.dll";
