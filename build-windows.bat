@@ -38,28 +38,28 @@ if "%1"=="remote_debug" (
 	set REMOTE=true
 )
 
-REM ==================== libMonoUtils =========================
-set targetname=libMonoUtils
-set intdir=x64\Debug
-set outputElf=%intdir%\%targetname%.elf
-set outputOelf=%intdir%\%targetname%.oelf
-set outputStub=%targetname%.so
-set outputPrx=%intdir%\%targetname%.sprx
-set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule
-cd libMonoUtils\libMonoUtils
-mkdir %intdir%
-call :PRX
+REM ==================== SampleLib =========================
+REM set targetname=SampleLib
+REM set intdir=x64\Debug
+REM set outputElf=%intdir%\%targetname%.elf
+REM set outputOelf=%intdir%\%targetname%.oelf
+REM set outputStub=%targetname%.so
+REM set outputPrx=%intdir%\%targetname%.sprx
+REM set libraries=-lc -lkernel -lc++ -lSceSystemService -lSceUserService -lSceSysmodule
+REM cd SampleLib\SampleLib
+REM mkdir %intdir%
+REM call :PRX
 
-copy /y "%outputPrx%" %outputPath%\sce_module\%targetname%.sprx
-del "%outputPrx%"
-REM copy /y "%outputStub%" "%OO_PS4_TOOLCHAIN%\lib"
-cd ..\..\
+REM copy /y "%outputPrx%" %outputPath%\sce_module\%targetname%.sprx
+REM del "%outputPrx%"
+REM REM copy /y "%outputStub%" "%OO_PS4_TOOLCHAIN%\lib"
+REM cd ..\..\
 
-if not exist "%outputPath%\sce_module\%targetname%.sprx" (
-	echo %targetname%.sprx FAILED TO BUILD
-	pause
-	goto :eof
-)
+REM if not exist "%outputPath%\sce_module\%targetname%.sprx" (
+	REM echo %targetname%.sprx FAILED TO BUILD
+	REM pause
+	REM goto :eof
+REM )
 
 REM ===================== EBOOT.BIN ========================
 Rem Libraries to link in eboot.bin
@@ -265,7 +265,6 @@ goto :eof
 del /s /q pkg.gp4 eboot.bin pkg_fixed.gp4 libSDL2.sprx main.exe main.pdb
 del /s /q %PKG_CONTENT_ID%.pkg
 rmdir /s /q PS4-OpenOrbis-Mono\x64
-rmdir /s /q libMonoUtils\libMonoUtils\x64
 rmdir /s /q x64
 rmdir /s /q main\main\bin
 rmdir /s /q main\main\obj

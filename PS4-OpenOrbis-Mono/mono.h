@@ -32,8 +32,29 @@ extern uint32_t (*sceKernelLoadStartModule_sys)(const char *, size_t, const void
 
 extern void* (*sceKernelLoadStartModuleInternalForMono)(const char *moduleFileName, size_t args, const void *argp, uint32_t flags, void* pOpt, int *pRes);
 
+/* mono-dl-fallback.h */
+enum {
+    MONO_DL_LAZY  = 1,
+    MONO_DL_LOCAL = 2,
+    MONO_DL_MASK  = 3
+};
+
+/*
+ * The "err" variable contents must be allocated using g_malloc or g_strdup
+ */
+typedef void* (*MonoDlFallbackLoad) (const char *name, int flags, char **err, void *user_data);
+typedef void* (*MonoDlFallbackSymbol) (void *handle, const char *name, char **err, void *user_data);
+typedef void* (*MonoDlFallbackClose) (void *handle, void *user_data);
+ 
+extern void* (*mono_dl_fallback_register)(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data);
+extern void (*mono_dl_fallback_unregister)(void* handler);
+
+void* MonoDlLoad(const char *name, int flags, char **err, void *user_data);
+void* MonoDlSymbol(void *handle, const char *name, char **err, void *user_data);
+void* MonoDlClose(void *handle, void *user_data);
 
 typedef long long unsigned int U64;
+
 #define countof(_array) (sizeof(_array) / sizeof(_array[0]))
 
 #define PAGE_SIZE (16 * 1024)
@@ -63,8 +84,3 @@ typedef long long unsigned int U64;
 #define MS_SYNC 0x0000
 #define MS_ASYNC 0x0001
 #define MS_INVALIDATE 0x0002
-
-extern int (*jailbreak)(U64 authID);
-extern int (*unjailbreak)();
-extern int (*isJailbroken)();
-extern int (*get_module_base)(const char* name, uint64_t* base, uint64_t* size);

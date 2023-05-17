@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "jailbreak_man.h"
+#include "module.h"
 #include "mono.h"
 #include "io.h"
 
@@ -191,161 +193,133 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
     return Image;
 }
 
-char OriData[sizeof(JumpInstructions)];
+void* hinted_dlopen(char* name) {
+	char altPath[0x300];
+    remove_extension(name, altPath);//sample.prx
 
-typedef uint32_t (*SceKernelLoadStartModuleInternal)(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status);
-
-SceKernelLoadStartModuleInternal sceKernelLoadStartModuleMod;
-
-uint32_t hookSceKernelLoadStartModule(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status)
-{
-    LOGF("sceKernelLoadStartModule: %s", path);
-    uint32_t rst = sceKernelLoadStartModuleMod(path, args, argp, flags, option, status);
-    
-    if (rst & 0x80000000) {
-        char altPath[0x300] = "\x0";
-        remove_extension(path, altPath);
-
-        char* fname = extract_file_name(altPath);
-        char* orifname = extract_file_name(path);
-		char* extension = extract_extension(fname);
-		
-		uint8_t IsAssembly = extension != 0 && ((strcmp(extension, ".dll") == 0) || (strcmp(extension, ".dll") == 0));
-			
-		char* RootDir = "/app0";
-		
-		
-		if (isJailbroken()){
-			char tmp[0x300];
-			sprintf(&tmp, "%s/app0", appRoot);
-			RootDir = tmp;
-		}
-		
-        char hintPath[0x300] = "\x0";
-
-        char* hints[] = { 
-            "%s/sce_module/%s",
-            "%s/%s",
-            "%s/mono/4.5/%s",
-            "%s/mono/4.5/%s.sprx"
-        };
-		
-		int HintsCount = countof(hints);
-
-        for (int i = 0; i < HintsCount; i++) {
-            sprintf(&hintPath, hints[i], RootDir, fname);
-            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-            if (rst < 0x80000000)
-                break;
-			
-            sprintf(&hintPath, hints[i], RootDir, orifname);
-            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-            if (rst < 0x80000000)
-                break;
-			
-            sprintf(&hintPath, hints[i], "/app0", fname);
-            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-            if (rst < 0x80000000)
-                break;
-			
-            sprintf(&hintPath, hints[i], "/app0", orifname);
-            rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-            if (rst < 0x80000000)
-                break;
-        }
-        
-        if (rst & 0x80000000)
-        {
-            char* MountID = sceKernelGetFsSandboxRandomWord();
-            
-            char hintA[0x300] = "\x0";
-            char hintB[0x300] = "\x0";
-            
-            sprintf(&hintA, "%s/%s/common/lib/%%s", appRoot, MountID);
-            sprintf(&hintB, "/%s/common/lib/%%s", MountID);
-            
-            hints[0] = hintA;
-            hints[1] = "/system/common/lib/%s";
-			
-			//Hints[2] and Hints[3] append the .sprx extension,
-			//we are ignoring if the original extension is a dll,
-			//if not, the mono can load a different sprx of the /mono/4.5 directory
-            hints[2] = hintB;
-            hints[3] = "/system/common/lib/%s.sprx";
-
-            for (int i = 0; i < HintsCount; i++) {
-            	sprintf(&hintPath, hints[i], fname);
-                rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-                if (rst < 0x80000000)
-                    break;
-			
-            	sprintf(&hintPath, hints[i], orifname);
-                rst = sceKernelLoadStartModuleMod(hintPath, args, argp, flags, option, status);
-                if (rst < 0x80000000)
-                    break;
-            }
-        }
-		
-        if (rst < 0x80000000)
-            LOGF("Hint path matched: %s", hintPath);
-    } else {
-        LOG("Original Path Loaded");
+    char* fname = extract_file_name(altPath);//sample.prx
+    char* orifname = extract_file_name(name);//sample.prx.sprx
+    LOGF("fname: %s; orifname: %s", fname, orifname);
+	
+	int hModule = sceKernelLoadStartModule(name, 0, NULL, 0, 0, 0);	
+	if (!(hModule & 0x80000000)) {
+		LOGF("hModule: %x; %s", hModule, name);
+        return (void*)hModule;
     }
+	
+	hModule = sceKernelLoadStartModule(altPath, 0, NULL, 0, 0, 0);	
+	if (!(hModule & 0x80000000)) {
+		LOGF("hModule: %x; %s", hModule, altPath);
+        return (void*)hModule;
+    }
+	
+	hModule = sceKernelLoadStartModule(orifname, 0, NULL, 0, 0, 0);	
+	if (!(hModule & 0x80000000)) {
+		LOGF("hModule: %x; %s", hModule, orifname);
+        return (void*)hModule;
+    }	
+	
+	char* rootDir = "/app0";	
+	
+	if (isJailbroken()){
+		char tmp[0x300];
+		sprintf(&tmp, "%s/app0", appRoot);
+		rootDir = tmp;
+	}
+	
+	char hintPath[0x300] = "\x0";
 
-
-    return rst;
+	char* hints[] = { 
+		"%s/sce_module/%s",
+		"%s/sce_module/%s.sprx",
+		"%s/%s",
+		"%s/%s.sprx",
+		"%s/common/lib/%s",
+		"%s/common/lib/%s.sprx",
+		"%s/system/common/lib/%s",
+		"%s/system/common/lib/%s.sprx",
+	};	
+	
+	char rndWordRoot[0x300] = "\x0";
+	
+	sprintf(&rndWordRoot, "%s/%s", appRoot, sceKernelGetFsSandboxRandomWord());
+	
+	char* roots[4];
+	roots[0] = rootDir;
+	roots[1] = appRoot;
+	roots[2] = rndWordRoot;
+	roots[3] = "";
+	
+	char* names[2];
+	
+	names[0] = fname;
+	names[1] = orifname;
+	
+	for (int x = 0; x < countof(roots); x++){
+		char* root = roots[x];
+		for (int y = 0; y < countof(names); y++){
+			for (int i = 0; i < countof(hints); i++){
+				sprintf(&hintPath, hints[i], root, names[y]);
+				LOGF("Trying hint: %s", hintPath);
+				hModule = sceKernelLoadStartModule(hintPath, 0, NULL, 0, 0, 0);	
+				if (!(hModule & 0x80000000)) {
+					LOGF("hModule: %x; %s", hModule, hintPath);
+					return (void*)hModule;
+				}
+			}
+		}
+	}
+		
+	LOGF("Module Not Found: %s", name);
+	return NULL;
 }
 
-uint32_t SceKernelLoadStartModuleAlt(const char* path, size_t args, const void* argp, uint32_t flags, void* option, void* status){
-    int notJailbroken = 0;
-    if (!isJailbroken()) {
-		klog("[WARN] SceKernelLoadStartModuleAlt called without Jailbreak");
-        notJailbroken = 1;
-        jailbreak(0); //Since we need diable the hook temporally, we need jailbreak to patch the memory.
-    }
-	
-	//disable hook - lazy to do a proper hooking
-    sceKernelMprotect((void*)sceKernelLoadStartModule, sizeof(JumpInstructions), PROT_READ | PROT_WRITE | PROT_EXEC);
-    memcpy(sceKernelLoadStartModule, OriData, sizeof(JumpInstructions)); 
-	
-	uint32_t rst = sceKernelLoadStartModule(path, args, argp, flags, option, status);
-	
-	//re-enable hook
-    WriteJump(sceKernelLoadStartModule, hookSceKernelLoadStartModule, 0); 
-	
-    if (notJailbroken) {
-        unjailbreak(1);
-    }
-	
-	return rst;
+void* MonoDlLoad(const char *name, int flags, char **err, void *user_data) {
+    LOGF("MonoDlFallbackLoad: %s", name);//sample.prx.sprx
+	return hinted_dlopen(name);
+}
+
+void* MonoDlSymbol(void *handle, const char *name, char **err, void *user_data){
+	LOGF("MonoDlFallbackSymbol: %s", name);
+	void* result = NULL;
+	int rst = sceKernelDlsym((int)handle, name, &result);
+	if (rst){
+		LOGF("dlsym fail: 0x%X", rst);
+	}
+	return result;
+}
+
+void* MonoDlClose(void *handle, void *user_data) {
+	int status = 0;
+	return (void*)sceKernelStopUnloadModule((int)handle, 0, NULL, 0, NULL, &status);
 }
 
 void InstallHooks()
 {
-    klog("Installing hooks...");
+    LOG("Installing hooks...");
 
     U64 MonoAddr = 0;
     U64 MonoSize = 0;
     get_module_base("libmonosgen-2.0.prx", &MonoAddr, &MonoSize);
 
     if (MonoAddr == 0) {
-        klog("Failed to get libmonosgen-2.0.sprx address");
+        LOG("Failed to get libmonosgen-2.0.sprx address");
     }
 	
-	sceKernelLoadStartModuleMod = (SceKernelLoadStartModuleInternal)FindInternalFunction(sceKernelLoadStartModule_sys);
-	
-	if (sceKernelLoadStartModuleMod){
-		LOGF("SceKernelLoadStartModuleInternal successfully loaded");
-	} else {
-		LOGF("SceKernelLoadStartModuleInternal failed");
-		sceKernelLoadStartModuleMod = SceKernelLoadStartModuleAlt;
-	}
-	
-	//This hook has made for the DLLImport search in more paths before fail
-	WriteJump(sceKernelLoadStartModule_sys, hookSceKernelLoadStartModule, &OriData);
+#ifdef DEBUG
+	LOGF("libmonosgen location: 0x%llx", MonoAddr);
+#endif
 	
     //MUST UPDATE
     //6.72: 0x18CC60
-    void* AllocJIT = ((void*)MonoAddr) + 0x18CC60;
-    WriteJump(AllocJIT, hookLoadSprxAssembly, 0);
+	//Hint: one of the few functions that references the string ".sprx"
+    void* loadSprxAssembly = ((void*)MonoAddr) + 0x18CC60;
+    WriteJump(loadSprxAssembly, hookLoadSprxAssembly, 0);
+	
+	
+	//Fix Internal Call in Debug Mode
+	//6.72: 0x17A0F0
+	//Hint: The only one function that references the string "Microsoft.Win32.NativeMethods"
+	//void* mono_icall_table_init = ((void*)MonoAddr) + 0x17A0F0;
+	//((void(*)())mono_icall_table_init)();
 }

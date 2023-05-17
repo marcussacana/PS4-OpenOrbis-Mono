@@ -15,7 +15,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE;ORBIS</DefineConstants>
@@ -57,7 +57,7 @@
     <Compile Include="GLES20.cs" />
     <Compile Include="EGLDC.cs" />
     <Compile Include="EGL.cs" />
-    <Compile Include="MonoUtils.cs" />
+    <Compile Include="PS4Kernel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

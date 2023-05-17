@@ -8,6 +8,8 @@ char baseCon[0x100] = "\x0";
 char baseDir[0x100] = "\x0";
 char mainExe[0x100] = "\x0";
 
+void* hLog;
+
 void klog(const char* str)
 {
     char buff[0x600];

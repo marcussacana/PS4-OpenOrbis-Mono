@@ -269,40 +269,68 @@ namespace SharpGLES
 		//Definitions by OpenOrbis and Flatz
 		[DllImport(Path, EntryPoint = "scePigletSetConfigurationVSH")]
 		public static extern bool scePigletSetConfigurationVSH(ScePglConfig Config); 
-		
-		[StructLayout(LayoutKind.Sequential, Pack = 1)]
+
+		[StructLayout(LayoutKind.Explicit, Size = SIZEOF_SCE_PGL_CONFIG)]
 		public struct ScePglConfig
 		{
+			public const int SIZEOF_SCE_PGL_CONFIG = 0x88;
+
+			[FieldOffset(0x00)]
 			public uint size;
+			[FieldOffset(0x04)]
 			public uint flags;
+			[FieldOffset(0x08)]
 			public byte processOrder;
+			[FieldOffset(0x0C)]
 			public uint unk_0x0C;
+			[FieldOffset(0x10)]
 			public uint unk_0x10;
+			[FieldOffset(0x14)]
 			public uint unk_0x14;
+			[FieldOffset(0x18)]
 			public ulong systemSharedMemorySize;
 
+			[FieldOffset(0x20)]
 			public uint unk_0x20;
+			[FieldOffset(0x24)]
 			public uint unk_0x24;
+			[FieldOffset(0x28)]
 			public ulong videoSharedMemorySize;
+			[FieldOffset(0x30)]
 			public ulong maxMappedFlexibleMemory;
+			[FieldOffset(0x38)]
 			public ulong minFlexibleMemoryChunkSize;
 
-			public int dbgPosCmd_0x40;
-			public int dbgPosCmd_0x44;
+			/* TODO: see sceCompositorSetDebugPositionCommand((uint8_t)unk_0x50, (uint16_t)unk_0x48, (uint16_t)unk_0x4C, (uint16_t)unk_0x40, (uint16_t)unk_0x44) */
+			[FieldOffset(0x40)]
+			public uint dbgPosCmd_0x40;
+			[FieldOffset(0x44)]
+			public uint dbgPosCmd_0x44;
+			[FieldOffset(0x48)]
 			public uint dbgPosCmd_0x48;
+			[FieldOffset(0x4C)]
 			public uint dbgPosCmd_0x4C;
+			[FieldOffset(0x50)]
 			public byte dbgPosCmd_0x50;
 
+			[FieldOffset(0x54)]
 			public uint drawCommandBufferSize;
+			[FieldOffset(0x58)]
 			public uint lcueResourceBufferSize;
 
+			[FieldOffset(0x5C)]
 			public uint unk_0x5C;
 
+			[FieldOffset(0x60)]
 			public ulong unk_0x60;
+			[FieldOffset(0x68)]
 			public ulong unk_0x68;
+			[FieldOffset(0x70)]
 			public ulong unk_0x70;
+			[FieldOffset(0x78)]
 			public ulong unk_0x78;
 		}
+
 		
 		public const uint ORBIS_PGL_MAX_PROCESS_ORDER             = 2         ;
 		public const uint ORBIS_PGL_FLAGS_USE_COMPOSITE_EXT       = 0x8       ;

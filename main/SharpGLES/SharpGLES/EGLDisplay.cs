@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Orbis.Internals;
 
 namespace SharpGLES
 {
@@ -28,7 +29,7 @@ namespace SharpGLES
 			
 #if ORBIS
 			InitializePiglet();
-			
+			InitializeShaderCompiler();
 #else
 			_handle = handle;
 #endif
@@ -60,37 +61,44 @@ namespace SharpGLES
 			if (GLES20.HasShaderCompiler)
 				return;
 
-			var ShaderModule =
-				MonoUtils.LoadStartModule("libSceShaccVSH.prx", out _);
+			var ShaderModule = Kernel.LoadStartModule("libSceShaccVSH.sprx");
 
 			if ((ShaderModule & 0x80000000) != 0)
 			{
-				MonoUtils.Log("OpenGL Shader Compiler Unavailable");
+				Kernel.Log("OpenGL Shader Compiler Unavailable");
 				return;
 			}
 			
 			
-			MonoUtils.Log("OpenGL Shader Compiler Found - Applying Patches...");
-			if (!MonoUtils.GetModuleBase(EGL.Path, out IntPtr BaseAddress, out UIntPtr Size))
+			Kernel.Log("OpenGL Shader Compiler Found - Applying Patches...");
+			if (!Kernel.GetModuleBase(EGL.Path, out long BaseAddress, out long Size))
 			{
-				MonoUtils.Log("OpenGL Shader Compiler Unavailable - Failed to find the Piglet Base Address");
+				Kernel.Log("OpenGL Shader Compiler Unavailable - Failed to find the Piglet Base Address");
 				return;
 			}
 
-			bool Jailbroken = MonoUtils.IsJailbroken();
+			bool Jailbroken = Kernel.IsJailbroken();
 
 			if (!Jailbroken)
-				MonoUtils.Jailbreak(0);
+				Kernel.Jailbreak(0);
 			
 			//THX FLATZ I'M YOUR FAN
 			/* XXX: patches below are given for Piglet module from 4.74 Devkit PUP */
 			byte* pTarget = (byte*)BaseAddress+0x5451F;
 			byte[] SetEAXTo1 = new byte[] { 0x31, 0xC0, 0xFF, 0xC0, 0x90 };
 
+
+
+			Kernel.MemProtect(pTarget, SetEAXTo1.Length, Kernel.PROT_EXEC | Kernel.PROT_READ | Kernel.PROT_WRITE);
+
 			for (int i = 0; i < SetEAXTo1.Length; i++)
 			{
 				pTarget[i] = SetEAXTo1[i];
 			}
+
+			Kernel.MemProtect((byte*)BaseAddress + 0xB2DEC, 3, Kernel.PROT_EXEC | Kernel.PROT_READ | Kernel.PROT_WRITE);
+			Kernel.MemProtect((byte*)BaseAddress + 0xB2E21, 1, Kernel.PROT_EXEC | Kernel.PROT_READ | Kernel.PROT_WRITE);
+			Kernel.MemProtect((byte*)BaseAddress + 0xB2E24, 4, Kernel.PROT_EXEC | Kernel.PROT_READ | Kernel.PROT_WRITE);
 			
 			/* Tell that runtime compiler exists */
 			*((byte*)BaseAddress + 0xB2DEC) = 0;
@@ -99,17 +107,20 @@ namespace SharpGLES
 			*((byte*)BaseAddress + 0xB2E21) = 1;
 			
 			/* Inform Piglet that we have shader compiler module loaded */
-			*((int*)BaseAddress +0xB2E24) = ShaderModule;
+			*((int*)BaseAddress + 0xB2E24) = ShaderModule;
+
+			if (!Jailbroken)
+				Kernel.Unjailbreak();
 
 			GLES20.HasShaderCompiler = true;
-			MonoUtils.Log("OpenGL Shader Compiler Enabled");
+			Kernel.Log("OpenGL Shader Compiler Enabled");
 		}
 		private const uint KB = 1024;
 		private const uint MB = KB * 1024;
 		private const uint GB = MB * 1024;
 		private void InitializePiglet()
 		{
-			var Module  = MonoUtils.LoadStartModule(EGL.Path, out _);
+			var Module  = Kernel.LoadStartModule(EGL.Path);
 
 			if ((Module & 0x80000000) != 0)
 			{
@@ -125,8 +136,8 @@ namespace SharpGLES
 			Config.maxMappedFlexibleMemory = 170 * MB;
 			Config.drawCommandBufferSize = 1 * MB;
 			Config.lcueResourceBufferSize = 1 * MB;
-			Config.dbgPosCmd_0x40 = Width;
-			Config.dbgPosCmd_0x44 = Height;
+			Config.dbgPosCmd_0x40 = (uint)Width;
+			Config.dbgPosCmd_0x44 = (uint)Height;
 			Config.dbgPosCmd_0x48 = 0;
 			Config.dbgPosCmd_0x4C = 0;
 			Config.unk_0x5C = 2;

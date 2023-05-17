@@ -1,7 +1,10 @@
-#include "trampoline.h"
+#include "module_loader.h"
+#include "jailbreak_man.h"
+#include "module.h"
 #include "mono.h"
 #include "io.h"
 
+void* (*mono_domain_create)();
 void (*mono_set_dirs)(const char* lib, const char* etc);
 void* (*mono_jit_init)(const char* domain_name);
 void* (*mono_init_from_assembly)(const char* domain_name, const char* filename);
@@ -33,7 +36,8 @@ uint32_t (*sceKernelLoadStartModule_sys)(const char *, size_t, const void *, uin
 
 void* (*sceKernelLoadStartModuleInternalForMono)(const char *moduleFileName, size_t args, const void *argp, uint32_t flags, void* pOpt, int *pRes);
 
-int (*jailbreak)(U64 authID);
-int (*unjailbreak)();
-int (*isJailbroken)();
-int (*get_module_base)(const char* name, uint64_t* base, uint64_t* size);
+
+void (*mono_trace_set_log_handler)(void* callback, void* user_data);
+
+void* (*mono_dl_fallback_register)(MonoDlFallbackLoad load_func, MonoDlFallbackSymbol symbol_func, MonoDlFallbackClose close_func, void *user_data);
+void (*mono_dl_fallback_unregister)(void* handler);
