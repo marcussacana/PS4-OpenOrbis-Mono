@@ -41,7 +41,7 @@ namespace Orbis.Internals
             Log(pMsg);
             free(pMsg);
         }
-        private static  void* AllocString(string String)
+        public static void* AllocString(string String)
         {
             var Data = Encoding.UTF8.GetBytes(String + "\x0");
 

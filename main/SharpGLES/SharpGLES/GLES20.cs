@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -754,13 +755,16 @@ namespace SharpGLES
 		[DllImport(Path, EntryPoint = "glUniform4i")]
 		public static extern void Uniform4i (int location, int x, int y, int z, int w);
 
-		//public static extern void glUniform4iv (int location, int count, const int v);
-		//public static extern void glUniformMatrix2fv (int location, int count, GLboolean transpose, const float value);
+        //public static extern void glUniform4iv (int location, int count, const int v);
 
-		[DllImport(Path, EntryPoint = "glUniformMatrix3fv")]
-		public static extern void UniformMatrix3fv(int location, int count, bool transpose, float[] value);
+        [DllImport(Path, EntryPoint = "glUniformMatrix2fv")]
+        public static extern void glUniformMatrix2fv (int location, int count, bool transpose, float[] value);
 
-		//public static extern void glUniformMatrix4fv (int location, int count, GLboolean transpose, const float value);
+        [DllImport(Path, EntryPoint = "glUniformMatrix3fv")]
+		public unsafe static extern void UniformMatrix3fv(int location, int count, bool transpose, float[] value);
+
+        [DllImport(Path, EntryPoint = "glUniformMatrix4fv")]
+        public unsafe static extern void UniformMatrix4fv (int location, int count, bool transpose, Matrix4x4* value);
 
 		[DllImport(Path, EntryPoint = "glUseProgram")]
 		public static extern void UseProgram (int program);

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using OrbisGL.GL2D;
 using SharpGLES;
 
 namespace OrbisGL.GL
@@ -10,8 +13,11 @@ namespace OrbisGL.GL
     {
         private bool BufferInvalidated = true;
         
-        private GLProgram Program;
-        private int RenderMode = 0;
+        public GLProgram Program { get; protected set; }
+
+        protected int RenderMode = 0;
+
+        private List<GLObject> Childs = new List<GLObject>();
 
         private List<byte> ArrayBuffer = new List<byte>();
         private List<byte> IndexBuffer = new List<byte>();
@@ -24,11 +30,17 @@ namespace OrbisGL.GL
 
         private Texture Texture;
 
+        protected GLObject() { }
+
+        int TimeUniformLocation = int.MinValue;
+
         public GLObject(GLProgram Program, RenderMode Mode)
         {
             this.Program = Program;
             this.RenderMode = (int)Mode;
         }
+
+        public void AddArray(params Vector3[] Points) => AddArray(Points.SelectMany(x => new[] { x.X, x.Y, x.Z }).ToArray());
 
         public unsafe void AddArray(params float[] Points)
         {
@@ -40,6 +52,18 @@ namespace OrbisGL.GL
                     ArrayBuffer.Add(pPoints[i]);
             }
         }
+
+        public unsafe void IntAddArray(params int[] Numbers)
+        {
+            BufferInvalidated = true;
+            fixed (void* Pointer = Numbers)
+            {
+                byte* pPoints = (byte*)Pointer;
+                for (int i = 0; i < Numbers.Length * sizeof(int); i++)
+                    ArrayBuffer.Add(pPoints[i]);
+            }
+        }
+
 
         public unsafe void AddArray(byte Alpha, params RGBColor[] Colors)
         {
@@ -142,10 +166,27 @@ namespace OrbisGL.GL
                 Marshal.FreeHGlobal(pArrayBuffer);
         }
 
-        public void Draw()
+        public void UpdateUniforms(long Tick)
+        {
+            if (TimeUniformLocation >= 0)
+            {
+                Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 10_000_000.0f);
+            }
+            else if (TimeUniformLocation == int.MinValue)
+            {
+                TimeUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Time");
+
+                if (TimeUniformLocation != -1)
+                    Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 10_000_000.0f);
+            }
+        }
+
+        public virtual void Draw(long Tick)
         {
             GLES20.UseProgram(Program.Handler);
-            
+
+            UpdateUniforms(Tick);
+
             BuildBuffers();
 
             GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);

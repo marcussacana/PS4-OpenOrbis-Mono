@@ -4,6 +4,6 @@ namespace OrbisGL.GL
 {
     public interface IRenderable : IDisposable
     {
-        void Draw();
+        void Draw(long Tick);
     }
 }

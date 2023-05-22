@@ -1,12 +1,15 @@
 ﻿using OrbisGL;
 using OrbisGL.GL;
+using OrbisGL.GL2D;
 using SharpGLES;
 using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime;
 using System.Windows.Forms;
 using static OrbisGL.GL2D.Coordinates2D;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GLTest
 {
@@ -18,7 +21,7 @@ namespace GLTest
         {
             InitializeComponent();
 
-                GLControl = new GLControl(500, 500);
+                GLControl = new GLControl(1280, 720);
                 this.Controls.Add(GLControl);
         }
 #endif
@@ -30,7 +33,25 @@ void main(void) {
     gl_Position = vec4(Position, 1.0);
 }
 ";
-const string UVVertex =
+const string VertexMat4 =
+@"
+attribute vec3 Position;
+uniform mat4 Transformation;
+
+void main(void) {
+    gl_Position = Transformation * vec4(Position, 1.0);
+}
+";
+const string VertexOffset =
+@"
+attribute vec3 Position;
+uniform vec2 Offset;
+
+void main(void) {
+    gl_Position = vec4(Position + Offset, 1.0);
+}
+";
+        const string UVVertex =
 @"
 attribute vec3 Position;
 attribute vec2 uv;
@@ -71,7 +92,7 @@ void main(void) {
             
             var Prog = new GLProgram(hProg);
 
-            Prog.AddBufferAttribute(new BufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3));
+            Prog.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
 
             var Obj = new GLObject(Prog, RenderMode.Triangle);
 
@@ -128,7 +149,7 @@ void main(void) {
 
             var Prog = new GLProgram(hProg);
 
-            Prog.AddBufferAttribute(new BufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3));
+            Prog.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
 
             var Obj = new GLObject(Prog, RenderMode.ClosedLine);
 
@@ -145,6 +166,63 @@ void main(void) {
             Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
 
             GLControl.GLDisplay.Objects.Add(Obj);
+#endif
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var hProg = Shader.GetProgram(VertexMat4, FragmentColor);
+
+            var GLProg = new GLProgram(hProg);
+            GLProg.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
+
+            var Translation = new Matrix4x4(0.755f, 0, 0, 0,
+                                            0, 1, 0, 0,
+                                            0, 0, 1, 0,
+                                            0, 0, 0, 1);
+
+            GLProg.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
+
+
+            var Obj = new GLObject(GLProg, RenderMode.Triangle);
+
+            Obj.AddArray(-0.3f, -0.6f, 1);
+            Obj.AddArray(0.6f, -0.6f, 1);
+            Obj.AddArray(-0.3f, 0.6f, 1);
+            Obj.AddArray(0.6f, 0.6f, 1);
+
+            Obj.AddIndex(0, 1, 2, 1, 2, 3);
+
+           // var Scale = Matrix4x4.CreateScale(1, 1, 1, Vector3.One);
+
+
+            GLProg.SetUniform("Transformation", Translation);
+
+            GLControl.GLDisplay.Objects.Add(Obj);
+#endif
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Rect = new Rectangle2D(1280, 720, true, ResLoader.GetResource("ThemeFrag"));
+            //Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width), YOffset * Rand.Next(GLControl.Height), 1);
+
+            Rect.Program.SetUniform("Resolution", new Vector2(1280f, 720f));
+
+            GLControl.GLDisplay.Objects.Add(Rect);
+#endif
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Rect = new RoundedRectangle2D(250, 100);
+            Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 250), YOffset * Rand.Next(GLControl.Height - 100), 1);
+
+            //Rect.RoundLevel = Rand.Next(0, 100) / 100f;
+            GLControl.GLDisplay.Objects.Add(Rect);
 #endif
         }
     }

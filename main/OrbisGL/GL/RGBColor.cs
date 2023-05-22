@@ -156,6 +156,7 @@ namespace OrbisGL.GL
         public static RGBColor Turquoise = new RGBColor(64, 224, 208);
         public static RGBColor Violet = new RGBColor(238, 130, 238);
         public static RGBColor Wheat = new RGBColor(245, 222, 179);
+        public static RGBColor White = new RGBColor(255, 255, 255);
         public static RGBColor WhiteSmoke = new RGBColor(245, 245, 245);
         public static RGBColor Yellow = new RGBColor(255, 255, 0);
         public static RGBColor YellowGreen = new RGBColor(154, 205, 50);

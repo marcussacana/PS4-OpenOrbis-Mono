@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using SharpGLES;
@@ -36,8 +37,8 @@ namespace OrbisGL.GL
             GL2D.Coordinates2D.Width = this.Width = Width;
             GL2D.Coordinates2D.Height = this.Height = Height;
             
-            GL2D.Coordinates2D.XUnity = Math.Abs(-1 - GL2D.Coordinates2D.XToPoint(1));
-            GL2D.Coordinates2D.YUnity = Math.Abs(-1 - GL2D.Coordinates2D.YToPoint(1));
+            GL2D.Coordinates2D.XOffset = GL2D.Coordinates2D.XToPoint(1) + 1;
+            GL2D.Coordinates2D.YOffset = GL2D.Coordinates2D.YToPoint(1) - 1;
 
             this.Handler = Handler ?? IntPtr.Zero;
             
@@ -53,6 +54,7 @@ namespace OrbisGL.GL
 #if !ORBIS
             GLDisplay = new EGLDisplay(Handler, Width, Height);
 #endif
+
             long LastDrawTick = 0;
             while (!Abort.IsCancellationRequested)
             {
@@ -66,7 +68,11 @@ namespace OrbisGL.GL
                 {
                     uint ReamingTicks = (uint)(NextDrawTick - CurrentTick);
                     sceKernelUsleep(ReamingTicks);
-                }
+                } 
+#if DEBUG
+                if (CurrentTick > NextDrawTick)
+                    Debugger.Log(1, "WARN", "Frame Loop too Late");
+#endif
 #else
                 long CurrentTick = DateTime.UtcNow.Ticks;
                 
@@ -80,8 +86,9 @@ namespace OrbisGL.GL
 #endif
 
                 LastDrawTick = CurrentTick;
-                Draw();
+                Draw(CurrentTick);
                 GLDisplay.SwapBuffers();
+
             }
         }
 
@@ -96,19 +103,25 @@ namespace OrbisGL.GL
         {
             if (GLDisplay == null)
                 GLDisplay = new EGLDisplay(Handler, Width, Height);
-            Draw();
+            Draw(DateTime.Now.Ticks);
         }
 #endif
 
-        public virtual void Draw()
+        public virtual void Draw(long Tick)
         {
             GLES20.Viewport(0,0, GLDisplay.Width, GLDisplay.Height);
             GLES20.ClearColor(ClearColor.RedF, ClearColor.GreenF, ClearColor.BlueF, 1);
             GLES20.Clear(GLES20.GL_COLOR_BUFFER_BIT);
-            
+
+            GLES20.BlendEquation(GLES20.GL_FUNC_ADD);
+            GLES20.BlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE);
+            GLES20.Enable(GLES20.GL_BLEND);
+
             foreach (var Object in  Objects)
             {
-                Object.Draw();
+
+                Object.Draw(Tick);
+                GLES20.Flush();
             }
         }
         

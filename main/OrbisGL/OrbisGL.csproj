@@ -1,96 +1,108 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{7EF00BD1-A3C4-45FB-BF5C-44DB18F28EC9}</ProjectGuid>
-        <OutputType>Library</OutputType>
-        <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>OrbisGL</RootNamespace>
-        <AssemblyName>OrbisGL</AssemblyName>
-        <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-        <FileAlignment>512</FileAlignment>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>portable</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE;ORBIS</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE;ORBIS</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Win|x64' ">
-      <OutputPath>bin\x64\Debug_Win\</OutputPath>
-      <PlatformTarget>x64</PlatformTarget>
-      <DefineConstants>DEBUG;TRACE</DefineConstants>
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <DebugSymbols>true</DebugSymbols>
-      <DebugType>full</DebugType>
-    </PropertyGroup>
-    <ItemGroup>
-        <Reference Include="System" />
-        <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-          <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
-        </Reference>
-        <Reference Include="System.Core" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-          <HintPath>..\packages\System.Memory.4.5.2\lib\netstandard1.1\System.Memory.dll</HintPath>
-        </Reference>
-        <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-        </Reference>
-        <Reference Include="System.Xml" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="Enums.cs" />
-        <Compile Include="Constants.cs" />
-        <Compile Include="GL2D\Coordinates2D.cs" />
-        <Compile Include="GL\BufferAttribute.cs" />
-        <Compile Include="GL\IRenderable.cs" />
-        <Compile Include="GL\Object.cs" />
-        <Compile Include="GL\Program.cs" />
-        <Compile Include="GL\RGBColor.cs" />
-        <Compile Include="GL\Texture.cs" />
-        <Compile Include="GL\Display.cs" />
-        <Compile Include="Shader.cs" />
-        <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="State.cs" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\ImageSharp\src\ImageSharp\ImageSharp.csproj">
-        <Project>{3716a6c7-74ed-4288-81e9-c58dedf5092e}</Project>
-        <Name>ImageSharp</Name>
-      </ProjectReference>
-      <ProjectReference Include="..\SharpGLES\SharpGLES\SharpGLES.csproj">
-        <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
-        <Name>SharpGLES</Name>
-      </ProjectReference>
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="packages.config" />
-    </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7EF00BD1-A3C4-45FB-BF5C-44DB18F28EC9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OrbisGL</RootNamespace>
+    <AssemblyName>OrbisGL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;ORBIS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;ORBIS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Win|x64' ">
+    <OutputPath>bin\x64\Debug_Win\</OutputPath>
+    <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.2\lib\netstandard1.1\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\portable-net45+win8+wp8+wpa81\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Enums.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="GL2D\Coordinates2D.cs" />
+    <Compile Include="GL2D\GLObject2D.cs" />
+    <Compile Include="GL2D\Rectangle.cs" />
+    <Compile Include="GL2D\RoundedRectangle.cs" />
+    <Compile Include="GL\BufferAttribute.cs" />
+    <Compile Include="GL\IRenderable.cs" />
+    <Compile Include="GL\Object.cs" />
+    <Compile Include="GL\Program.cs" />
+    <Compile Include="GL\RGBColor.cs" />
+    <Compile Include="GL\Texture.cs" />
+    <Compile Include="GL\Display.cs" />
+    <Compile Include="Shader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Loader.cs" />
+    <Compile Include="State.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImageSharp\src\ImageSharp\ImageSharp.csproj">
+      <Project>{3716a6c7-74ed-4288-81e9-c58dedf5092e}</Project>
+      <Name>ImageSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpGLES\SharpGLES\SharpGLES.csproj">
+      <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
+      <Name>SharpGLES</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <EmbeddedResource Include="Shaders\FragmentColor.glsl" />
+    <EmbeddedResource Include="Shaders\VertexOffsetTexture.glsl" />
+    <EmbeddedResource Include="Shaders\VertexOffset.glsl" />
+    <EmbeddedResource Include="Shaders\Vertex.glsl" />
+    <EmbeddedResource Include="Shaders\ThemeFrag.glsl" />
+    <EmbeddedResource Include="Shaders\FragmentColorRounded.glsl" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
     </Target>
     -->
-
 </Project>

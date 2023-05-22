@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using SharpGLES;
 
 namespace OrbisGL.GL
@@ -42,8 +43,6 @@ namespace OrbisGL.GL
             
             MaxAttribOffset += GetPrimitiveSize(Attribute.Type) * GetArraySize(Attribute.Size);
         }
-
-
 
         internal void ApplyAttributes()
         {
@@ -120,6 +119,20 @@ namespace OrbisGL.GL
         {
             GLES20.UseProgram(Handler);
             GLES20.Uniform4f(Location, ValueA, ValueB, ValueC, ValueD);
+        }
+
+        public void SetUniform(string Name, Vector2 Value) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
+        public void SetUniform(int Location, Vector2 Value) => SetUniform(Location, Value.X, Value.Y);
+
+        public void SetUniform(string Name, Vector3 Value) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
+        public void SetUniform(int Location, Vector3 Value) => SetUniform(Location, Value.X, Value.Y, Value.Z);
+
+        public void SetUniform(string Name, Matrix4x4 Matrix) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Matrix);
+        public unsafe void SetUniform(int Location, Matrix4x4 Matrix)
+        {
+            GLES20.UseProgram(Handler);
+            Matrix4x4* pMatrix = &Matrix;
+            GLES20.UniformMatrix4fv(Location, 1, false, pMatrix);
         }
 
         int GetGLType(AttributeType Type, AttributeSize Size)

@@ -34,12 +34,15 @@ namespace GLTest
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(12, 511);
+            this.button1.Location = new System.Drawing.Point(12, 721);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(85, 23);
             this.button1.TabIndex = 0;
@@ -50,7 +53,7 @@ namespace GLTest
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(385, 511);
+            this.button2.Location = new System.Drawing.Point(1165, 721);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(85, 23);
             this.button2.TabIndex = 1;
@@ -61,7 +64,7 @@ namespace GLTest
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button3.Location = new System.Drawing.Point(103, 511);
+            this.button3.Location = new System.Drawing.Point(103, 721);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(122, 23);
             this.button3.TabIndex = 2;
@@ -69,11 +72,47 @@ namespace GLTest
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // button4
+            // 
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button4.Location = new System.Drawing.Point(231, 721);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(69, 23);
+            this.button4.TabIndex = 3;
+            this.button4.Text = "Matrix 4x4";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button5
+            // 
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button5.Location = new System.Drawing.Point(306, 721);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(69, 23);
+            this.button5.TabIndex = 4;
+            this.button5.Text = "BG";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // button6
+            // 
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button6.Location = new System.Drawing.Point(381, 721);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(69, 23);
+            this.button6.TabIndex = 5;
+            this.button6.Text = "Rectangle";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // GLTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(482, 546);
+            this.ClientSize = new System.Drawing.Size(1262, 756);
+            this.Controls.Add(this.button6);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -89,5 +128,8 @@ namespace GLTest
 
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button6;
     }
 }
