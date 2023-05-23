@@ -220,8 +220,10 @@ void main(void) {
 #if !ORBIS
             var Rect = new RoundedRectangle2D(250, 100);
             Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 250), YOffset * Rand.Next(GLControl.Height - 100), 1);
+            Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+            Rect.Transparecy = (byte)Rand.Next(0, 255);
 
-            //Rect.RoundLevel = Rand.Next(0, 100) / 100f;
+            Rect.RoundLevel = Rand.Next(0, 100) / 100f;
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif
         }

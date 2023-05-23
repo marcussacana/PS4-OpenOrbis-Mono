@@ -29,9 +29,9 @@ void main(void)
     // compute box
     float b = udRoundBox( fragCoord.xy - halfRes, halfRes, iRadius );
     
-	vec3 c = mix( Color.xyz, vec3(0.0, 0.0, 0.0), smoothstep(0.0, 1.0, b) );        
+	vec3 c = mix(Color.xyz, vec3(0.0, 0.0, 0.0), smoothstep(0.0, 1.0, b) );        
     float alpha = Color.w - smoothstep(0.0, 1.0, b);
     if(alpha < 0.1)
         discard;   
-    fragColor = vec4( c, alpha);
+    fragColor = vec4(c, alpha);
 }
