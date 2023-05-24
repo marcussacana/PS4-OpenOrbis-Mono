@@ -65,6 +65,7 @@
     <Compile Include="GL2D\Coordinates2D.cs" />
     <Compile Include="GL2D\GLObject2D.cs" />
     <Compile Include="GL2D\Rectangle.cs" />
+    <Compile Include="GL2D\Elipse.cs" />
     <Compile Include="GL2D\RoundedRectangle.cs" />
     <Compile Include="GL\BufferAttribute.cs" />
     <Compile Include="GL\IRenderable.cs" />
@@ -96,6 +97,7 @@
     <EmbeddedResource Include="Shaders\Vertex.glsl" />
     <EmbeddedResource Include="Shaders\ThemeFrag.glsl" />
     <EmbeddedResource Include="Shaders\FragmentColorRounded.glsl" />
+    <EmbeddedResource Include="Shaders\FragmentColorElipse.glsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

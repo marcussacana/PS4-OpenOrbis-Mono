@@ -227,5 +227,18 @@ void main(void) {
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif
         }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+
+#if !ORBIS
+            var Rect = new Elipse2D(200, 200);
+            Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 200), YOffset * Rand.Next(GLControl.Height - 200), 1);
+            Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+            //Rect.Transparecy = (byte)Rand.Next(0, 255);
+
+            GLControl.GLDisplay.Objects.Add(Rect);
+#endif
+        }
     }
 }
