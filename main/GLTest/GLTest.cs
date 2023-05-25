@@ -218,10 +218,10 @@ void main(void) {
         private void button6_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var Rect = new RoundedRectangle2D(250, 100);
+            var Rect = new RoundedRectangle2D(250, 100, Rand.Next(0, 2) == 1);
             Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 250), YOffset * Rand.Next(GLControl.Height - 100), 1);
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
-            Rect.Transparecy = (byte)Rand.Next(0, 255);
+            //Rect.Transparecy = (byte)Rand.Next(0, 255);
 
             Rect.RoundLevel = Rand.Next(0, 100) / 100f;
             GLControl.GLDisplay.Objects.Add(Rect);
@@ -232,7 +232,7 @@ void main(void) {
         {
 
 #if !ORBIS
-            var Rect = new Elipse2D(200, 200);
+            var Rect = new Elipse2D(200, 200, Rand.Next(0, 2) == 1);
             Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 200), YOffset * Rand.Next(GLControl.Height - 200), 1);
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             //Rect.Transparecy = (byte)Rand.Next(0, 255);

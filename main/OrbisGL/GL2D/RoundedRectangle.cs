@@ -8,14 +8,23 @@ namespace OrbisGL.GL2D
     {
         readonly int BorderUniformLocation;
         readonly int ColorUniformLocation;
-        public byte Transparecy { get; set; } = 255;
+        readonly int ContourWidthUniformLocation;
+
+        public byte Transparency { get; set; } = 255;
 
         public RGBColor Color { get; set; } = RGBColor.White;
 
         public float RoundLevel { get; set; } = 0.8f;
-        public RoundedRectangle2D(int Width, int Height)
+
+        public float ContourWidth { get; set; } = 1.0f;
+
+        public bool Fill { get; private set; }
+
+        public RoundedRectangle2D(int Width, int Height, bool Fill)
         {
-            var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentColorRounded"));
+            this.Fill = Fill;
+
+            var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource(Fill ? "FragmentColorRounded" : "FragmentColorRoundedContour"));
             Program = new GLProgram(hProg);
 
             Program.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
@@ -44,6 +53,7 @@ namespace OrbisGL.GL2D
 
             BorderUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Border");
             ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
+            ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
         }
@@ -51,7 +61,11 @@ namespace OrbisGL.GL2D
         public override void Draw(long Tick)
         {
             Program.SetUniform(BorderUniformLocation, RoundLevel);
-            Program.SetUniform(ColorUniformLocation, Color, Transparecy);
+            Program.SetUniform(ColorUniformLocation, Color, Transparency);
+
+            if (!Fill)
+                Program.SetUniform(ContourWidthUniformLocation, ContourWidth);
+
             base.Draw(Tick);
         }
     }

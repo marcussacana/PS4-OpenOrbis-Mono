@@ -6,16 +6,22 @@ namespace OrbisGL.GL2D
 {
     public class Elipse2D : GLObject2D
     {
-        readonly int AntiAlisingUniformLocation;
+        readonly int AntiAliasingUniformLocation;
         readonly int ColorUniformLocation;
-        public byte Transparecy { get; set; } = 255;
+        readonly int ContourWidthUniformLocation;
+        public byte Transparency { get; set; } = 255;
 
         public RGBColor Color { get; set; } = RGBColor.White;
 
-        public float AntiAlising { get; set; } = 6f;
-        public Elipse2D(int Width, int Height)
+        public float AntiAliasing { get; set; } = 6f;
+        public float ContourWidth { get; set; } = 1.0f;
+
+        public bool Fill { get; private set; }
+        public Elipse2D(int Width, int Height, bool Fill)
         {
-            var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentColorElipse"));
+            this.Fill = Fill;
+
+            var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource(Fill ? "FragmentColorElipse" : "FragmentColorElipseContour"));
             Program = new GLProgram(hProg);
 
             Program.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
@@ -42,16 +48,21 @@ namespace OrbisGL.GL2D
             AddIndex(0, 1, 2, 1, 2, 3);
             RenderMode = (int)OrbisGL.RenderMode.Triangle;
 
-            AntiAlisingUniformLocation = GLES20.GetUniformLocation(Program.Handler, "AntiAlising");
+            AntiAliasingUniformLocation = GLES20.GetUniformLocation(Program.Handler, "AntiAliasing");
             ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
+            ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
         }
 
         public override void Draw(long Tick)
         {
-            Program.SetUniform(AntiAlisingUniformLocation, AntiAlising);
-            Program.SetUniform(ColorUniformLocation, Color, Transparecy);
+            if (Fill)
+                Program.SetUniform(AntiAliasingUniformLocation, AntiAliasing);
+            else
+                Program.SetUniform(ContourWidthUniformLocation, ContourWidth);
+
+            Program.SetUniform(ColorUniformLocation, Color, Transparency);
             base.Draw(Tick);
         }
     }
