@@ -230,12 +230,28 @@ void main(void) {
 
         private void button7_Click(object sender, EventArgs e)
         {
-
 #if !ORBIS
             var Rect = new Elipse2D(200, 200, Rand.Next(0, 2) == 1);
             Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 200), YOffset * Rand.Next(GLControl.Height - 200), 1);
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
-            //Rect.Transparecy = (byte)Rand.Next(0, 255);
+            Rect.Transparency = (byte)Rand.Next(0, 255);
+
+            GLControl.GLDisplay.Objects.Add(Rect);
+#endif
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Rect = new PartialElipse2D(200, 200, Rand.Next(0, 2) == 1);
+            Rect.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 200), YOffset * Rand.Next(GLControl.Height - 200), 1);
+            Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+            Rect.StartAngle = Rand.Next(-314, 314) / 100;
+            Rect.EndAngle = Rand.Next(-314, 314) / 100; 
+            Rect.Thickness = Rand.Next(0, 100) / 100;
+
+
+            //Rect.Transparency = (byte)Rand.Next(0, 255);
 
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif

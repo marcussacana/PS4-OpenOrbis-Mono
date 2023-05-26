@@ -13,18 +13,15 @@ uniform float ContourWidth;
 #define iResolution Resolution
 #define fragCoord Resolution * UV
 
+//stolen from https://www.shadertoy.com/view/ssdSD2
 void main(void)
 {
     // Parameters
     float thickness = ContourWidth/100.;
-    // Control with mouse
-    //thickness = iMouse.x / iResolution.x;
-    float fade = 0.005;
+    float fade = 4.0 / iResolution.y;
 
     // -1 -> 1 local space, adjusted for aspect ratio
     vec2 uv = (UV * 2.) - 1.;
-    //float aspect = iResolution.x / iResolution.y;
-    //uv.x *= aspect;
 
     // Calculate distance and fill circle with white
     float distance = 1.0 - length(uv);

@@ -63,6 +63,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GL2D\Coordinates2D.cs" />
+    <Compile Include="GL2D\PartialElipse.cs" />
     <Compile Include="GL2D\GLObject2D.cs" />
     <Compile Include="GL2D\Rectangle.cs" />
     <Compile Include="GL2D\Elipse.cs" />
@@ -100,6 +101,7 @@
     <EmbeddedResource Include="Shaders\FragmentColorElipse.glsl" />
     <EmbeddedResource Include="Shaders\FragmentColorRoundedContour.glsl" />
     <EmbeddedResource Include="Shaders\FragmentColorElipseContour.glsl" />
+    <EmbeddedResource Include="Shaders\FragmentColorElipsePartial.glsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
