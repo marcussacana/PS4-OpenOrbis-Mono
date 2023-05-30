@@ -256,5 +256,15 @@ void main(void) {
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif
         }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            var Font = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "*.ttf").First();
+            var Text = new Text2D(Font, 24);
+            Text.SetText("Hello World");
+            Text.Offset = new Vector3(XOffset * Rand.Next(0, GLControl.Width - 200), YOffset * Rand.Next(GLControl.Height - 200), 1);
+            Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+            GLControl.GLDisplay.Objects.Add(Text);
+        }
     }
 }

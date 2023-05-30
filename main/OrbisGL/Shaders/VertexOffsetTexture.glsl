@@ -1,4 +1,6 @@
-﻿attribute vec3 Position;
+﻿#version 100
+
+attribute vec3 Position;
 attribute vec2 uv;
 
 uniform vec3 Offset;
