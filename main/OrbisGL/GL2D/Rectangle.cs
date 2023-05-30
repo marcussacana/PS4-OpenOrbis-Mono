@@ -25,10 +25,10 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
-            AddArray(XToPoint(0),     YToPoint(0),      0);//0
-            AddArray(XToPoint(Width), YToPoint(0),      0);//1
-            AddArray(XToPoint(0),     YToPoint(Height), 0);//2
-            AddArray(XToPoint(Width), YToPoint(Height), 0);//3
+            AddArray(XToPoint(0),     YToPoint(0),      -1);//0
+            AddArray(XToPoint(Width), YToPoint(0),      -1);//1
+            AddArray(XToPoint(0),     YToPoint(Height), -1);//2
+            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
 
             if (Fill)
             {

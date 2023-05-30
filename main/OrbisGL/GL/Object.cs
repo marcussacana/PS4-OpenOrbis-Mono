@@ -30,7 +30,9 @@ namespace OrbisGL.GL
 
         private Texture Texture;
 
-        protected GLObject() { }
+        protected GLObject() {
+            this.RenderMode = (int)OrbisGL.RenderMode.Triangle;
+        }
 
         int TimeUniformLocation = int.MinValue;
 

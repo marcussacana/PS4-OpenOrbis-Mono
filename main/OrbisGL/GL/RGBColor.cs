@@ -15,9 +15,9 @@ namespace OrbisGL.GL
             BlueF = Blue / 255f;
         }
 
-        public int R => (int)(255 * RedF);
-        public int G => (int)(255 * GreenF);
-        public int B => (int)(255 * BlueF);
+        public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }
+        public int G { get => (int)(255 * GreenF); set => GreenF = value / 255f; }
+        public int B { get => (int)(255 * BlueF); set => BlueF = value / 255f; }
         
         
         #region NamedColors

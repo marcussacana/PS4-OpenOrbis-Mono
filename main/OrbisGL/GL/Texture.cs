@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
 using SharpGLES;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -14,15 +13,13 @@ namespace OrbisGL.GL
         
         private static List<int> SlotTexture = new List<int>(32);
 
-        public static implicit operator int(Texture Source)
-        {
-            return Source.TextureID;
-        }
-
         static Texture()
         {
             for (int i = 0; i < 32; i++)
                 SlotQueue.Add(i);
+
+            for (int i = 0; i < 32; i++)
+                SlotTexture.Add(0);
         }
         
         internal int TextureID;
@@ -53,8 +50,7 @@ namespace OrbisGL.GL
         /// Set the Texture from common image format (.png, .jpg, .bmp)
         /// WARNING - SLOW METHOD, NOT RECOMMENDED
         /// </summary>
-        /// <param name="Data"></param>
-        [Obsolete]
+        [Obsolete("Slow Method, use SetData instead", false)]
         public void SetImage(byte[] Data, PixelFormat TextureFormat)
         {
             int Width, Height;
@@ -93,7 +89,7 @@ namespace OrbisGL.GL
                     SlotQueue.Remove(Slot);
 
                 SlotQueue.Add(Slot);
-                return GLES20.GL_TEXTURE0 + Slot;
+                return Slot;
             }
             
             var ActiveSlot = SlotQueue.First();
@@ -101,11 +97,11 @@ namespace OrbisGL.GL
             SlotQueue.Add(0);
 
             SlotTexture[ActiveSlot] = TextureID;
-            
+
             GLES20.ActiveTexture(GLES20.GL_TEXTURE0 + ActiveSlot);
             GLES20.BindTexture(TextureType, TextureID);
 
-            return GLES20.GL_TEXTURE0 + ActiveSlot;
+            return ActiveSlot;
         }
         
         //Todo: Compressed Texture Support
