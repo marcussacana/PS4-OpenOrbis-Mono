@@ -1,6 +1,8 @@
-﻿using OrbisGL.FreeType;
+﻿using System.Collections.Generic;
+using OrbisGL.FreeType;
 using OrbisGL.GL;
 using SharpGLES;
+using System;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
@@ -34,10 +36,28 @@ namespace OrbisGL.GL2D
             Face = Font;
         }
 
+        static Dictionary<string, IntPtr> FontCache = new Dictionary<string, IntPtr>();
+
         static FT_Face* GetFont(string FontPath, int FontSize)
         {
-            Render.LoadFont(FontPath, FontSize, out FT_Face* Font);
-            return Font;
+            string FontKey = $"{FontPath}-{FontSize}";
+
+            if (FontCache.ContainsKey(FontKey))
+            {
+                return (FT_Face*)FontCache[FontKey];
+            }
+            else
+            {
+                if (!Render.LoadFont(FontPath, FontSize, out FT_Face* Font))
+                {
+                    throw new Exception("Failed to Load the Font");
+                }
+
+
+                FontCache[FontKey] = new IntPtr(Font);
+
+                return Font;
+            }
         }
 
         
