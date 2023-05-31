@@ -88,7 +88,11 @@ namespace OrbisGL.GL
 #endif
 
                 LastDrawTick = CurrentTick;
+#if ORBIS
                 Draw(CurrentTick);
+#else
+                Draw(CurrentTick/10);
+#endif
                 GLDisplay.SwapBuffers();
 
             }

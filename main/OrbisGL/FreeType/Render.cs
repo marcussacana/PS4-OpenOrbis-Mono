@@ -1,7 +1,7 @@
 ﻿using OrbisGL.GL;
 using System;
-using System.Data.SqlTypes;
 using System.Runtime.InteropServices;
+using Orbis.Internals;
 
 namespace OrbisGL.FreeType
 {
@@ -23,7 +23,7 @@ namespace OrbisGL.FreeType
 
         static IntPtr FT_Library = IntPtr.Zero;
 
-        public unsafe static bool LoadFont(string FontPath, int FontSize, out FT_Face* Face)
+        public static unsafe bool LoadFont(string FontPath, int FontSize, out FT_Face* Face)
         {
             Face = default;
 

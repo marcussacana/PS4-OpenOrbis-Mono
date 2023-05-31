@@ -58,6 +58,7 @@ namespace OrbisGL.GL
 
         public void SetUniform(int Location, RGBColor Value, byte Alpha)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             var AlphaF = Alpha / 255F;
             GLES20.Uniform4f(Location, Value.RedF, Value.GreenF, Value.BlueF, AlphaF);
@@ -67,6 +68,7 @@ namespace OrbisGL.GL
         
         public void SetUniform(int Location, int Value)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform1i(Location, Value);
         }
@@ -74,6 +76,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, int ValueA, int ValueB)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB);
         public void SetUniform(int Location, int ValueA, int ValueB)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform2i(Location, ValueA, ValueB);
         }
@@ -81,6 +84,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, int ValueA, int ValueB, int ValueC)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB, ValueC);
         public void SetUniform(int Location, int ValueA, int ValueB, int ValueC)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform3i(Location, ValueA, ValueB, ValueC);
         }
@@ -88,6 +92,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, int ValueA, int ValueB, int ValueC, int ValueD)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB, ValueC, ValueD);
         public void SetUniform(int Location, int ValueA, int ValueB, int ValueC, int ValueD)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform4i(Location, ValueA, ValueB, ValueC, ValueD);
         }
@@ -96,6 +101,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, float Value)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
         public void SetUniform(int Location, float Value)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform1f(Location, Value);
         }
@@ -103,6 +109,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, float ValueA, float ValueB)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB);
         public void SetUniform(int Location, float ValueA, float ValueB)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform2f(Location, ValueA, ValueB);
         }
@@ -110,6 +117,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, float ValueA, float ValueB, float ValueC)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB, ValueC);
         public void SetUniform(int Location, float ValueA, float ValueB, float ValueC)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform3f(Location, ValueA, ValueB, ValueC);
         }
@@ -117,6 +125,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, float ValueA, float ValueB, float ValueC, float ValueD)  => SetUniform(GLES20.GetUniformLocation(Handler, Name), ValueA, ValueB, ValueC, ValueD);
         public void SetUniform(int Location, float ValueA, float ValueB, float ValueC, float ValueD)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             GLES20.Uniform4f(Location, ValueA, ValueB, ValueC, ValueD);
         }
@@ -130,6 +139,7 @@ namespace OrbisGL.GL
         public void SetUniform(string Name, Matrix4x4 Matrix) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Matrix);
         public unsafe void SetUniform(int Location, Matrix4x4 Matrix)
         {
+            if (Location < 0) return;
             GLES20.UseProgram(Handler);
             Matrix4x4* pMatrix = &Matrix;
             GLES20.UniformMatrix4fv(Location, 1, false, pMatrix);

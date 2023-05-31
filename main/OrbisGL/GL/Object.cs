@@ -172,14 +172,14 @@ namespace OrbisGL.GL
         {
             if (TimeUniformLocation >= 0)
             {
-                Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 10_000_000.0f);
+                Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 1_000_000.0f);
             }
             else if (TimeUniformLocation == int.MinValue)
             {
                 TimeUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Time");
 
                 if (TimeUniformLocation != -1)
-                    Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 10_000_000.0f);
+                    Program.SetUniform(TimeUniformLocation, (Tick & 0xFFFFFFFF) / 1_000_000.0f);
             }
         }
 

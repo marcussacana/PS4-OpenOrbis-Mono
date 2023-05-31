@@ -8,6 +8,7 @@ namespace OrbisGL.GL2D
     {
         readonly int CircleConfigUniformLocation;
         readonly int ColorUniformLocation;
+
         public byte Transparency { get; set; } = 255;
 
         public RGBColor Color { get; set; } = RGBColor.White;
