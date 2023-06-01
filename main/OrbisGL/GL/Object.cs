@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using OrbisGL.GL2D;
 using SharpGLES;
 
 namespace OrbisGL.GL

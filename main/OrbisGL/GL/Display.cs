@@ -33,12 +33,8 @@ namespace OrbisGL.GL
 #else
             FrameDelay = 1000 / FramePerSecond;
 #endif
-            
-            GL2D.Coordinates2D.Width = this.Width = Width;
-            GL2D.Coordinates2D.Height = this.Height = Height;
-            
-            GL2D.Coordinates2D.XOffset = GL2D.Coordinates2D.XToPoint(1) + 1;
-            GL2D.Coordinates2D.YOffset = GL2D.Coordinates2D.YToPoint(1) - 1;
+
+            GL2D.Coordinates2D.SetSize(Width, Height);
 
             this.Handler = Handler ?? IntPtr.Zero;
             

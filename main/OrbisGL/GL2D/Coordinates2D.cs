@@ -4,18 +4,27 @@ namespace OrbisGL.GL2D
 {
     public static class Coordinates2D
     {
-        internal static int Width;
-        internal static int Height;
+        internal static void SetSize(int Width, int Height)
+        {
+            Coordinates2D.Width = Width;
+            Coordinates2D.Height = Height;
+
+            XOffset = XToPoint(1) + 1;
+            YOffset = YToPoint(1) - 1;
+        }
+
+        internal static int Width { get; private set; }
+        internal static int Height { get; private set; }
 
         /// <summary>
         /// The float point that represents a single pixel X distance in the rendering space.
         /// </summary>
-        public static float XOffset { get; internal set; }
+        public static float XOffset { get; private set; }
 
         /// <summary>
         /// The float point that represents a single pixel Y distance in the rendering space.
         /// </summary>
-        public static float YOffset { get; internal set; }
+        public static float YOffset { get; private set; }
 
         /// <summary>
         /// Nomarlize the Vertex X Coordinate

@@ -44,6 +44,20 @@ namespace OrbisGL.GL2D
             Program.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
             Program.AddBufferAttribute("uv", AttributeType.Float, AttributeSize.Vector2);
 
+            RenderMode = (int)OrbisGL.RenderMode.Triangle;
+
+            CircleConfigUniformLocation = GLES20.GetUniformLocation(Program.Handler, "CircleConfig");//vec3(startAngle, endAngle, Thickness)
+            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
+
+            Program.SetUniform("Resolution", (float)Width, (float)Height);
+
+            RefreshVertex();
+        }
+
+        public override void RefreshVertex()
+        {
+            ClearBuffers();
+
             //   0 ---------- 1
             //   |            |
             //   |            |
@@ -63,12 +77,6 @@ namespace OrbisGL.GL2D
             AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);
-            RenderMode = (int)OrbisGL.RenderMode.Triangle;
-
-            CircleConfigUniformLocation = GLES20.GetUniformLocation(Program.Handler, "CircleConfig");//vec3(startAngle, endAngle, Thickness)
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
-
-            Program.SetUniform("Resolution", (float)Width, (float)Height);
         }
 
         public override void Draw(long Tick)

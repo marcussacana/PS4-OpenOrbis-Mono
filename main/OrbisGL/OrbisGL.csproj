@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\IControl.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="FreeType\FT_GlyphRec.cs" />
