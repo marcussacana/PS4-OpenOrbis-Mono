@@ -39,4 +39,54 @@ namespace OrbisGL
         RGBA = GLES20.GL_RGBA,
         RGB = GLES20.GL_RGB
     }
+
+    [Flags]
+    public enum ClickType
+    {
+        SingleClick = 1 << 0,
+        DoubleClick = 1 << 1,
+        Right = 1 << 2,
+        Left = 1 << 3,
+        Middle = 1 << 4
+    }
+
+    public enum OrbisPadPortType
+    {
+        Standard = 0,
+        Special = 2
+    }
+
+    public enum OrbisPadDeviceClass
+    {
+        Pad = 0,
+        Guitar = 1,
+        Drums = 2
+    }
+
+    public enum OrbisPadConnectionType
+    {
+        Standard = 0,
+        Remote = 2
+    }
+
+    [Flags]
+    public enum OrbisPadButton
+    {
+        L3 = 0x0002,
+        R3 = 0x0004,
+        Options = 0x0008,
+        Up = 0x0010,
+        Right = 0x0020,
+        Down = 0x0040,
+        Left = 0x0080,
+        L2 = 0x0100,
+        R2 = 0x0200,
+        L1 = 0x0400,
+        R1 = 0x0800,
+        Triangle = 0x1000,
+        Circle = 0x2000,
+        Cross = 0x4000,
+        Square = 0x8000,
+        TouchPad = 0x100000
+    }
 }
