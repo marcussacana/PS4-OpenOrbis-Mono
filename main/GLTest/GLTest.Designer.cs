@@ -149,7 +149,7 @@ namespace GLTest
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(95, 23);
             this.button10.TabIndex = 9;
-            this.button10.Text = "Square Test";
+            this.button10.Text = "Cut Test";
             this.button10.UseVisualStyleBackColor = true;
             this.button10.Click += new System.EventHandler(this.button10_Click);
             // 

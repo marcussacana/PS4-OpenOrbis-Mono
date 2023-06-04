@@ -124,10 +124,17 @@ namespace OrbisGL.Controls
                 Children.Add(Child);
         }
 
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+            foreach (var Child in Children)
+                Child.Dispose();
+        }
 
         public virtual void Draw(long Tick)
         {
+            if (!Visible)
+                return;
+
             foreach (var Child in Children)
                 Child.Draw(Tick);
         }

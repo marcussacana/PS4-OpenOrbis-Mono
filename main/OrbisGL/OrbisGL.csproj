@@ -60,12 +60,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\Container.cs" />
     <Compile Include="Controls\Events\ButtonEvent.cs" />
     <Compile Include="Controls\Events\ClickEvent.cs" />
     <Compile Include="Controls\Events\PropagableEvent.cs" />
     <Compile Include="Controls\Control.cs" />
-    <Compile Include="Controls\Panel.cs" />
-    <Compile Include="Controls\SquareTest.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="FreeType\FT_GlyphRec.cs" />

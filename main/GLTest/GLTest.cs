@@ -271,12 +271,15 @@ void main(void) {
 
         private void button10_Click(object sender, EventArgs e)
         {
-            var Panel = new OrbisGL.Controls.Panel("test", new Vector2(10, 15), new Vector2(500, 500));
-            var Ctrl = new OrbisGL.Controls.SquareTest();
+#if !ORBIS
+            var Rect = new Rectangle2D(200, 200, true);
+            Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
+            Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
 
-            Panel.AddChild(Ctrl);
+            Rect.SetVisibleRectangle(0, 0, 100, 200-25);
 
-            GLControl.GLDisplay.Objects.Add(Panel);
+            GLControl.GLDisplay.Objects.Add(Rect);
+#endif
         }
     }
 }

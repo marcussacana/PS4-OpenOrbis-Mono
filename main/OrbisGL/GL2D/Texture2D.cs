@@ -6,9 +6,6 @@ namespace OrbisGL.GL2D
 {
     internal class Texture2D : GLObject2D
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-
         int TextureUniformLocation;
         public Texture Texture { get; set; }
         public Texture2D()
@@ -35,17 +32,17 @@ namespace OrbisGL.GL2D
             ClearBuffers();
 
             AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(0, 0);
+            AddArray(MinU, MinV);
 
 
             AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(1, 0);
+            AddArray(MaxU, MinV);
 
             AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(0, 1);
+            AddArray(MinU, MaxV);
 
             AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(1, 1);
+            AddArray(MaxU, MaxV);
 
 
             AddIndex(0, 1, 2, 1, 2, 3);

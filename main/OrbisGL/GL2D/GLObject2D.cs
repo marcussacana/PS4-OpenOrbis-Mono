@@ -1,11 +1,15 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
 using System.Numerics;
+using System.Security.Cryptography;
 
 namespace OrbisGL.GL2D
 {
     public abstract class GLObject2D : GLObject
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
+
         protected GLObject2D Parent = null;
         public bool InRoot => Parent == null;
 
@@ -43,6 +47,32 @@ namespace OrbisGL.GL2D
                 OffsetUniform = GLES20.GetUniformLocation(Program.Handler, "Offset");
                 Program.SetUniform(OffsetUniform, AbsoluteOffset);
             }
+        }
+
+        protected float MinU = 0;
+        protected float MaxU = 1;
+        protected float MinV = 0;
+        protected float MaxV = 1;
+
+        public virtual void SetVisibleRectangle(int X, int Y, int Width, int Height)
+        {
+            MinU = Coordinates2D.GetU(X, this.Width);
+            MaxU = Coordinates2D.GetU(X + Width, this.Width);
+
+            MinV = Coordinates2D.GetV(Y, this.Height);
+            MaxV = Coordinates2D.GetV(Y + Height, this.Height);
+
+            RefreshVertex();
+        }
+
+        public virtual void ClearVisibleRectangle()
+        {
+            MinU = 0;
+            MaxU = 1;
+            MinV = 0;
+            MaxV = 1;
+
+            RefreshVertex();
         }
 
         public abstract void RefreshVertex();

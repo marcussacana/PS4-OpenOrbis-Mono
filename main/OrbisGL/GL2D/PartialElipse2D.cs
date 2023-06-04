@@ -1,14 +1,12 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
+using System;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
 {
     public class PartialElipse2D : GLObject2D
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-
         readonly int CircleConfigUniformLocation;
         readonly int ColorUniformLocation;
 
@@ -24,12 +22,12 @@ namespace OrbisGL.GL2D
         /// <summary>
         /// From -3.14 to 3.14, the min/max value represents the center left angle of the circle.
         /// </summary>
-        public float StartAngle { get; set; } = -3.14f;
+        public float StartAngle { get; set; } = -(float)Math.PI;
 
         /// <summary>
         /// From 3.14 to -3.14, the min/max value represents the center left angle of the circle.
         /// </summary>
-        public float EndAngle { get; set; } = 3.14f;
+        public float EndAngle { get; set; } = (float)Math.PI;
 
 
         /// <summary>
@@ -70,16 +68,16 @@ namespace OrbisGL.GL2D
             //   2 ---------- 3
 
             AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(0, 0);
+            AddArray(MinU, MinV);
 
             AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(1, 0);
+            AddArray(MaxU, MinV);
 
             AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(0, 1);
+            AddArray(MinU, MaxV);
 
             AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(1, 1);
+            AddArray(MaxU, MaxV);
 
             AddIndex(0, 1, 2, 1, 2, 3);
         }

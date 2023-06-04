@@ -60,5 +60,18 @@ namespace OrbisGL.GL2D
         {
             return -(((Y / MaxHeight) * 2) - 1f);
         }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetU(float X, int MaxWidth)
+        {
+            return (X / MaxWidth);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetV(float Y, int MaxHeight)
+        {
+            return (Y / MaxHeight);
+        }
     }
 }

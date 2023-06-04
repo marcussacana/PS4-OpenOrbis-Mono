@@ -6,9 +6,6 @@ namespace OrbisGL.GL2D
 {
     public class RoundedRectangle2D : GLObject2D
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-
         readonly int BorderUniformLocation;
         readonly int ColorUniformLocation;
         readonly int ContourWidthUniformLocation;
@@ -42,6 +39,8 @@ namespace OrbisGL.GL2D
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
+
+            RefreshVertex();
         }
 
         public override void RefreshVertex()
@@ -55,16 +54,16 @@ namespace OrbisGL.GL2D
             //   2 ---------- 3
 
             AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(0, 0);
+            AddArray(MinU, MinV);
 
             AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(1, 0);
+            AddArray(MaxU, MinV);
 
             AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(0, 1);
+            AddArray(MinU, MaxV);
 
             AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(1, 1);
+            AddArray(MaxU, MaxV);
 
             AddIndex(0, 1, 2, 1, 2, 3);
         }

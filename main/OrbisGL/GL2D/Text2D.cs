@@ -70,6 +70,10 @@ namespace OrbisGL.GL2D
         {
             this.Text = Text;
             Render.MeasureText(Text, Face, out int Width, out int Height);
+            
+            base.Width = Width;
+            base.Height = Height;
+
 
             byte[] Buffer = new byte[Width * Height * 4];
 
@@ -87,17 +91,17 @@ namespace OrbisGL.GL2D
             ClearBuffers();
 
             AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(0, 0);
+            AddArray(MinU, MinV);
 
 
             AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(1, 0);
+            AddArray(MaxU, MinV);
 
             AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(0, 1);
+            AddArray(MinU, MaxV);
             
             AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(1, 1);
+            AddArray(MaxU, MaxV);
 
 
             AddIndex(0, 1, 2, 1, 2, 3);

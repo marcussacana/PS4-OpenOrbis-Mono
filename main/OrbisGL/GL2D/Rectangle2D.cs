@@ -5,9 +5,6 @@ namespace OrbisGL.GL2D
 {
     public class Rectangle2D : GLObject2D
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-
         bool FillMode;
 
         public byte Transparecy { get; set; } = 255;
@@ -59,9 +56,36 @@ namespace OrbisGL.GL2D
             }
         }
 
-        public Rectangle2D(GLObject2D Parent, int Width, int Height, bool Fill) : this (Width, Height, Fill)
+        public override void SetVisibleRectangle(int X, int Y, int Width, int Height)
         {
-            this.Parent = Parent;
+            ClearBuffers();
+
+            //   0 ---------- 1
+            //   |            |
+            //   |            |
+            //   |            |
+            //   2 ---------- 3
+
+            AddArray(XToPoint(X), YToPoint(Y), -1);//0
+            AddArray(XToPoint(Width), YToPoint(Y), -1);//1
+            AddArray(XToPoint(X), YToPoint(Height), -1);//2
+            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
+
+            if (FillMode)
+            {
+                AddIndex(0, 1, 2, 1, 2, 3);
+                RenderMode = (int)OrbisGL.RenderMode.Triangle;
+            }
+            else
+            {
+                AddIndex(0, 1, 3, 2);
+                RenderMode = (int)OrbisGL.RenderMode.ClosedLine;
+            }
+        }
+
+        public override void ClearVisibleRectangle()
+        {
+            RefreshVertex();
         }
 
         public override void Draw(long Tick)
