@@ -89,20 +89,6 @@ namespace OrbisGL.Controls
 
 
         /// <summary>
-        /// The point relative with the parent render (Ex: Panel)
-        /// </summary>
-        public virtual Vector2 RenderPosition
-        {
-            get
-            {
-                if (Parent != null)
-                    return Parent.RenderPosition + Position;
-                return Position;
-            }
-        }
-
-
-        /// <summary>
         /// The Point in the screen to draw the element
         /// </summary>
         public Vector2 AbsolutePosition
