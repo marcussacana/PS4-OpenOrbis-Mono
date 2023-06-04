@@ -64,6 +64,8 @@
     <Compile Include="Controls\Events\ClickEvent.cs" />
     <Compile Include="Controls\Events\PropagableEvent.cs" />
     <Compile Include="Controls\Control.cs" />
+    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\SquareTest.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="FreeType\FT_GlyphRec.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="GL2D\Elipse2D.cs" />
     <Compile Include="GL2D\RoundedRectangle2D.cs" />
     <Compile Include="GL2D\Text2D.cs" />
+    <Compile Include="GL2D\Texture2D.cs" />
     <Compile Include="GL\BufferAttribute.cs" />
     <Compile Include="GL\IRenderable.cs" />
     <Compile Include="GL\Object.cs" />

@@ -1,4 +1,5 @@
 ﻿using OrbisGL.Controls.Events;
+using OrbisGL.GL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Numerics;
 
 namespace OrbisGL.Controls
 {
-    public abstract class Control : IDisposable
+    public abstract class Control : IRenderable
     {
 
         public Control RootControl
@@ -72,6 +73,10 @@ namespace OrbisGL.Controls
         public Control Parent { get; private set; }
 
         Vector2 _Position;
+
+        /// <summary>
+        /// The point relative with the parent position
+        /// </summary>
         public Vector2 Position
         {
             get => _Position;
@@ -83,6 +88,23 @@ namespace OrbisGL.Controls
         }
 
 
+        /// <summary>
+        /// The point relative with the parent render (Ex: Panel)
+        /// </summary>
+        public virtual Vector2 RenderPosition
+        {
+            get
+            {
+                if (Parent != null)
+                    return Parent.RenderPosition + Position;
+                return Position;
+            }
+        }
+
+
+        /// <summary>
+        /// The Point in the screen to draw the element
+        /// </summary>
         public Vector2 AbsolutePosition
         {
             get
@@ -103,6 +125,8 @@ namespace OrbisGL.Controls
                 Invalidate();
             }
         }
+
+        public IEnumerable<Control> Childs => Children.Select(x => x);
 
         List<Control> Children = new List<Control>();
 
@@ -129,7 +153,7 @@ namespace OrbisGL.Controls
 
         public virtual void Invalidate()
         {
-            Parent.Invalidate();
+            Parent?.Invalidate();
         }
 
 

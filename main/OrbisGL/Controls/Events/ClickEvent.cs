@@ -4,13 +4,13 @@ namespace OrbisGL.Controls.Events
 {
     public class ClickEvent : PropagableEvent
     {
-        public ClickType ClickType { get; }
-        public Vector2 ClickPosition { get; }
+        public ClickType Type { get; }
+        public Vector2 Position { get; }
 
         public ClickEvent(Vector2 Position, ClickType Type)
         {
-            this.ClickType = Type;
-            this.ClickPosition = Position;
+            this.Type = Type;
+            this.Position = Position;
         }
     }
 }

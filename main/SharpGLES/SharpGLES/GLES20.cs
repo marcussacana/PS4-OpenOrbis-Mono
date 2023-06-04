@@ -331,8 +331,16 @@ namespace SharpGLES
 		[DllImport(Path, EntryPoint = "glBindBuffer")]
 		public static extern void BindBuffer(int target, int buffer);
 
+
+		public static int CurrentFrameBuffer { get; private set; } = 0;
+		public static void BindFrameBuffer(int target, int framebuffer)
+		{
+			CurrentFrameBuffer = framebuffer;
+			glBindFramebuffer(target, framebuffer);
+		}
+
 		[DllImport(Path, EntryPoint = "glBindFramebuffer")]
-		public static extern void BindFramebuffer(int target, int framebuffer);
+		static extern void glBindFramebuffer(int target, int framebuffer);
 
 		[DllImport(Path, EntryPoint = "glBindRenderbuffer")]
 		public static extern void BindRenderbuffer(int target, int renderbuffer);
@@ -513,6 +521,12 @@ namespace SharpGLES
         //public static extern void glGetFloatv (int pname, float params);
         //public static extern void glGetFramebufferAttachmentParameteriv (int target, int attachment, int pname, int params);
 
+		public unsafe static long GetInteger(int pname)
+		{
+			long Output = 0;
+			GetInteger(pname, &Output);
+			return Output;
+		}
 
         [DllImport(Path, EntryPoint = "glGetIntegerv")]
         public unsafe static extern void GetInteger(int pname, void* Data);

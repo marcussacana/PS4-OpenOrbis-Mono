@@ -6,6 +6,9 @@ namespace OrbisGL.GL2D
 {
     public class PartialElipse2D : GLObject2D
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
+
         readonly int CircleConfigUniformLocation;
         readonly int ColorUniformLocation;
 
@@ -37,6 +40,8 @@ namespace OrbisGL.GL2D
         public PartialElipse2D(int Width, int Height, bool Fill)
         {
             this.Fill = Fill;
+            this.Width = Width;
+            this.Height = Height;
 
             var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentColorElipsePartial"));
             Program = new GLProgram(hProg);

@@ -60,7 +60,12 @@ namespace OrbisGL.GL2D
             }
         }
 
-        
+        public override void RefreshVertex()
+        {
+            SetText(Text);
+        }
+
+
         public void SetText(string Text)
         {
             this.Text = Text;

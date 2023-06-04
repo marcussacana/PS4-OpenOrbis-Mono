@@ -6,6 +6,9 @@ namespace OrbisGL.GL2D
 {
     public class RoundedRectangle2D : GLObject2D
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
+
         readonly int BorderUniformLocation;
         readonly int ColorUniformLocation;
         readonly int ContourWidthUniformLocation;
@@ -23,6 +26,8 @@ namespace OrbisGL.GL2D
         public RoundedRectangle2D(int Width, int Height, bool Fill)
         {
             this.Fill = Fill;
+            this.Width = Width;
+            this.Height = Height;
 
             var hProg = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource(Fill ? "FragmentColorRounded" : "FragmentColorRoundedContour"));
             Program = new GLProgram(hProg);

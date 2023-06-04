@@ -5,6 +5,8 @@ namespace OrbisGL.GL2D
 {
     public class Rectangle2D : GLObject2D
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         bool FillMode;
 
@@ -17,6 +19,9 @@ namespace OrbisGL.GL2D
         }
         public Rectangle2D(int Width, int Height, bool Fill, string CustomFragmentShader = null)
         {
+            this.Width = Width;
+            this.Height = Height;
+
             var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffset"), CustomFragmentShader ?? ResLoader.GetResource("FragmentColor"));
             Program = new GLProgram(hProgram);
 

@@ -259,12 +259,24 @@ void main(void) {
 
         private void button9_Click(object sender, EventArgs e)
         {
+#if !ORBIS
             var Font = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "*.ttf").First();
             var Text = new Text2D(Font, 24);
             Text.SetText("Hello World");
             Text.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
             Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             GLControl.GLDisplay.Objects.Add(Text);
+#endif
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            var Panel = new OrbisGL.Controls.Panel("test", new Vector2(10, 15), new Vector2(500, 500));
+            var Ctrl = new OrbisGL.Controls.SquareTest();
+
+            Panel.AddChild(Ctrl);
+
+            GLControl.GLDisplay.Objects.Add(Panel);
         }
     }
 }

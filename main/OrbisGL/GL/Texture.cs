@@ -33,16 +33,17 @@ namespace OrbisGL.GL
             TextureID = Textures.First();
         }
 
+        public void Bind() => GLES20.BindTexture(TextureType, TextureID);
+
         public unsafe void SetData(int Width, int Height, byte[] Data, PixelFormat Format)
         {
-            GLES20.BindTexture(TextureType, TextureID);
+            Bind();
 
             fixed (byte* pData = Data)
             {
                 GLES20.TexImage2D(TextureType, 0, (int)Format, Width, Height, 0, (int)Format, GLES20.GL_UNSIGNED_BYTE, new IntPtr(pData));
                 GLES20.TexParameteri(TextureType, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
                 GLES20.TexParameteri(TextureType, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-
             }
         }
 
@@ -99,7 +100,7 @@ namespace OrbisGL.GL
             SlotTexture[ActiveSlot] = TextureID;
 
             GLES20.ActiveTexture(GLES20.GL_TEXTURE0 + ActiveSlot);
-            GLES20.BindTexture(TextureType, TextureID);
+            Bind();
 
             return ActiveSlot;
         }

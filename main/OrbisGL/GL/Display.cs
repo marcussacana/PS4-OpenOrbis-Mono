@@ -105,7 +105,7 @@ namespace OrbisGL.GL
         {
             if (GLDisplay == null)
                 GLDisplay = new EGLDisplay(Handler, Width, Height);
-            Draw(DateTime.Now.Ticks);
+            Draw(DateTime.Now.Ticks/10);
         }
 #endif
 
