@@ -285,5 +285,17 @@ void main(void) {
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif
         }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Button = new OrbisGL.Controls.Button(50, 25, 18);
+            Button.Name = "Hello World";
+
+            Button.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
+
+            GLControl.GLDisplay.Objects.Add(Button);
+#endif
+        }
     }
 }

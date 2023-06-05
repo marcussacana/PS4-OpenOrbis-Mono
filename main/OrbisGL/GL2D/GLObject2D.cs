@@ -111,12 +111,19 @@ namespace OrbisGL.GL2D
             }
         }
 
-        public abstract void RefreshVertex();
+        public virtual void RefreshVertex()
+        {
+            foreach (var Child in Childs)
+                Child.RefreshVertex();
+        }
 
         public override void Draw(long Tick)
         {
-            UpdateUniforms();
-            base.Draw(Tick);
+            if (Program != null)
+            {
+                UpdateUniforms();
+                base.Draw(Tick);
+            }
 
             foreach (var Child in Children)
             {

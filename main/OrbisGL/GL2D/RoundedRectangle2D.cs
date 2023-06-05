@@ -1,5 +1,6 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
+using System.Numerics;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
@@ -7,6 +8,7 @@ namespace OrbisGL.GL2D
     public class RoundedRectangle2D : GLObject2D
     {
         readonly int BorderUniformLocation;
+        readonly int MarginUniformLocation;
         readonly int ColorUniformLocation;
         readonly int ContourWidthUniformLocation;
 
@@ -17,6 +19,8 @@ namespace OrbisGL.GL2D
         public float RoundLevel { get; set; } = 0.8f;
 
         public float ContourWidth { get; set; } = 1.0f;
+
+        public Vector2 Margin { get; set; } = Vector2.Zero;
 
         public bool Fill { get; private set; }
 
@@ -37,6 +41,7 @@ namespace OrbisGL.GL2D
             BorderUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Border");
             ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
+            MarginUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Margin");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
 
@@ -66,11 +71,14 @@ namespace OrbisGL.GL2D
             AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);
+
+            base.RefreshVertex();
         }
 
         public override void Draw(long Tick)
         {
             Program.SetUniform(BorderUniformLocation, RoundLevel);
+            Program.SetUniform(MarginUniformLocation, Margin);
             Program.SetUniform(ColorUniformLocation, Color, Transparency);
 
             if (!Fill)

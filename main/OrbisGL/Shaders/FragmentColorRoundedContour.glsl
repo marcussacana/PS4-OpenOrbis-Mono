@@ -8,6 +8,7 @@ uniform vec4 Color;
 uniform vec2 Resolution;
 uniform float Border;
 uniform float ContourWidth;
+uniform vec2 Margin;
 uniform vec4 VisibleRect;
 
 //Shadertoy Emulation
@@ -30,8 +31,8 @@ void main(void)
     vec2 halfRes = 0.5 * iResolution.xy;
 
     // compute box
-    float d = udRoundBox( fragCoord.xy - halfRes, halfRes, iRadius );
-    
+    float d = udRoundBox( fragCoord.xy - halfRes, vec2(halfRes.x-Margin.x, halfRes.y-Margin.y), iRadius );
+
     d += ContourWidth;
     
     // check if the point is close to the contour

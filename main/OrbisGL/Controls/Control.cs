@@ -11,6 +11,32 @@ namespace OrbisGL.Controls
     public abstract class Control : IRenderable
     {
 
+        public static RGBColor DefaultBackgroundColor = RGBColor.White;
+        public static RGBColor DefaultForegroundColor = new RGBColor(50, 49, 48);
+
+        RGBColor BackColor = DefaultBackgroundColor;
+
+        public RGBColor BackgroundColor 
+        {             
+            get => BackColor;
+            set 
+            {
+                BackColor = value;
+                Invalidate(); 
+            }
+        }
+        
+        RGBColor ForeColor = RGBColor.Black;
+        public RGBColor ForegroundColor
+        { 
+            get => ForeColor;
+            set 
+            { 
+                ForeColor = value;
+                Invalidate();
+            }
+        }
+
         public Control RootControl
         {
             get

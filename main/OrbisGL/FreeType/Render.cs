@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Orbis.Internals;
+using System.IO;
 
 namespace OrbisGL.FreeType
 {
@@ -19,9 +20,17 @@ namespace OrbisGL.FreeType
                 FT_Init_FreeType(out FT_Library);
 #endif
             }
+
+#if ORBIS
+            DefaultFace = Path.Combine(IO.GetAppBaseDirectory(), "assets", "fonts", "Gontserrat-Regular.ttf");
+#else
+            DefaultFace = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf");
+#endif
         }
 
-        static IntPtr FT_Library = IntPtr.Zero;
+        public readonly static string DefaultFace;
+
+        public readonly static IntPtr FT_Library = IntPtr.Zero;
 
         public static unsafe bool LoadFont(string FontPath, int FontSize, out FT_Face* Face)
         {

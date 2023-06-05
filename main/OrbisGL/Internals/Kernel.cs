@@ -1,10 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Orbis.Internals
 {
-    internal unsafe class Kernel
+    public unsafe class Kernel
     {
         public static int LoadStartModule(string Path)
         {
@@ -12,26 +13,26 @@ namespace Orbis.Internals
 
             int LoadStatus = 0;
             var Result = LoadStartModule(pPath);
-            
+
             free(pPath);
-            
+
             return Result;
         }
 
         public static bool GetModuleBase(string Name, out long BaseAddress, out long ModuleSize)
         {
             var pName = AllocString(Name);
-            
+
             long bAddr = 0;
             long mSize = 0;
-            
+
             var Success = GetModuleBase(pName, &bAddr, &mSize);
 
             BaseAddress = bAddr;
             ModuleSize = mSize;
 
             free(pName);
-            
+
             return Success;
         }
 
@@ -41,6 +42,7 @@ namespace Orbis.Internals
             Log(pMsg);
             free(pMsg);
         }
+
         public static void* AllocString(string String)
         {
             var Data = Encoding.UTF8.GetBytes(String + "\x0");
@@ -53,31 +55,42 @@ namespace Orbis.Internals
             return Buffer;
         }
 
+        public static string ParseString(byte* pString)
+        {
+            List<byte> Buffer = new List<byte>();
+            while (*pString != 0)
+            {
+                Buffer.Add(*pString++);
+            }
+
+            return Encoding.UTF8.GetString(Buffer.ToArray());
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern void Log(void* Line);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern int LoadStartModule(void* path);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         static extern bool GetModuleBase(void* Name, void* BaseAddress, void* ModuleSize);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool Jailbreak(long AuthID = 0);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool Unjailbreak();
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern bool IsJailbroken();
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void* malloc(int Size);
-        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void free(void* Size);
-        
-        
+
+
         [DllImport("libkernel.sprx", EntryPoint = "sceKernelMprotect")]
         public static extern int MemProtect(void* Address, int size, int Flags);
 

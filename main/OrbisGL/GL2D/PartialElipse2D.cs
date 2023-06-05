@@ -80,6 +80,8 @@ namespace OrbisGL.GL2D
             AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);
+
+            base.RefreshVertex();
         }
 
         public override void Draw(long Tick)

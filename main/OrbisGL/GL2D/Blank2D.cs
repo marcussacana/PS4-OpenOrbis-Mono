@@ -9,6 +9,5 @@ namespace OrbisGL.GL2D
 
     public class Blank2D : GLObject2D
     {
-        public override void RefreshVertex() {}
     }
 }

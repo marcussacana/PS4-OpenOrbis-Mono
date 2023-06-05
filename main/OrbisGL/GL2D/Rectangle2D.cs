@@ -54,6 +54,8 @@ namespace OrbisGL.GL2D
                 AddIndex(0, 1, 3, 2);
                 RenderMode = (int)OrbisGL.RenderMode.ClosedLine;
             }
+
+            base.RefreshVertex();
         }
 
         public override void SetVisibleRectangle(float X, float Y, int Width, int Height)

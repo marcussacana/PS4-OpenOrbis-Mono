@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace OrbisGL.GL2D
 {
@@ -72,6 +73,20 @@ namespace OrbisGL.GL2D
         public static float GetV(float Y, int MaxHeight)
         {
             return (Y / MaxHeight);
+        }
+
+        public static Vector2 GetMiddle(this Vector2 Size, int Width, int Height) => GetMiddle(Size, new Vector2(Width, Height));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 GetMiddle(this Vector2 Size, Vector2 Child)
+        {
+            float CenterX = Child.X / 2;
+            float CenterY = Child.Y / 2;
+
+            float ThisCenterX = Size.X / 2;
+            float ThisCenterY = Size.Y / 2;
+
+            return new Vector2(ThisCenterX - CenterX, ThisCenterY - CenterY);
         }
     }
 }

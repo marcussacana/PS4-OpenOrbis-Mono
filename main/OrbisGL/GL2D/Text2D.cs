@@ -62,7 +62,11 @@ namespace OrbisGL.GL2D
 
         public override void RefreshVertex()
         {
+            if (Text == null)
+                return;
+
             SetText(Text);
+            base.RefreshVertex();
         }
 
 
@@ -112,7 +116,12 @@ namespace OrbisGL.GL2D
             {
                 Program.SetUniform(ColorUniformLocation, Color, Transparency);
                 Program.SetUniform(TextureUniformLocation, FontTexture.Active());
-            }
+            } 
+            else
+            {
+                return;
+            } 
+
             base.Draw(Tick);
         }
     }
