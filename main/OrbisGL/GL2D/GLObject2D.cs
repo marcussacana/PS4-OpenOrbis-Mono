@@ -91,7 +91,7 @@ namespace OrbisGL.GL2D
 
         protected void SetChildrenVisibleRectangle(float X, float Y, int Width, int Height)
         {
-            foreach (var Child in Childs.Where(x => x is GLObject2D).Cast<GLObject2D>())
+            foreach (var Child in Childs)
             {
                 float ChildX = Math.Max(0, X - Child.Position.X);
                 float ChildY = Math.Max(0, Y - Child.Position.Y);
@@ -105,7 +105,7 @@ namespace OrbisGL.GL2D
 
         protected void ClearChildrenVisibleRectangle()
         {
-            foreach (var Child in Childs.Where(x => x is GLObject2D).Cast<GLObject2D>())
+            foreach (var Child in Childs)
             {
                 Child.ClearVisibleRectangle();
             }

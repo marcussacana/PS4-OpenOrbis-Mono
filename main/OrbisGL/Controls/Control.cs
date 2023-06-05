@@ -1,5 +1,6 @@
 ﻿using OrbisGL.Controls.Events;
 using OrbisGL.GL;
+using OrbisGL.GL2D;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,6 +113,8 @@ namespace OrbisGL.Controls
             }
         }
 
+        protected readonly Blank2D GLObject = new Blank2D();
+
         public IEnumerable<Control> Childs => Children;
 
         List<Control> Children = new List<Control>();
@@ -135,8 +138,20 @@ namespace OrbisGL.Controls
             if (!Visible)
                 return;
 
+            GLObject.Draw(Tick);
+
             foreach (var Child in Children)
                 Child.Draw(Tick);
+        }
+
+        public void SetVisibleArea(float X, float Y, int Width, int Height)
+        {
+            GLObject.SetVisibleRectangle(X, Y, Width, Height);
+        }
+
+        public void ClearVisibleArea()
+        {
+            GLObject.ClearVisibleRectangle();
         }
 
         public void Focus()

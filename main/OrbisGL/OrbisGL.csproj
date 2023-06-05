@@ -84,6 +84,7 @@
     <Compile Include="FreeType\FT_Outline.cs" />
     <Compile Include="FreeType\FT_Size.cs" />
     <Compile Include="FreeType\FT_Vector.cs" />
+    <Compile Include="GL2D\Blank2D.cs" />
     <Compile Include="GL2D\Coordinates2D.cs" />
     <Compile Include="GL2D\PartialElipse2D.cs" />
     <Compile Include="GL2D\GLObject2D.cs" />
