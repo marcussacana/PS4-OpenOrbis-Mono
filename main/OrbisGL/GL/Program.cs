@@ -135,6 +135,8 @@ namespace OrbisGL.GL
 
         public void SetUniform(string Name, Vector3 Value) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
         public void SetUniform(int Location, Vector3 Value) => SetUniform(Location, Value.X, Value.Y, Value.Z);
+        public void SetUniform(string Name, Vector4 Value) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Value);
+        public void SetUniform(int Location, Vector4 Value) => SetUniform(Location, Value.X, Value.Y, Value.Z, Value.W);
 
         public void SetUniform(string Name, Matrix4x4 Matrix) => SetUniform(GLES20.GetUniformLocation(Handler, Name), Matrix);
         public unsafe void SetUniform(int Location, Matrix4x4 Matrix)

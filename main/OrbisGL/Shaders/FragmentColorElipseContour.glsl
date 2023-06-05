@@ -7,6 +7,7 @@ varying vec2 UV;
 uniform vec4 Color;
 uniform vec2 Resolution;
 uniform float ContourWidth;
+uniform vec4 VisibleRect;
 
 //Shadertoy Emulation
 #define fragColor gl_FragColor
@@ -31,4 +32,7 @@ void main(void)
     // Set output color
     fragColor = vec4(colorMod, colorMod);
     fragColor.rgb *= Color.xyz;
+    
+    if ((UV.x < VisibleRect.x || UV.y < VisibleRect.y || UV.x > VisibleRect.z + VisibleRect.x || UV.y > VisibleRect.w + VisibleRect.y) && VisibleRect != vec4(0))
+        discard;
 }

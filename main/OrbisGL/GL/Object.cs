@@ -16,8 +16,6 @@ namespace OrbisGL.GL
 
         protected int RenderMode = 0;
 
-        private List<GLObject> Childs = new List<GLObject>();
-
         private List<byte> ArrayBuffer = new List<byte>();
         private List<byte> IndexBuffer = new List<byte>();
 
@@ -204,9 +202,6 @@ namespace OrbisGL.GL
             {
                 GLES20.DrawArrays(RenderMode, 0, ArrayBuffer.Count / Program.VerticeSize);
             }
-
-
-            //Render, Disposing
         }
 
         public void Dispose()

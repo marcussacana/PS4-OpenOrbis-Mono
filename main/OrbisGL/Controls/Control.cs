@@ -112,7 +112,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        public IEnumerable<Control> Childs => Children.Select(x => x);
+        public IEnumerable<Control> Childs => Children;
 
         List<Control> Children = new List<Control>();
 
@@ -268,6 +268,46 @@ namespace OrbisGL.Controls
                 return Parent.AbsolutePosition + RelativeCoordinates;
 
             return RelativeCoordinates;
+        }
+
+        /// <summary>
+        /// Check if this controller is a child of the controller defined at <paramref name="Parent"/>
+        /// </summary>
+        /// <param name="Parent">The Possible Parent Controller to Verify</param>
+        /// <returns></returns>
+        public bool IsDescendantOf(Control Parent)
+        {
+            Control current = this.Parent;
+
+            while (current != null)
+            {
+                if (current == Parent)
+                    return true;
+
+                current = current.Parent;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check if this controller is a parent of the controller defined at <paramref name="Child"/>
+        /// </summary>
+        /// <param name="Child">The Possible Parent Controller to Verify</param>
+        /// <returns></returns>
+        public bool IsAncestorOf(Control Child)
+        {
+            Control current = Child;
+
+            while (current != null)
+            {
+                if (current == this)
+                    return true;
+
+                current = current.Parent;
+            }
+
+            return false;
         }
     }
 }

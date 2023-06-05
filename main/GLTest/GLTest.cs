@@ -1,15 +1,12 @@
 ﻿using OrbisGL;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
-using SharpGLES;
 using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime;
 using System.Windows.Forms;
 using static OrbisGL.GL2D.Coordinates2D;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GLTest
 {
@@ -272,11 +269,18 @@ void main(void) {
         private void button10_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var Rect = new Rectangle2D(200, 200, true);
+            var Rect = new Elipse2D(200, 200, true);
             Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
 
-            Rect.SetVisibleRectangle(0, 0, 100, 200-25);
+
+            var Rect2 = new Rectangle2D(20, 300, true);
+            Rect2.Position = new Vector3(0, 0, 1);
+            Rect2.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+
+            Rect.AddChild(Rect2);
+
+            Rect.SetVisibleRectangle(0, 0, 200, 100);
 
             GLControl.GLDisplay.Objects.Add(Rect);
 #endif

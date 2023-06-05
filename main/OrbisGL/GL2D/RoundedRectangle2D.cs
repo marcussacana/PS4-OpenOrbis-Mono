@@ -54,16 +54,16 @@ namespace OrbisGL.GL2D
             //   2 ---------- 3
 
             AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(MinU, MinV);
+            AddArray(0, 0);
 
             AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(MaxU, MinV);
+            AddArray(1, 0);
 
             AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(MinU, MaxV);
+            AddArray(0, 1);
 
             AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(MaxU, MaxV);
+            AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);
         }

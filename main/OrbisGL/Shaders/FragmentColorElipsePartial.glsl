@@ -7,6 +7,7 @@ varying vec2 UV;
 uniform vec4 Color;
 uniform vec2 Resolution;
 uniform vec3 CircleConfig;
+uniform vec4 VisibleRect;
 
 //Shadertoy Emulation
 #define fragColor gl_FragColor
@@ -45,7 +46,12 @@ void main(void)
         float startEdge = smoothstep(StartAngle - fade, StartAngle + fade, angle);
         float endEdge = smoothstep(EndAngle + fade, EndAngle - fade, angle);
         fragColor.a *= min(startEdge, endEdge);
-    } else {
+    } 
+    else 
+    {
         discard;
     }
+    
+    if ((UV.x < VisibleRect.x || UV.y < VisibleRect.y || UV.x > VisibleRect.z + VisibleRect.x || UV.y > VisibleRect.w + VisibleRect.y) && VisibleRect != vec4(0))
+        discard;
 }

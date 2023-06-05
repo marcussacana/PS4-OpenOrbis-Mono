@@ -8,6 +8,7 @@ uniform vec4 Color;
 uniform vec2 Resolution;
 uniform float Border;
 uniform float ContourWidth;
+uniform vec4 VisibleRect;
 
 //Shadertoy Emulation
 #define fragColor gl_FragColor
@@ -39,9 +40,9 @@ void main(void)
     // calculate the color and alpha
     vec3 c = mix(Color.xyz, vec3(0.0, 0.0, 0.0), contour);        
     float alpha = Color.w - smoothstep(0.0, 1.0, contour);
-    
-    if(alpha < 0.1)
-        discard;   
 
     fragColor = vec4(c, alpha);
+    
+    if ((UV.x < VisibleRect.x || UV.y < VisibleRect.y || UV.x > VisibleRect.z + VisibleRect.x || UV.y > VisibleRect.w + VisibleRect.y) && VisibleRect != vec4(0))
+        discard;
 }

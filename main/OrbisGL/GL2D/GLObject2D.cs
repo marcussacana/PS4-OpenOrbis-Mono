@@ -1,7 +1,9 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
 
 namespace OrbisGL.GL2D
 {
@@ -12,6 +14,10 @@ namespace OrbisGL.GL2D
 
         protected GLObject2D Parent = null;
         public bool InRoot => Parent == null;
+
+        public IEnumerable<GLObject2D> Childs => Children;
+
+        private List<GLObject2D> Children = new List<GLObject2D>();
 
         /// <summary>
         /// Represent an offset of the object drawing location,
@@ -35,6 +41,7 @@ namespace OrbisGL.GL2D
         protected Vector3 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
 
         int OffsetUniform = int.MinValue;
+        int VisibleUniform = int.MinValue;
 
         public void UpdateUniforms()
         {
@@ -47,32 +54,61 @@ namespace OrbisGL.GL2D
                 OffsetUniform = GLES20.GetUniformLocation(Program.Handler, "Offset");
                 Program.SetUniform(OffsetUniform, AbsoluteOffset);
             }
+
+            if (VisibleUniform >= 0)
+            {
+                Program.SetUniform(VisibleUniform, VisibleRect);
+            }
+            else if (VisibleUniform == int.MinValue)
+            {
+                VisibleUniform = GLES20.GetUniformLocation(Program.Handler, "VisibleRect");
+                Program.SetUniform(VisibleUniform, VisibleRect);
+            }
         }
 
-        protected float MinU = 0;
-        protected float MaxU = 1;
-        protected float MinV = 0;
-        protected float MaxV = 1;
+        private Vector4 VisibleRect = Vector4.Zero;
 
-        public virtual void SetVisibleRectangle(int X, int Y, int Width, int Height)
+        //cut with uv not working, try with shader
+        public virtual void SetVisibleRectangle(float X, float Y, int Width, int Height)
         {
-            MinU = Coordinates2D.GetU(X, this.Width);
-            MaxU = Coordinates2D.GetU(X + Width, this.Width);
+            float MinU = Coordinates2D.GetU(X, this.Width);
+            float MaxU = Coordinates2D.GetU(Width, this.Width);
 
-            MinV = Coordinates2D.GetV(Y, this.Height);
-            MaxV = Coordinates2D.GetV(Y + Height, this.Height);
+            float MinV = Coordinates2D.GetV(Y, this.Height);
+            float MaxV = Coordinates2D.GetV(Height, this.Height);
 
-            RefreshVertex();
+            VisibleRect = new Vector4(MinU, MinV, MaxU, MaxV);
+
+            SetChildrenVisibleRectangle(X, Y, Width, Height);
         }
 
         public virtual void ClearVisibleRectangle()
         {
-            MinU = 0;
-            MaxU = 1;
-            MinV = 0;
-            MaxV = 1;
+            VisibleRect = Vector4.Zero;
 
-            RefreshVertex();
+            ClearChildrenVisibleRectangle();
+        }
+
+        protected void SetChildrenVisibleRectangle(float X, float Y, int Width, int Height)
+        {
+            foreach (var Child in Childs.Where(x => x is GLObject2D).Cast<GLObject2D>())
+            {
+                float ChildX = Math.Max(0, X - Child.Position.X);
+                float ChildY = Math.Max(0, Y - Child.Position.Y);
+
+                int ChildWidth = Math.Min(Child.Width, Width - (int)Child.Position.X);
+                int ChildHeight = Math.Min(Child.Height, Height - (int)Child.Position.Y);
+
+                Child.SetVisibleRectangle(ChildX, ChildY, ChildWidth, ChildHeight);
+            }
+        }
+
+        protected void ClearChildrenVisibleRectangle()
+        {
+            foreach (var Child in Childs.Where(x => x is GLObject2D).Cast<GLObject2D>())
+            {
+                Child.ClearVisibleRectangle();
+            }
         }
 
         public abstract void RefreshVertex();
@@ -81,6 +117,25 @@ namespace OrbisGL.GL2D
         {
             UpdateUniforms();
             base.Draw(Tick);
+
+            foreach (var Child in Children)
+            {
+                Child.Draw(Tick);
+            }
+        }
+
+        public void AddChild(GLObject2D Child)
+        {
+            Children.Add(Child);
+            Child.Parent = this;
+            Child.RefreshVertex();
+        }
+
+        public void RemoveChild(GLObject2D Child)
+        {
+            Children.Remove(Child);
+            Child.Parent = null;
+            Child.RefreshVertex();
         }
     }
 }
