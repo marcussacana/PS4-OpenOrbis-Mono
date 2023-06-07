@@ -8,6 +8,7 @@ namespace OrbisGL.GL
         internal float GreenF;
         internal float BlueF;
 
+        public RGBColor(byte Grayscale) : this(Grayscale, Grayscale, Grayscale) { }
         public RGBColor(byte Red, byte Green, byte Blue)
         {
             RedF = Red / 255f;

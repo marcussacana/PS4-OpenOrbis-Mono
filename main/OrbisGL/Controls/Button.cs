@@ -1,14 +1,24 @@
 ﻿using OrbisGL.FreeType;
 using OrbisGL.GL2D;
+using System.IO;
 using System.Numerics;
 
 namespace OrbisGL.Controls
 {
     public class Button : Control
     {
-
         public bool AutoSize { get; set; } = true;
         public override bool Focusable => true;
+
+        bool _Primary = false;
+        public bool Primary { 
+            get => _Primary; 
+            set 
+            {
+                _Primary = value;
+                Invalidate();
+            } 
+        }
 
         bool Invalidated = true;
 
@@ -47,7 +57,7 @@ namespace OrbisGL.Controls
 
             BackgroundCountor = new RoundedRectangle2D(Width, Height, false);
             BackgroundCountor.Color = BackgroundColor;
-            //BackgroundCountor.Transparency = 150;
+            BackgroundCountor.Transparency = 100;
             BackgroundCountor.RoundLevel = 1.2f;
             BackgroundCountor.ContourWidth = 0.5f;
             BackgroundCountor.Margin = new Vector2(-0.4f, -0.25f);
@@ -72,7 +82,7 @@ namespace OrbisGL.Controls
 
             Background.Width = (int)Size.X;
             Background.Height = (int)Size.Y;
-            Background.Color = BackgroundColor;
+            Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
             Background.RefreshVertex();
 
             BackgroundCountor.Width = (int)Size.X;
@@ -80,7 +90,7 @@ namespace OrbisGL.Controls
             BackgroundCountor.Color = ForegroundColor;
             BackgroundCountor.RefreshVertex();
 
-            Foreground.Color = ForegroundColor;
+            Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
             Foreground.Position = new Vector3(Size.GetMiddle(Foreground.Width, Foreground.Height), 1);
 
             Invalidated = false;

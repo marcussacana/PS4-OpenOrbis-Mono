@@ -291,11 +291,13 @@ void main(void) {
 #if !ORBIS
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
             Button.Name = "Hello World";
+            Button.Primary = Rand.Next(0, 2) == 1;
 
             Button.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
 
             GLControl.GLDisplay.Objects.Add(Button);
 #endif
         }
+
     }
 }
