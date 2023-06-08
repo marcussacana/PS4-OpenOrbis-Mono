@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using OrbisGL.Controls;
+using OrbisGL.GL2D;
+using OrbisGL.Input;
 using SharpGLES;
 
 namespace OrbisGL.GL
 {
     public class Display : IRenderable
     {
+        public IMouse MouseDriver { get; set; } = null;
+
         private IntPtr Handler = IntPtr.Zero;
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -84,6 +90,9 @@ namespace OrbisGL.GL
 #endif
 
                 LastDrawTick = CurrentTick;
+
+                ProcessEvents();
+
 #if ORBIS
                 Draw(CurrentTick);
 #else
@@ -91,6 +100,31 @@ namespace OrbisGL.GL
 #endif
                 GLDisplay.SwapBuffers();
 
+            }
+        }
+        public Vector2 CursorPosition { get; private set; } = Vector2.Zero;
+
+        private void ProcessEvents()
+        {
+            if (MouseDriver != null)
+            {
+                var CurrentPosition = MouseDriver.GetPosition();
+                bool Moved = CursorPosition != CurrentPosition;
+
+                if (Moved)
+                {
+                    CursorPosition = CurrentPosition;
+                    foreach (var Child in Objects)
+                    {
+                        if (Child is Control Ctrl)
+                        {
+                            if (Ctrl.Rectangle.IsInBounds(CurrentPosition))
+                            {
+                                Ctrl.ProcessMouse(CurrentPosition);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -105,6 +139,8 @@ namespace OrbisGL.GL
         {
             if (GLDisplay == null)
                 GLDisplay = new EGLDisplay(Handler, Width, Height);
+
+            ProcessEvents();
             Draw(DateTime.Now.Ticks/10);
         }
 #endif

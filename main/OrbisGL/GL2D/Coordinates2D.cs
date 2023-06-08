@@ -88,5 +88,11 @@ namespace OrbisGL.GL2D
 
             return new Vector2(ThisCenterX - CenterX, ThisCenterY - CenterY);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInBounds(this Vector4 Rectangle, Vector2 XY)
+        {
+            return Rectangle.X >= XY.X && Rectangle.Y >= XY.Y && XY.X <= Rectangle.X + Rectangle.Z && XY.Y <= Rectangle.Y + Rectangle.W;
+        }
     }
 }

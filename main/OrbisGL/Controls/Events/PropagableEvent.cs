@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OrbisGL.Controls.Events
 {
-    public class PropagableEvent : EventArgs
+    public class PropagableEventArgs : EventArgs
     {
         public bool Handled { get; set; }
     }

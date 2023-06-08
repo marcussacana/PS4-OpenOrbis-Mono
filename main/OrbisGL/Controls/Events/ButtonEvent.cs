@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace OrbisGL.Controls.Events
 {
-    public class ButtonEvent : PropagableEvent
+    public class ButtonEventArgs : PropagableEventArgs
     {
         public OrbisPadButton Button { get; }
-        public ButtonEvent(OrbisPadButton Button) {
+        public ButtonEventArgs(OrbisPadButton Button) {
             this.Button = Button;
         }
     }

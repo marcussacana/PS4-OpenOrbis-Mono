@@ -1,6 +1,7 @@
 ﻿using OrbisGL;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
+using OrbisGL.Input;
 using System;
 using System.IO;
 using System.Linq;
@@ -296,6 +297,13 @@ void main(void) {
             Button.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
 
             GLControl.GLDisplay.Objects.Add(Button);
+
+            GLControl.GLDisplay.MouseDriver = new GenericMouse(() =>
+            {
+                var Pos = Cursor.Position;
+                var CPos = GLControl.PointToClient(Pos);
+                return new Vector2(CPos.X, CPos.Y);
+            });
 #endif
         }
 

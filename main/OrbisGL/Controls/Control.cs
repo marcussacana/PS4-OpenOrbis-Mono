@@ -162,6 +162,8 @@ namespace OrbisGL.Controls
             }
         }
 
+        public Vector4 Rectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
+
         protected readonly Blank2D GLObject = new Blank2D();
 
         public IEnumerable<Control> Childs => Children;
@@ -214,7 +216,7 @@ namespace OrbisGL.Controls
         }
 
 
-        public virtual void OnButtonDown(object Sender, ButtonEvent Args)
+        public virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -227,7 +229,7 @@ namespace OrbisGL.Controls
 
         }
 
-        public virtual void OnButtonPressed(object Sender, ButtonEvent Args)
+        public virtual void OnButtonPressed(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -240,7 +242,7 @@ namespace OrbisGL.Controls
 
         }
 
-        public virtual void OnButtonUp(object Sender, ButtonEvent Args)
+        public virtual void OnButtonUp(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -252,7 +254,41 @@ namespace OrbisGL.Controls
             }
         }
 
-        public virtual void OnClick(object Sender, ClickEvent Args)
+
+        static Control LastCursorControl = null;
+        internal void ProcessMouse(Vector2 XY)
+        {
+            foreach (var Child in Children)
+            {
+                if (Child.Rectangle.IsInBounds(XY))
+                {
+                    Child.ProcessMouse(XY);
+                    break;
+                }
+            }
+
+            if (!Rectangle.IsInBounds(XY))
+                return;
+
+            var Coordinates = new MouseEventArgs(XY);
+
+            if (LastCursorControl != this)
+            {
+                LastCursorControl?.OnMouseLeave.Invoke(this, Coordinates);
+                Coordinates.Handled = false;
+
+                LastCursorControl = this;
+                OnMouseEnter?.Invoke(this, Coordinates);
+            }
+
+            OnMouseMove?.Invoke(this, Coordinates);
+        }
+
+        public event MouseEvent OnMouseMove;
+        public event MouseEvent OnMouseEnter;
+        public event MouseEvent OnMouseLeave;
+
+        public virtual void OnClick(object Sender, ClickEventArgs Args)
         {
             if (!Focused)
                 return;

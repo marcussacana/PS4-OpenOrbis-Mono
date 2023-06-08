@@ -1,6 +1,5 @@
 ﻿using OrbisGL.FreeType;
 using OrbisGL.GL2D;
-using System.IO;
 using System.Numerics;
 
 namespace OrbisGL.Controls
