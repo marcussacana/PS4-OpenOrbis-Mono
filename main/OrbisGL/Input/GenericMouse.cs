@@ -6,9 +6,11 @@ namespace OrbisGL.Input
     public class GenericMouse : IMouse
     {
         Func<Vector2> GetCoordinates;
-        public GenericMouse(Func<Vector2> GetCoordinates)
+        Func<MouseButtons> GetButtonState;
+        public GenericMouse(Func<Vector2> GetCoordinates, Func<MouseButtons> GetButtonState)
         {
             this.GetCoordinates = GetCoordinates;
+            this.GetButtonState = GetButtonState;
         }
         public bool Available()
         {
@@ -20,6 +22,11 @@ namespace OrbisGL.Input
         public Vector2 GetPosition()
         {
             return GetCoordinates();
+        }
+
+        public MouseButtons GetMouseButtons()
+        {
+            return GetButtonState();
         }
 
         public bool Initialize(int UserID = -1)

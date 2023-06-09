@@ -3,7 +3,7 @@
 namespace OrbisGL.Controls.Events
 {
 
-    public delegate void MouseEvent(object Sender, MouseEventArgs Args);
+    public delegate void MouseEvent(object Sender, MouseEventArgs EventArgs);
 
     public class MouseEventArgs : PropagableEventArgs
     {

@@ -23,22 +23,22 @@ namespace OrbisGL.GL2D
         /// Represent an offset of the object drawing location,
         /// Calculate the offset with <see cref="Coordinates2D.XOffset">XOffset</see> and <see cref="Coordinates2D.YOffset">YOffset</see>
         /// </summary>
-        protected Vector3 Offset { get; set; }
+        protected Vector2 Offset { get; set; }
 
 
-        private Vector3 _Position;
+        private Vector2 _Position;
 
-        public Vector3 Position
+        public Vector2 Position
         {
             get => _Position; 
             set
             {
                 _Position = value;
-                Offset = new Vector3(Coordinates2D.XOffset * value.X, Coordinates2D.YOffset * value.Y, value.Z);
+                Offset = new Vector2(Coordinates2D.XOffset * value.X, Coordinates2D.YOffset * value.Y);
             }
         }
 
-        protected Vector3 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
+        protected Vector2 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
 
         int OffsetUniform = int.MinValue;
         int VisibleUniform = int.MinValue;
@@ -47,12 +47,12 @@ namespace OrbisGL.GL2D
         {
             if (OffsetUniform >= 0)
             {
-                Program.SetUniform(OffsetUniform, AbsoluteOffset);
+                Program.SetUniform(OffsetUniform, AbsoluteOffset.X, AbsoluteOffset.Y, 1);
             }
             else if (OffsetUniform == int.MinValue)
             {
                 OffsetUniform = GLES20.GetUniformLocation(Program.Handler, "Offset");
-                Program.SetUniform(OffsetUniform, AbsoluteOffset);
+                Program.SetUniform(OffsetUniform, AbsoluteOffset.X, AbsoluteOffset.Y, 1);
             }
 
             if (VisibleUniform >= 0)

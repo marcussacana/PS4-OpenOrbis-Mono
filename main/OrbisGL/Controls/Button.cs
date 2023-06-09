@@ -1,5 +1,7 @@
 ﻿using OrbisGL.FreeType;
+using OrbisGL.GL;
 using OrbisGL.GL2D;
+using SixLabors.ImageSharp;
 using System.Numerics;
 
 namespace OrbisGL.Controls
@@ -47,6 +49,16 @@ namespace OrbisGL.Controls
             GLObject.AddChild(Foreground);
         }
 
+        enum ButtonState
+        {
+            Normal,
+            Disabled,
+            Hover,
+            Pressed
+        }
+
+        ButtonState CurrentState = ButtonState.Normal;
+
         Button(int Width, int Height) {
             Size = new Vector2(Width, Height);
 
@@ -63,7 +75,47 @@ namespace OrbisGL.Controls
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BackgroundCountor);
+
+            OnMouseEnter += (sender, e) => {
+                if (!Enabled)
+                    return;
+
+                Hover = true;
+                e.Handled = true;
+                CurrentState = ButtonState.Hover;
+                Invalidate();
+            };
+
+            OnMouseButtonDown += (sender, e) => {
+                if (!Enabled)
+                    return;
+
+                e.Handled = true;
+                CurrentState = ButtonState.Pressed;
+                Invalidate();
+            };
+
+            OnMouseButtonUp += (sender, e) => {
+                if (!Enabled)
+                    return;
+
+                e.Handled = true;
+                CurrentState = Hover ? ButtonState.Hover : ButtonState.Normal;
+                Invalidate();
+            };
+
+            OnMouseLeave += (sender, e) => {
+                if (!Enabled)
+                    return;
+
+                Hover = false;
+                e.Handled = true;
+                CurrentState = ButtonState.Normal;
+                Invalidate();
+            };
         }
+
+        bool Hover = false;
 
         public void Refresh()
         {
@@ -75,7 +127,7 @@ namespace OrbisGL.Controls
             if (AutoSize && Size.X < Foreground.Width || Size.Y < Foreground.Height)
                 Size = new Vector2(Foreground.Width + 10, Foreground.Height + 10);
 
-            GLObject.Position = new Vector3(Position, 1);
+            GLObject.Position = Position;
             GLObject.Width = (int)Size.X;
             GLObject.Height = (int)Size.Y;
 
@@ -90,7 +142,20 @@ namespace OrbisGL.Controls
             BackgroundCountor.RefreshVertex();
 
             Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
-            Foreground.Position = new Vector3(Size.GetMiddle(Foreground.Width, Foreground.Height), 1);
+            Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
+
+            switch (CurrentState)
+            {
+                case ButtonState.Pressed:
+                    Background.Color = DesaturateColor(Background.Color, 180);
+                    break;
+                case ButtonState.Hover:
+                    Background.Color = DesaturateColor(Background.Color, 215);
+                    break;
+                case ButtonState.Disabled:
+                    Background.Color = DesaturateColor(Background.Color, 0);
+                    break;
+            }
 
             Invalidated = false;
         }
@@ -107,6 +172,11 @@ namespace OrbisGL.Controls
         {
             Invalidated = true;
             base.Invalidate();
+        }
+
+        private RGBColor DesaturateColor(RGBColor color, byte Alpha)
+        {
+            return color.Blend(RGBColor.Black, Alpha);
         }
     }
 }

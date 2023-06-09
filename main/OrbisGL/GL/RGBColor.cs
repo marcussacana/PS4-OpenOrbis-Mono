@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp.ColorSpaces;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.ColorSpaces;
 
 namespace OrbisGL.GL
 {
@@ -14,6 +15,21 @@ namespace OrbisGL.GL
             RedF = Red / 255f;
             GreenF = Green / 255f;
             BlueF = Blue / 255f;
+        }
+
+        public RGBColor Grayscale()
+        {
+            float RGB = (RedF + GreenF + BlueF) / 3;
+            return new RGBColor((byte)(255 * RGB));
+        }
+
+        public RGBColor Blend(RGBColor Secondary, byte Alpha)
+        {
+            float Amount = Alpha / 255f;
+            byte NewR = (byte)(R * Amount + Secondary.R * (1 - Amount));
+            byte NewG = (byte)(G * Amount + Secondary.G * (1 - Amount));
+            byte NewB = (byte)(B * Amount + Secondary.B * (1 - Amount));
+            return new RGBColor((byte)NewR, (byte)NewG, (byte)NewB);
         }
 
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }

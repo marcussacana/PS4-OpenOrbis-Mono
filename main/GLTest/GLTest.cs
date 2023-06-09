@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Windows.Forms;
+using System.Windows.Input;
 using static OrbisGL.GL2D.Coordinates2D;
+using MButtons = OrbisGL.MouseButtons;
 
 namespace GLTest
 {
@@ -217,7 +219,7 @@ void main(void) {
         {
 #if !ORBIS
             var Rect = new RoundedRectangle2D(250, 100, Rand.Next(0, 2) == 1);
-            Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 250), Rand.Next(GLControl.Height - 100), 1);
+            Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 250), Rand.Next(GLControl.Height - 100));
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             //Rect.Transparecy = (byte)Rand.Next(0, 255);
 
@@ -230,7 +232,7 @@ void main(void) {
         {
 #if !ORBIS
             var Rect = new Elipse2D(200, 200, Rand.Next(0, 2) == 1);
-            Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
+            Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             Rect.Transparency = (byte)Rand.Next(0, 255);
 
@@ -242,7 +244,7 @@ void main(void) {
         {
 #if !ORBIS
             var Rect = new PartialElipse2D(200, 200, Rand.Next(0, 2) == 1);
-            Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
+            Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             Rect.StartAngle = Rand.Next(-314, 314) / 100;
             Rect.EndAngle = Rand.Next(-314, 314) / 100; 
@@ -261,7 +263,7 @@ void main(void) {
             var Font = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "*.ttf").First();
             var Text = new Text2D(Font, 24);
             Text.SetText("Hello World");
-            Text.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
+            Text.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             GLControl.GLDisplay.Objects.Add(Text);
 #endif
@@ -271,12 +273,12 @@ void main(void) {
         {
 #if !ORBIS
             var Rect = new Elipse2D(200, 200, true);
-            Rect.Position = new Vector3(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200), 1);
+            Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
 
 
             var Rect2 = new Rectangle2D(20, 300, true);
-            Rect2.Position = new Vector3(0, 0, 1);
+            Rect2.Position = new Vector2(0, 0);
             Rect2.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
 
             Rect.AddChild(Rect2);
@@ -290,19 +292,36 @@ void main(void) {
         private void button11_Click(object sender, EventArgs e)
         {
 #if !ORBIS
+            var BG = new OrbisGL.Controls.Panel();
+            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+
+
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
             Button.Name = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
 
             Button.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
 
-            GLControl.GLDisplay.Objects.Add(Button);
+            BG.AddChild(Button);
+
+            GLControl.GLDisplay.Objects.Add(BG);
 
             GLControl.GLDisplay.MouseDriver = new GenericMouse(() =>
             {
-                var Pos = Cursor.Position;
+                var Pos = System.Windows.Forms.Cursor.Position;
                 var CPos = GLControl.PointToClient(Pos);
                 return new Vector2(CPos.X, CPos.Y);
+            }, () =>
+            {
+                MButtons Buttons = 0;
+                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Left))
+                    Buttons |= MButtons.Left;
+                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Right))
+                    Buttons |= MButtons.Right;
+                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Middle))
+                    Buttons |= MButtons.Middle;
+
+                return Buttons;
             });
 #endif
         }

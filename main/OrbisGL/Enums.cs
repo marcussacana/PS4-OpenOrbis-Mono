@@ -41,13 +41,12 @@ namespace OrbisGL
     }
 
     [Flags]
-    public enum ClickType
+    public enum MouseButtons
     {
-        SingleClick = 1 << 0,
-        DoubleClick = 1 << 1,
-        Right = 1 << 2,
-        Left = 1 << 3,
-        Middle = 1 << 4
+        Right = 1 << 0,
+        Left = 1 << 1,
+        Middle = 1 << 2,
+        All = Right | Left | Middle
     }
 
     public enum OrbisPadPortType

@@ -11,5 +11,7 @@ namespace OrbisGL.Input
         bool Initialize(int UserID = -1);
 
         Vector2 GetPosition();
+
+        MouseButtons GetMouseButtons();
     }
 }

@@ -92,7 +92,7 @@ namespace OrbisGL.GL2D
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsInBounds(this Vector4 Rectangle, Vector2 XY)
         {
-            return Rectangle.X >= XY.X && Rectangle.Y >= XY.Y && XY.X <= Rectangle.X + Rectangle.Z && XY.Y <= Rectangle.Y + Rectangle.W;
+            return XY.X >= Rectangle.X&& XY.Y >= Rectangle.Y && XY.X <= Rectangle.X + Rectangle.Z && XY.Y <= Rectangle.Y + Rectangle.W;
         }
     }
 }

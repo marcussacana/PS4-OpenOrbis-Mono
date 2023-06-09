@@ -102,7 +102,10 @@ namespace OrbisGL.GL
 
             }
         }
+
+
         public Vector2 CursorPosition { get; private set; } = Vector2.Zero;
+        public MouseButtons MousePressedButtons { get; private set; }
 
         private void ProcessEvents()
         {
@@ -120,7 +123,33 @@ namespace OrbisGL.GL
                         {
                             if (Ctrl.Rectangle.IsInBounds(CurrentPosition))
                             {
-                                Ctrl.ProcessMouse(CurrentPosition);
+                                Ctrl.ProcessMouseMove(CurrentPosition);
+                                break;
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+                }
+
+                var CurrentButtons = MouseDriver.GetMouseButtons();
+                bool Changed = CurrentButtons != MousePressedButtons;
+
+                if (Changed)
+                {
+                    var OldButtons = MousePressedButtons;
+                    MousePressedButtons = CurrentButtons;
+
+                    foreach (var Child in Objects)
+                    {
+                        if (Child is Control Ctrl)
+                        {
+                            if (Ctrl.Rectangle.IsInBounds(CurrentPosition))
+                            {
+                                Ctrl.ProcessMouseButtons(OldButtons, CurrentButtons);
+                                break;
                             }
                         }
                     }

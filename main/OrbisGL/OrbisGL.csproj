@@ -63,6 +63,7 @@
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Container.cs" />
     <Compile Include="Controls\Events\MouseEvent.cs" />
+    <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\ListContainer.cs" />
     <Compile Include="Controls\Events\ButtonEvent.cs" />
     <Compile Include="Controls\Events\ClickEvent.cs" />
