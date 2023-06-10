@@ -62,6 +62,9 @@
   <ItemGroup>
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Container.cs" />
+    <Compile Include="Controls\Control.Mouse.cs" />
+    <Compile Include="Controls\Control.Extensions.cs" />
+    <Compile Include="Controls\Control.Properties.cs" />
     <Compile Include="Controls\Events\MouseEvent.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\ListContainer.cs" />
