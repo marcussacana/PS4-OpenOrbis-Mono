@@ -1,8 +1,5 @@
-﻿using OrbisGL.Controls.Events;
-using OrbisGL.GL;
+﻿using OrbisGL.GL;
 using OrbisGL.GL2D;
-using SixLabors.ImageSharp.ColorSpaces.Conversion;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -104,7 +101,7 @@ namespace OrbisGL.Controls
         bool _Visible = true;
         public bool Visible
         {
-            get => _Visible; 
+            get => _Visible && (Parent == null || Parent.Visible); 
             set
             {
                 _Visible = value;
@@ -115,7 +112,7 @@ namespace OrbisGL.Controls
         bool _Enabled = true;
         public bool Enabled
         {
-            get => _Enabled; 
+            get => _Enabled && (Parent == null || Parent.Enabled); 
             set 
             {
                 _Enabled = value;

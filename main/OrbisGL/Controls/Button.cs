@@ -1,7 +1,6 @@
 ﻿using OrbisGL.FreeType;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
-using SixLabors.ImageSharp;
 using System.Numerics;
 
 namespace OrbisGL.Controls
@@ -122,6 +121,9 @@ namespace OrbisGL.Controls
             if (Foreground == null || Background == null)
                 return;
 
+            if (!Enabled)
+                CurrentState = ButtonState.Disabled;
+
             Foreground.SetText(Name);
 
             if (AutoSize && Size.X < Foreground.Width || Size.Y < Foreground.Height)
@@ -153,7 +155,8 @@ namespace OrbisGL.Controls
                     Background.Color = DesaturateColor(Background.Color, 215);
                     break;
                 case ButtonState.Disabled:
-                    Background.Color = DesaturateColor(Background.Color, 0);
+                    Background.Color = BackgroundColor.Grayscale();
+                    Foreground.Color = ForegroundColor.Grayscale();
                     break;
             }
 

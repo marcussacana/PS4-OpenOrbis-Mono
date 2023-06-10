@@ -61,7 +61,7 @@ namespace OrbisGL.Controls
                 }
             }
 
-            if (!Visible || !Rectangle.IsInBounds(XY) || Handled)
+            if (!Visible || !Enabled || !Rectangle.IsInBounds(XY) || Handled)
                 return;
 
             var Coordinates = new MouseEventArgs(XY);
