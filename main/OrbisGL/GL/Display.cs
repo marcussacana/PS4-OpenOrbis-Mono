@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL.GL2D;
 using OrbisGL.Input;
@@ -13,6 +14,8 @@ namespace OrbisGL.GL
 {
     public class Display : IRenderable
     {
+
+        public int UserID = -1;
         public IMouse MouseDriver { get; set; } = null;
 
         private IntPtr Handler = IntPtr.Zero;
@@ -107,10 +110,25 @@ namespace OrbisGL.GL
         public Vector2 CursorPosition { get; private set; } = Vector2.Zero;
         public MouseButtons MousePressedButtons { get; private set; }
 
+        IMouse InitializedMouse = null;
+
         private void ProcessEvents()
         {
             if (MouseDriver != null)
             {
+                if (InitializedMouse != MouseDriver)
+                {
+#if ORBIS
+                    if (UserID == -1)
+                        UserID = Native.UserService.GetForegroundUser();
+#endif
+
+                    InitializedMouse = MouseDriver;
+                    MouseDriver.Initialize(UserID);
+                }
+
+                MouseDriver.RefreshData();
+
                 var CurrentPosition = MouseDriver.GetPosition();
                 bool Moved = CursorPosition != CurrentPosition;
 

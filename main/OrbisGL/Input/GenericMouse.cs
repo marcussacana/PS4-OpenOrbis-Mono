@@ -12,10 +12,6 @@ namespace OrbisGL.Input
             this.GetCoordinates = GetCoordinates;
             this.GetButtonState = GetButtonState;
         }
-        public bool Available()
-        {
-            return true;
-        }
 
         public void Dispose() { }
 
