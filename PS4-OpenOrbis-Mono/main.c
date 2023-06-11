@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <orbis/UserService.h>
 #include <orbis/SystemService.h>
 #include <orbis/Sysmodule.h>
 #include <stdio.h>
@@ -14,21 +15,34 @@ char* getBaseDirectory()
     return JailedBase;
 }
 
+void addInternalCall(char* symbol, void* function)
+{
+	if (!function)
+	{
+		klogf("Unresolved Symbol: %s", symbol);
+	}
+    mono_add_internal_call(symbol, function);	
+}
+
 void addInternalCalls(){
 	klog("Adding Kernel internal calls...");
-    mono_add_internal_call("Orbis.Internals.Kernel::Log(void*)", klog);
-    mono_add_internal_call("Orbis.Internals.Kernel::malloc(int)", malloc);
-    mono_add_internal_call("Orbis.Internals.Kernel::free(void*)", free);
-    mono_add_internal_call("Orbis.Internals.Kernel::Jailbreak(long)", jailbreak);
-    mono_add_internal_call("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
-	mono_add_internal_call("Orbis.Internals.Kernel::IsJailbroken", isJailbroken);
-	mono_add_internal_call("Orbis.Internals.Kernel::LoadStartModule", hinted_dlopen);
-	mono_add_internal_call("Orbis.Internals.Kernel::GetModuleBase", get_module_base);
+    addInternalCall("Orbis.Internals.Kernel::Log(void*)", klog);
+    addInternalCall("Orbis.Internals.Kernel::malloc(int)", malloc);
+    addInternalCall("Orbis.Internals.Kernel::free(void*)", free);
+    addInternalCall("Orbis.Internals.Kernel::Jailbreak(long)", jailbreak);
+    addInternalCall("Orbis.Internals.Kernel::Unjailbreak", unjailbreak);
+    addInternalCall("Orbis.Internals.Kernel::IsJailbroken", isJailbroken);
+    addInternalCall("Orbis.Internals.Kernel::LoadStartModule", hinted_dlopen);
+    addInternalCall("Orbis.Internals.Kernel::GetModuleBase", get_module_base);
     klog("Adding IO internal calls...");
-    mono_add_internal_call("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
+    addInternalCall("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
     klog("Adding User Service internal calls...");
-    mono_add_internal_call("Orbis.Internals.UserService::HideSplashScreen", sceSystemServiceHideSplashScreen);
-    mono_add_internal_call("Orbis.Internals.UserService::NativeLoadExec", sceSystemServiceLoadExec);
+    addInternalCall("Orbis.Internals.UserService::Initialize", sceUserServiceInitialize);
+    addInternalCall("Orbis.Internals.UserService::Terminate", sceUserServiceTerminate);
+    addInternalCall("Orbis.Internals.UserService::GetInitialUser", sceUserServiceGetInitialUser);
+    addInternalCall("Orbis.Internals.UserService::GetForegroundUser", sceUserServiceGetForegroundUser);
+    addInternalCall("Orbis.Internals.UserService::HideSplashScreen", sceSystemServiceHideSplashScreen);
+    addInternalCall("Orbis.Internals.UserService::NativeLoadExec", sceSystemServiceLoadExec);
     klog("Internal calls added.");
 }
 
@@ -129,8 +143,7 @@ void runMain()
 		}
     }
 
-    //Load freetype
-    sceSysmoduleLoadModule(0x009A);
+    sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL);
 
     klog("Starting program...");
     char* argv[] = { 0 };
@@ -177,7 +190,8 @@ int main()
 	int libSceIpmi = sceKernelLoadStartModule("/system/common/lib/libSceIpmi.sprx", 0, NULL, 0, 0, 0);
 	int libSceNet = sceKernelLoadStartModule("/system/common/lib/libSceNet.sprx", 0, NULL, 0, 0, 0);
 	int libSceSystemService = sceKernelLoadStartModule("/system/common/lib/libSceSystemService.sprx", 0, NULL, 0, 0, 0);
-    int mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
+    int libSceUserService = sceKernelLoadStartModule("/system/common/lib/libSceUserService.sprx", 0, NULL, 0, 0, 0);
+	int mono_framework = sceKernelLoadStartModule(pkgLib, 0, NULL, 0, 0, 0);
 
 	if (libSceIpmi & 0x80000000){
         klog("Failed o Load the libSceNet");
@@ -189,6 +203,10 @@ int main()
 	}
 	if (libSceSystemService & 0x80000000){
         klog("Failed o Load the libSceSystemService");
+        return -1;		
+	}
+	if (libSceUserService & 0x80000000){
+        klog("Failed o Load the libSceUserService");
         return -1;		
 	}
     if (mono_framework & 0x80000000) {
@@ -227,6 +245,13 @@ int main()
     sceKernelDlsym(libKernel, "sceKernelLoadStartModule", (void**)&sceKernelLoadStartModule_sys);
 	
     sceKernelDlsym(libKernel, "sceKernelLoadStartModuleInternalForMono", (void**)&sceKernelLoadStartModuleInternalForMono);
+	
+    sceKernelDlsym(libSceUserService, "sceUserServiceInitialize", (void**)&sceUserServiceInitialize);
+    sceKernelDlsym(libSceUserService, "sceUserServiceTerminate", (void**)&sceUserServiceTerminate);
+    sceKernelDlsym(libSceUserService, "sceUserServiceGetInitialUser", (void**)&sceUserServiceGetInitialUser);
+    sceKernelDlsym(libSceUserService, "sceUserServiceGetForegroundUser", (void**)&sceUserServiceGetForegroundUser);
+    sceKernelDlsym(libSceUserService, "sceSystemServiceHideSplashScreen", (void**)&sceSystemServiceHideSplashScreen);
+    sceKernelDlsym(libSceUserService, "sceSystemServiceLoadExec", (void**)&sceSystemServiceLoadExec);
 	
     InstallHooks();
 

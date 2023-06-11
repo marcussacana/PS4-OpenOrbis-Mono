@@ -50,6 +50,9 @@ namespace OrbisGL.GL
 #if ORBIS
             GLDisplay = new EGLDisplay(IntPtr.Zero, Width, Height);
 #endif
+
+            this.Width = Width;
+            this.Height = Height;
         }
 
 
@@ -58,6 +61,10 @@ namespace OrbisGL.GL
         {
 #if !ORBIS
             GLDisplay = new EGLDisplay(Handler, Width, Height);
+#else
+            Kernel.LoadStartModule("libSceMbus.sprx");//For Mouse Support
+            UserService.Initialize();
+            UserService.HideSplashScreen();
 #endif
 
             GLES20.Viewport(0, 0, GLDisplay.Width, GLDisplay.Height);
@@ -78,7 +85,7 @@ namespace OrbisGL.GL
                 } 
 #if DEBUG
                 if (CurrentTick > NextDrawTick)
-                    Debugger.Log(1, "WARN", "Frame Loop too Late");
+                    Debugger.Log(1, "WARN", "Frame Loop too Late\n");
 #endif
 #else
                 long CurrentTick = DateTime.UtcNow.Ticks;
@@ -120,7 +127,10 @@ namespace OrbisGL.GL
                 {
 #if ORBIS
                     if (UserID == -1)
-                        UserID = Native.UserService.GetForegroundUser();
+                    {
+                        UserService.Initialize();
+                        UserService.GetInitialUser(out UserID);
+                    }
 #endif
 
                     InitializedMouse = MouseDriver;

@@ -1,14 +1,7 @@
-﻿using OrbisGL;
-using OrbisGL.GL;
+﻿using OrbisGL.GL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using OrbisGL.GL2D;
-using static OrbisGL.GL2D.Coordinates2D;
+using OrbisGL.Input;
 
 namespace Orbis
 {
@@ -19,12 +12,23 @@ namespace Orbis
             InitializeComponents();
         }
 
-        GLProgram Program;
+        Random Rand = new Random();
 
         private void InitializeComponents()
         {
-            Rectangle2D BG = new Rectangle2D(1920, 1080, true, ResLoader.GetResource("ThemeFrag"));
-            BG.Program.SetUniform("Resolution", new Vector2(1920f, 1080f));
+            var BG = new OrbisGL.Controls.Panel();
+            BG.Size = new Vector2(Width, Height);
+
+            MouseDriver = new OrbisMouse();
+
+            var Button = new OrbisGL.Controls.Button(50, 25, 18);
+            Button.Name = "Hello World";
+            Button.Primary = Rand.Next(0, 2) == 1;
+
+            Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
+
+            BG.AddChild(Button);
+
             Objects.Add(BG);
         }
 

@@ -1,14 +1,66 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Orbis.Internals
 {
-    internal class UserService
+    public unsafe class UserService
     {
+        private static bool Initialized = false;
+        public static int Initialize()
+        {
+            if (Initialized)
+                return 0;
+            
+            Initialized = true;
+            UserServiceInitializeParams Params = new UserServiceInitializeParams();
+            Params.priority = ORBIS_KERNEL_PRIO_FIFO_NORMAL;
+            return Initialize(&Params);
+        }
+
+        public static int GetInitialUser(out int UserID)
+        {
+            int rst = 0;
+            int err = GetInitialUser(&rst);
+            UserID = rst;
+            return err;
+        }
+        
+        public static int GetForegroundUser(out int UserID)
+        {
+            int rst = 0;
+            int err = GetForegroundUser(&rst);
+            UserID = rst;
+            return err;
+        }
+        
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern bool HideSplashScreen();
+        static extern int Initialize(void* Params);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern int Terminate();
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern int GetForegroundUser(int* UserID);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern int GetInitialUser(int* UserID);
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern int HideSplashScreen();
 
 
-        public unsafe static bool LoadExec(string Path, params string[] Args)
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct UserServiceInitializeParams
+        {
+            public uint priority;
+        }
+
+        public const uint ORBIS_KERNEL_PRIO_FIFO_LOWEST  = 0x2FF;
+        public const uint ORBIS_KERNEL_PRIO_FIFO_NORMAL  = 0x2BC;
+        public const uint ORBIS_KERNEL_PRIO_FIFO_HIGHEST = 0x100;
+
+        public static int LoadExec(string Path, params string[] Args)
         {
             //Not sure how to generate the pArgs, no documentation at all
             //therefore this code is just a guess
@@ -42,6 +94,6 @@ namespace Orbis.Internals
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        unsafe static extern bool NativeLoadExec(void* Path, void* Args);
+        static extern int NativeLoadExec(void* Path, void* Args);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using System.Security.Policy;
 using System.Security.Principal;
+using Orbis.Internals;
 
 namespace Orbis
 {

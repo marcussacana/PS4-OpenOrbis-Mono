@@ -1,6 +1,8 @@
 ﻿using OrbisGL.GL2D;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Xml.Schema;
+using Orbis.Internals;
 
 namespace OrbisGL.Input
 {
@@ -11,36 +13,43 @@ namespace OrbisGL.Input
 
         int MouseHandle = 0;
         int CurrentUserID = 0;
-        SceMouseData CurrentData = default;
-
-        public void RefreshData() 
+        
+        MouseButtons CurrentButtons = 0;
+        SceMouseData* CurrentData = null;
+        const int bulkMouseData = 8;
+        
+        public void RefreshData()
         {
-            fixed (SceMouseData* pCurrData = &CurrentData)
+            int Count = sceMouseRead(MouseHandle, CurrentData, bulkMouseData);
+            if (Count >= Constants.SCE_OK)
             {
-                sceMouseRead(MouseHandle, pCurrData, 1);
+                CurrentButtons = 0;
+                for (int i = 0; i < bulkMouseData; i++)
+                {
+                    if ((CurrentData[i].buttons & Constants.SCE_MOUSE_BUTTON_PRIMARY) != 0)
+                        CurrentButtons |= MouseButtons.Left;
+                    
+                    if ((CurrentData[i].buttons & Constants.SCE_MOUSE_BUTTON_SECONDARY) != 0)
+                        CurrentButtons |= MouseButtons.Right;
+                    
+                    if ((CurrentData[i].buttons & Constants.SCE_MOUSE_BUTTON_OPTIONAL) != 0)
+                        CurrentButtons |= MouseButtons.Middle;
+                    
+                    CurrentX += CurrentData[i].xAxis;
+                    CurrentY += CurrentData[i].yAxis;
+                }
             }
+            
         }
 
         public MouseButtons GetMouseButtons()
         {
-            MouseButtons CurrentButtons = 0;
-
-            if ((CurrentData.buttons & Constants.SCE_MOUSE_BUTTON_PRIMARY) != 0)
-                CurrentButtons |= MouseButtons.Left;
-
-            if ((CurrentData.buttons & Constants.SCE_MOUSE_BUTTON_SECONDARY) != 0)
-                CurrentButtons |= MouseButtons.Right;
-
-            if ((CurrentData.buttons & Constants.SCE_MOUSE_BUTTON_OPTIONAL) != 0)
-                CurrentButtons |= MouseButtons.Middle;
 
             return CurrentButtons;
         }
 
         public Vector2 GetPosition()
         {
-            CurrentX += CurrentData.xAxis;
-            CurrentY += CurrentData.yAxis;
             return new Vector2(CurrentX, CurrentY);
         }
 
@@ -59,6 +68,17 @@ namespace OrbisGL.Input
             CurrentX = Coordinates2D.Width / 2;
             CurrentY = Coordinates2D.Height / 2;
 
+            var MouseData = new SceMouseData()
+            {
+                reserve = new byte[8]
+            };
+            var pMouseData = Marshal.AllocHGlobal(sizeof(SceMouseData) * bulkMouseData);
+            CurrentData = (SceMouseData*)pMouseData.ToPointer();
+            for (int i = 0; i < bulkMouseData; i++)
+            {
+                CurrentData[i] = MouseData;
+            }
+            
             return true;
         }
 

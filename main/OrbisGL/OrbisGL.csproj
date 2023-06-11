@@ -113,7 +113,6 @@
     <Compile Include="Internals\IO.cs" />
     <Compile Include="Internals\Kernel.cs" />
     <Compile Include="Internals\UserService.cs" />
-    <Compile Include="Native\UserService.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResLoader.cs" />

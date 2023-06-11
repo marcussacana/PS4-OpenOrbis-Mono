@@ -136,6 +136,7 @@ if "%REMOTE%"=="true" (
 	xcopy /e /y mono .\app\mono\
 	xcopy /e /y sce_module .\app\sce_module\
 	xcopy /e /y sce_sys .\app\sce_sys\
+	xcopy /e /y assets .\app\assets\
 	winnfsd . /
 	goto :eof
 )
