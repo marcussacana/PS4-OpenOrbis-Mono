@@ -21,10 +21,10 @@ namespace OrbisGL.Input
         public void RefreshData()
         {
             int Count = sceMouseRead(MouseHandle, CurrentData, bulkMouseData);
-            if (Count >= Constants.SCE_OK)
+            if (Count > Constants.SCE_OK)
             {
                 CurrentButtons = 0;
-                for (int i = 0; i < bulkMouseData; i++)
+                for (int i = 0; i < Count; i++)
                 {
                     if ((CurrentData[i].buttons & Constants.SCE_MOUSE_BUTTON_PRIMARY) != 0)
                         CurrentButtons |= MouseButtons.Left;
@@ -34,17 +34,28 @@ namespace OrbisGL.Input
                     
                     if ((CurrentData[i].buttons & Constants.SCE_MOUSE_BUTTON_OPTIONAL) != 0)
                         CurrentButtons |= MouseButtons.Middle;
-                    
+
                     CurrentX += CurrentData[i].xAxis;
                     CurrentY += CurrentData[i].yAxis;
                 }
+
+                if (CurrentX < 0)
+                    CurrentX = 0;
+
+                if (CurrentY < 0)
+                    CurrentY = 0;
+
+                if (CurrentX >= Coordinates2D.Width)
+                    CurrentX = Coordinates2D.Width;
+
+                if (CurrentY >= Coordinates2D.Height)
+                    CurrentY = Coordinates2D.Height;
             }
             
         }
 
         public MouseButtons GetMouseButtons()
         {
-
             return CurrentButtons;
         }
 
@@ -68,10 +79,7 @@ namespace OrbisGL.Input
             CurrentX = Coordinates2D.Width / 2;
             CurrentY = Coordinates2D.Height / 2;
 
-            var MouseData = new SceMouseData()
-            {
-                reserve = new byte[8]
-            };
+            var MouseData = new SceMouseData();
             var pMouseData = Marshal.AllocHGlobal(sizeof(SceMouseData) * bulkMouseData);
             CurrentData = (SceMouseData*)pMouseData.ToPointer();
             for (int i = 0; i < bulkMouseData; i++)
@@ -112,15 +120,13 @@ namespace OrbisGL.Input
         struct SceMouseData
         {
             public ulong timestamp;
-            [MarshalAs(UnmanagedType.I1)]
-            public bool connected;
+            public int connected;
             public uint buttons;
             public int xAxis;
             public int yAxis;
             public int wheel;
             public int tilt;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-            public byte[] reserve;
+            public fixed byte reserve[8];
         }
 
     }
