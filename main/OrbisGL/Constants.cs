@@ -15,6 +15,8 @@ namespace OrbisGL
         public const byte SCE_MOUSE_PORT_TYPE_STANDARD = 0;
         public const int  SCE_OK = 0;
 
+        public const int SCE_IME_KEYBOARD_MAX_NUMBER = 5;
+
         public const int MaxTouchNum = 2;
         public const int MaxDataNum = 0x40;
     }
