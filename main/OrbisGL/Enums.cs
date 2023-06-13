@@ -489,13 +489,17 @@ namespace OrbisGL
         JUMP_TO_BEFORE_OBJECT = 16,
         CHANGE_WINDOW_TYPE = 17,
         CHANGE_INPUT_METHOD_STATE = 18,
-        KEYBOARD_OPEN = 256,
-        KEYBOARD_KEYCODE_DOWN = 257,
-        KEYBOARD_KEYCODE_UP = 258,
-        KEYBOARD_KEYCODE_REPEAT = 259,
-        KEYBOARD_CONNECTION = 260,
-        KEYBOARD_DISCONNECTION = 261,
-        KEYBOARD_ABORT = 262,
+    }
+
+    public enum IME_KeyboardEvent
+    {
+        OPEN = 256,
+        KEYCODE_DOWN = 257,
+        KEYCODE_UP = 258,
+        KEYCODE_REPEAT = 259,
+        CONNECTION = 260,
+        DISCONNECTION = 261,
+        ABORT = 262,
     }
 
     public enum IME_Align : int
