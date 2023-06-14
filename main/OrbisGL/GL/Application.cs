@@ -12,7 +12,7 @@ using SharpGLES;
 
 namespace OrbisGL.GL
 {
-    public class Display : IRenderable
+    public class Application : IRenderable
     {
 
         public int UserID = -1;
@@ -35,7 +35,7 @@ namespace OrbisGL.GL
         /// <param name="Height">Sets the rendering Height</param>
         /// <param name="FramePerSecond">Set the default frame delay</param>
         /// <param name="Handler">(WINDOWS ONLY) Set the Control Render Handler</param>
-        public Display(int Width, int Height, int FramePerSecond, IntPtr? Handler = null)
+        public Application(int Width, int Height, int FramePerSecond, IntPtr? Handler = null)
         {
 #if ORBIS
             FrameDelay = Constants.SCE_SECOND / FramePerSecond;
@@ -113,6 +113,53 @@ namespace OrbisGL.GL
             }
         }
 
+#if ORBIS
+        private static IKeyboard Keyboard;
+        public void EnabledKeyboard()
+        {
+            if (Keyboard != null)
+                return;
+            
+            if (UserID == -1)
+            {
+                UserService.Initialize();
+                UserService.GetInitialUser(out UserID);
+            }
+            
+            Keyboard = new OrbisKeyboard();
+            Keyboard.Initialize(UserID);
+            
+            Keyboard.OnKeyDown += (sender, args) =>
+            {
+                foreach (var Child in Objects)
+                {
+                    if (Child is Control Ctrl)
+                    {
+                        if (Ctrl.Focused)
+                        {
+                            Ctrl.ProcessKeyDown(sender, args);
+                            break;
+                        }
+                    }
+                }
+            };
+            
+            Keyboard.OnKeyUp += (sender, args) =>
+            {
+                foreach (var Child in Objects)
+                {
+                    if (Child is Control Ctrl)
+                    {
+                        if (Ctrl.Focused)
+                        {
+                            Ctrl.ProcessKeyUp(sender, args);
+                            break;
+                        }
+                    }
+                }
+            };
+        }
+#endif
 
         public Vector2 CursorPosition { get; private set; } = Vector2.Zero;
         public MouseButtons MousePressedButtons { get; private set; }

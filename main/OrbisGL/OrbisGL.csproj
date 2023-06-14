@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Container.cs" />
+    <Compile Include="Controls\Control.Keyboard.cs" />
     <Compile Include="Controls\Control.Mouse.cs" />
     <Compile Include="Controls\Control.Extensions.cs" />
     <Compile Include="Controls\Control.Properties.cs" />
@@ -107,8 +108,9 @@
     <Compile Include="GL\Program.cs" />
     <Compile Include="GL\RGBColor.cs" />
     <Compile Include="GL\Texture.cs" />
-    <Compile Include="GL\Display.cs" />
+    <Compile Include="GL\Application.cs" />
     <Compile Include="Input\GenericMouse.cs" />
+    <Compile Include="Input\IKeyboard.cs" />
     <Compile Include="Input\IMouse.cs" />
     <Compile Include="Input\Layouts\ASCII.cs" />
     <Compile Include="Input\Layouts\ABNT2.cs" />

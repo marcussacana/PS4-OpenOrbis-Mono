@@ -2,6 +2,8 @@
 using OrbisGL.GL;
 using System;
 using System.Linq;
+using Orbis.Internals;
+using OrbisGL.Input;
 
 namespace OrbisGL.Controls
 {

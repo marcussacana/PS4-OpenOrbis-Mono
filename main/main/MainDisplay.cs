@@ -5,11 +5,12 @@ using OrbisGL.Input;
 
 namespace Orbis
 {
-    internal class MainDisplay : Display
+    internal class MainDisplay : Application
     {
         public MainDisplay() : base(1920, 1080, 60)
         {
             InitializeComponents();
+            EnabledKeyboard();
         }
 
         Random Rand = new Random();
