@@ -113,6 +113,7 @@
     <Compile Include="Input\Layouts\ASCII.cs" />
     <Compile Include="Input\Layouts\ABNT2.cs" />
     <Compile Include="Input\Layouts\ILayout.cs" />
+    <Compile Include="Input\Layouts\Latin.cs" />
     <Compile Include="Input\OrbisKeyboard.cs" />
     <Compile Include="Input\OrbisMouse.cs" />
     <Compile Include="Internals\IO.cs" />

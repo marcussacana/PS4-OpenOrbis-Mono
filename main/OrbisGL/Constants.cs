@@ -17,6 +17,8 @@ namespace OrbisGL
 
         public const int SCE_IME_KEYBOARD_MAX_NUMBER = 5;
 
+        public const int SCE_SYSTEM_SERVICE_PARAM_ID_LANG = 0x00000001;
+
         public const int MaxTouchNum = 2;
         public const int MaxDataNum = 0x40;
     }

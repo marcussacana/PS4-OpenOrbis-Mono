@@ -1,14 +1,18 @@
 ﻿using OrbisGL.Controls.Events;
 using OrbisGL.Input.Layouts;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace OrbisGL.Input
 {
     internal unsafe class OrbisKeyboard
     {
-        public ILayout KeyboardLayout { get; set; } = new ASCII();
+        public readonly static ILayout[] Layouts = new ILayout[]
+        {
+            new ASCII(), new ABNT2()
+        };
+
+        public ILayout KeyboardLayout { get; set; }
         public event KeyboardEventDelegate OnKeyDown;
         public event KeyboardEventDelegate OnKeyUp;
 
@@ -31,86 +35,11 @@ namespace OrbisGL.Input
             bool Numlock = State.HasFlag(IME_KeycodeState.LED_NUM_LOCK);
             bool Shift = State.HasFlag(IME_KeycodeState.MODIFIER_L_SHIFT) || State.HasFlag(IME_KeycodeState.MODIFIER_R_SHIFT) || State.HasFlag(IME_KeycodeState.LED_CAPS_LOCK);
             bool AltGr = State.HasFlag(IME_KeycodeState.MODIFIER_R_ALT);
-            
-            char? Result = KeyboardLayout.GetKeyChar(new IMEKeyModifier(Code, Shift, AltGr, Numlock));
 
-            if (Result != null)
-                return Result;
-            
-            //Parse A-Z
-            if (Code >= IME_KeyCode.A && Code <= IME_KeyCode.Z) {
-                char Begin = Shift ? 'A' : 'a';
-                Result = (char)(Begin + ((int)IME_KeyCode.A - (int)Code));
+            var KeyInfo = new IMEKeyModifier(Code, Shift, AltGr, Numlock);
 
-                return Result;
-            }
 
-            if (Code >= IME_KeyCode.N1 && Code <= IME_KeyCode.N9)
-            {
-                Result = (char)('1' + ((int)IME_KeyCode.N1 - (int)Code));
-                return Result;
-            }
-
-            if (Numlock && Code >= IME_KeyCode.KEYPAD_1 && Code <= IME_KeyCode.KEYPAD_9)
-            {
-                Result = (char)('1' + ((int)IME_KeyCode.KEYPAD_1 - (int)Code));
-
-                return Result;
-            }
-
-            if (Numlock && Code == IME_KeyCode.KEYPAD_0)
-            {
-                Result = '0';
-                return Result;
-            }
-
-            switch (Code)
-            {
-                case IME_KeyCode.N0:
-                    Result = '0';
-                    break;
-                case IME_KeyCode.MINUS:
-                    Result = Shift ? '_' : '-';
-                    break;
-                case IME_KeyCode.EQUAL:
-                    Result = Shift ? '+' : '=';
-                    break;
-                case IME_KeyCode.RETURN:
-                    Result = '\n';
-                    break;
-                case IME_KeyCode.SPACEBAR:
-                    Result = ' ';
-                    break;
-                case IME_KeyCode.LEFTBRACKET:
-                    Result = Shift ? '{' : '[';
-                    break;
-                case IME_KeyCode.RIGHTBRACKET:
-                    Result = Shift ? '}' : ']';
-                    break;
-                case IME_KeyCode.BACKSLASH:
-                    Result = Shift ? '|' : '\\';
-                    break;
-                case IME_KeyCode.SEMICOLON:
-                    Result = Shift ? ':' : ';';
-                    break;
-                case IME_KeyCode.SINGLEQUOTE:
-                    Result = Shift ? '"' : '\'';
-                    break;
-                case IME_KeyCode.BACKQUOTE:
-                    Result = Shift ? '~' : '`';
-                    break;
-                case IME_KeyCode.COMMA:
-                    Result = Shift ? '<' : ',';
-                    break;
-                case IME_KeyCode.PERIOD:
-                    Result = Shift ? '>' : '.';
-                    break;
-                case IME_KeyCode.SLASH:
-                    Result = Shift ? '?' : '/';
-                    break;
-            }
-
-            return Result;
+            return KeyboardLayout.GetKeyChar(KeyInfo);
         }
         #endregion
 
@@ -126,9 +55,25 @@ namespace OrbisGL.Input
             if (sceImeKeyboardOpen(UserID, Param) != Constants.SCE_OK)
                 return false;
 
+            if (KeyboardLayout == null && sceSystemServiceParamGetInt(Constants.SCE_SYSTEM_SERVICE_PARAM_ID_LANG, out int LangID) == Constants.SCE_OK)
+            {
+                foreach (var Layout in Layouts)
+                {
+                    if (Layout.LanguageID == LangID)
+                    {
+                        KeyboardLayout = Layout;
+                        break;
+                    }
+                }
+            }
 
-            Initialized = true;
+
+            return Initialized = true;
         }
+
+
+        [DllImport("libSceSystemService.sprx")]
+        static extern int sceSystemServiceParamGetInt(int paramId, out int Value);
 
         [DllImport("libSceIme.sprx")]
         static extern int sceImeKeyboardClose(int UserId);

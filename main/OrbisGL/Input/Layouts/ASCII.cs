@@ -2,13 +2,14 @@
 
 namespace OrbisGL.Input.Layouts
 {
-    internal class ASCII : ILayout
+    internal class ASCII : Latin
     {
-        public string Name => "English (United States)";
+        public override string Name => "English (United States)";
 
-        public string EnglishName => "English (United States)";
+        public override string EnglishName => "English (United States)";
 
-        public string LayoutCode => "ASCII";
+        public override string LayoutCode => "ASCII";
+        public override int LanguageID => 1;
 
         Dictionary<IMEKeyModifier, char> Mapper = new Dictionary<IMEKeyModifier, char>() {
             { new IMEKeyModifier(IME_KeyCode.N1, true, false, false), '!' },
@@ -29,7 +30,7 @@ namespace OrbisGL.Input.Layouts
             { new IMEKeyModifier(IME_KeyCode.N6, false, true, false), '¬' }
         };
 
-        public char? GetKeyChar(IMEKeyModifier Key)
+        public override char? GetKeyChar(IMEKeyModifier Key)
         {
             if (!Key.Shift && !Key.Alt)
                 return null;
@@ -37,7 +38,7 @@ namespace OrbisGL.Input.Layouts
             if (Mapper.ContainsKey(Key))
                 return Mapper[Key];
 
-            return null;
+            return base.GetKeyChar(Key);
         }
     }
 }
