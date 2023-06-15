@@ -113,6 +113,13 @@ namespace OrbisGL.Input.Layouts
             { new IMEKeyModifier(IME_KeyCode.PERIOD,       true, false, false), '>' },
             { new IMEKeyModifier(IME_KeyCode.SLASH,        true, false, false), '?' },
             #endregion
+            #region NumPad_Special_Chars
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_SLASH, false, false, false), '/' },
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_ASTERISK, false, false, false), '*' },
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_MINUS, false, false, false), '-' },
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_PLUS, false, false, false), '+' },
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_ENTER, false, false, false), '\n' },
+            #endregion
         };
 
         public abstract string Name { get; }
@@ -125,7 +132,18 @@ namespace OrbisGL.Input.Layouts
 
         public virtual char? GetKeyChar(IMEKeyModifier Key)
         {
-            throw new NotImplementedException();
+            if (Mapper.TryGetValue(Key, out var Char))
+                return Char;
+
+            if (Key.NumLock)
+            {
+                Key.NumLock = false;
+                if (Mapper.TryGetValue(Key, out Char))
+                    return Char;
+                Key.NumLock = true;
+            }
+            
+            return null;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace OrbisGL.Controls
     {
         private void FlushMouseEvents(long Tick)
         {
-            if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 500)
+            if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 100)
             {
                 if (RightClickCount > 0)
                 {

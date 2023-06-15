@@ -491,7 +491,7 @@ namespace OrbisGL
         CHANGE_INPUT_METHOD_STATE = 18,
     }
 
-    public enum IME_KeyboardEvent
+    public enum IME_KeyboardEvent : long
     {
         OPEN = 256,
         KEYCODE_DOWN = 257,

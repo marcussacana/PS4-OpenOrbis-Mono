@@ -27,16 +27,24 @@ namespace OrbisGL.Input.Layouts
             { new IMEKeyModifier(IME_KeyCode.N3, false, true, false), '³' },
             { new IMEKeyModifier(IME_KeyCode.N4, false, true, false), '£' },
             { new IMEKeyModifier(IME_KeyCode.N5, false, true, false), '¢' },
-            { new IMEKeyModifier(IME_KeyCode.N6, false, true, false), '¬' }
+            { new IMEKeyModifier(IME_KeyCode.N6, false, true, false), '¬' },
+            
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_PERIOD, false, false, false), '.' },
+            { new IMEKeyModifier(IME_KeyCode.KEYPAD_COMMA, false, false, false), ',' },
         };
 
         public override char? GetKeyChar(IMEKeyModifier Key)
         {
-            if (!Key.Shift && !Key.Alt)
-                return null;
+            if (Mapper.TryGetValue(Key, out var Char))
+                return Char;
 
-            if (Mapper.ContainsKey(Key))
-                return Mapper[Key];
+            if (Key.NumLock)
+            {
+                Key.NumLock = false;
+                if (Mapper.TryGetValue(Key, out Char))
+                    return Char;
+                Key.NumLock = true;
+            }
 
             return base.GetKeyChar(Key);
         }
