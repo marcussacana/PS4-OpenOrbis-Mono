@@ -230,6 +230,8 @@ namespace OrbisGL.GL
                     }
                 }
             }
+            
+            Keyboard?.RefreshData();
         }
 
 #if ORBIS

@@ -108,8 +108,7 @@ namespace OrbisGL.Controls
             if (!Visible || !Enabled)
                 return;
 
-            RootControl.FocusedControl.OnLostFocus(this, Args);
-
+            RootControl.FocusedControl?.OnLostFocus(this, Args);
 
             if (Focusable)
             {

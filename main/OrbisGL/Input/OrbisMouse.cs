@@ -64,7 +64,7 @@ namespace OrbisGL.Input
             return new Vector2(CurrentX, CurrentY);
         }
 
-        public bool Initialize(int UserID = -1)
+        public bool Initialize(int UserID = Constants.SCE_USER_SERVICE_USER_ID_ALL_USERS)
         {
             CurrentUserID = UserID;
             

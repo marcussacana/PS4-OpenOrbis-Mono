@@ -1,6 +1,7 @@
 ﻿using OrbisGL.Controls.Events;
 using OrbisGL.Input.Layouts;
 using System;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 
 namespace OrbisGL.Input
@@ -12,20 +13,29 @@ namespace OrbisGL.Input
             new ASCII(), new ABNT2()
         };
 
+        private IntPtr pKeyboardEventHandler;
+        private OrbisKeyboardEventHandler KeyboardEventHandler;
         public ILayout KeyboardLayout { get; set; }
         public event KeyboardEventDelegate OnKeyDown;
         public event KeyboardEventDelegate OnKeyUp;
 
-        void KeyboardEvent(IntPtr Arg, OrbisKeyboardEvent Event)
+        void KeyboardEvent(IntPtr Arg, OrbisKeyboardEvent* Event)
         {
-            
-            switch (Event.id)
+            switch (Event->id)
             {
                 case IME_KeyboardEvent.OPEN: break;
+                case IME_KeyboardEvent.KEYCODE_REPEAT: break;
+                case IME_KeyboardEvent.CONNECTION: break;//keyboard connected
+                case IME_KeyboardEvent.DISCONNECTION: break;//keyboard disconnected
                 case IME_KeyboardEvent.KEYCODE_DOWN:
-                    var KeyCode = (OrbisKeyboardKeycode*)Event.EventData;
-                    var EventArgs = new KeyboardEventArgs(KeyCode->keycode, KeyCode->status, GetKeyChar(KeyCode->keycode, KeyCode->status));
-                    OnKeyDown?.Invoke(this, EventArgs);
+                    var dKeyCode = *(OrbisKeyboardKeycode*)Event->EventData;
+                    var dEventArgs = new KeyboardEventArgs(dKeyCode.keycode, dKeyCode.status, GetKeyChar(dKeyCode.keycode, dKeyCode.status));
+                    OnKeyDown?.Invoke(this, dEventArgs);
+                    break;
+                case IME_KeyboardEvent.KEYCODE_UP:
+                    var uKeyCode =  *(OrbisKeyboardKeycode*)Event->EventData;
+                    var uEventArgs = new KeyboardEventArgs(uKeyCode.keycode, uKeyCode.status, GetKeyChar(uKeyCode.keycode, uKeyCode.status));
+                    OnKeyUp?.Invoke(this, uEventArgs);
                     break;
             }
         }
@@ -43,15 +53,24 @@ namespace OrbisGL.Input
         }
 
         bool Initialized = false;
-        public bool Initialize(int UserID = -1)
+        public bool Initialize(int UserID = Constants.SCE_USER_SERVICE_USER_ID_ALL_USERS)
         {
             if (UserID < 0 || Initialized)
                 return false;
 
-            OrbisKeyboardParam Param = new OrbisKeyboardParam();
-            Param.handler = KeyboardEvent;
+            KeyboardEventHandler = KeyboardEvent;
 
-            if (sceImeKeyboardOpen(UserID, Param) != Constants.SCE_OK)
+            var PtrArg = Marshal.AllocHGlobal(4);
+            Marshal.Copy(new byte[4], 0, PtrArg, 4);
+            
+            OrbisKeyboardParam Param = new OrbisKeyboardParam
+            {
+                arg = PtrArg,
+                handler = pKeyboardEventHandler = Marshal.GetFunctionPointerForDelegate(KeyboardEventHandler)
+            };
+
+
+            if (sceImeKeyboardOpen(UserID, &Param) != Constants.SCE_OK)
                 return false;
 
             if (KeyboardLayout == null && sceSystemServiceParamGetInt(Constants.SCE_SYSTEM_SERVICE_PARAM_ID_LANG, out int LangID) == Constants.SCE_OK)
@@ -70,22 +89,26 @@ namespace OrbisGL.Input
             return Initialized = true;
         }
 
+        public void RefreshData()
+        {
+            sceImeUpdate(pKeyboardEventHandler);
+        }
+
 
         [DllImport("libSceSystemService.sprx")]
         static extern int sceSystemServiceParamGetInt(int paramId, out int Value);
 
         [DllImport("libSceIme.sprx")]
-        static extern int InitializeImeModule();
-        [DllImport("libSceIme.sprx")]
         static extern int sceImeKeyboardClose(int UserId);
 
         [DllImport("libSceIme.sprx")]
-        static extern int sceImeUpdate(OrbisKeyboardEventHandler Handler);
+        static extern int sceImeUpdate(IntPtr Handler);
 
         [DllImport("libSceIme.sprx")]
-        static extern int sceImeKeyboardOpen(int UserId, OrbisKeyboardParam param);
+        static extern int sceImeKeyboardOpen(int UserId, OrbisKeyboardParam* param);
 
-        public struct OrbisKeyboardConfig
+        [StructLayout(LayoutKind.Sequential, Pack =  1)]
+        public struct OrbisKeyboardConfig 
         {
             public int userId;
             public int status;
@@ -103,13 +126,16 @@ namespace OrbisGL.Input
             public int orbiskeyboard_initialized;
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack =  1)]
         public struct OrbisKeyboardResourceIdArray
         {
             public int userId;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
             public uint[] resourceId;
         }
+        
 
+        [StructLayout(LayoutKind.Sequential, Pack =  1)]
         public struct OrbisKeyboardKeycode
         {
             public IME_KeyCode keycode;
@@ -154,6 +180,7 @@ namespace OrbisGL.Input
         }
         */
 
+        [StructLayout(LayoutKind.Sequential, Pack =  1)]
         public struct OrbisKeyboardEvent
         {
             public IME_KeyboardEvent id;
@@ -161,17 +188,17 @@ namespace OrbisGL.Input
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void OrbisKeyboardEventHandler(IntPtr Arg, OrbisKeyboardEvent Event);
+        public delegate void OrbisKeyboardEventHandler(IntPtr Arg, OrbisKeyboardEvent* Event);
 
+        
+        [StructLayout(LayoutKind.Sequential, Pack =  1)]
         public struct OrbisKeyboardParam
         {
             public uint option;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public byte[] unknown1;
+            public uint unknown1;
             public IntPtr arg;
-            public OrbisKeyboardEventHandler handler;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-            public byte[] unknown2;
+            public IntPtr handler;
+            public ulong unknown2;
         }
     }
 }

@@ -26,6 +26,22 @@ namespace Orbis
             Button.Name = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
 
+            Button.OnKeyDown += (sender, args) =>
+            {
+                Button.Name = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Pressed";
+            };
+
+            Button.OnKeyUp += (sender, args) =>
+            {
+                Button.Name = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Released";
+            };
+            
+            Button.OnMouseClick += (sender, args) =>
+            {
+                Button.Name = "Focused!";
+                Button.Focus();
+            };
+
             Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
 
             BG.AddChild(Button);

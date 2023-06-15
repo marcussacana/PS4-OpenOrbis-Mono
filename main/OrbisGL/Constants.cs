@@ -14,9 +14,12 @@ namespace OrbisGL
         public const byte SCE_MOUSE_OPEN_PARAM_MERGED = 0x01;
         public const byte SCE_MOUSE_PORT_TYPE_STANDARD = 0;
         public const int  SCE_OK = 0;
+        
+
 
         public const int SCE_IME_KEYBOARD_MAX_NUMBER = 5;
 
+        public const int SCE_USER_SERVICE_USER_ID_ALL_USERS = 0x000000FE;
         public const int SCE_SYSTEM_SERVICE_PARAM_ID_LANG = 0x00000001;
 
         public const int MaxTouchNum = 2;

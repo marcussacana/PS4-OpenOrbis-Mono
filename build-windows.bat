@@ -272,6 +272,9 @@ rmdir /s /q main\main\obj
 rmdir /s /q main\SDL2-CS\bin
 rmdir /s /q main\SDL2-CS\obj
 rmdir /s /q app
+del mono\4.5\OrbisGL.*
+del mono\4.5\SharpGLES.*
+del mono\4.5\SixLabors.ImageSharp*
 del /s *.out
 del /s *.so
 del /s *.o

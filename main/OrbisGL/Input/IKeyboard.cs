@@ -8,5 +8,6 @@ namespace OrbisGL.Input
         event KeyboardEventDelegate OnKeyDown;
         event KeyboardEventDelegate OnKeyUp;
         bool Initialize(int UserID = -1);
+        void RefreshData();
     }
 }
