@@ -1,7 +1,7 @@
-﻿using OrbisGL.Controls.Events;
-using OrbisGL.GL;
+﻿using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System.Numerics;
+using OrbisGL.Controls.Events;
 
 namespace OrbisGL.Controls
 {
@@ -9,36 +9,33 @@ namespace OrbisGL.Controls
     {
         private void FlushMouseEvents(long Tick)
         {
-            if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 100)
+            if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 500)
             {
-                if (RightClickCount > 0)
+                if (RightClickCount > 1)
                 {
                     bool DoubleClick = RightClickCount > 1;
                     var Event = new ClickEventArgs(RightClickPos, MouseButtons.Right, DoubleClick);
 
                     if (LastCursorControl != null)
                     {
-                        LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), Event);
+                        LastCursorControl.PropagateUp((x, y) => { x.Focus(); x?.OnMouseDoubleClick?.Invoke(x, (ClickEventArgs)y); }, Event);
                     }
-
-                    RightClickCount = 0;
                 }
 
-                if (LeftClickCount > 0)
+                if (LeftClickCount > 1)
                 {
                     bool DoubleClick = LeftClickCount > 1;
                     var Event = new ClickEventArgs(LeftClickPos, MouseButtons.Left, DoubleClick);
 
                     if (LastCursorControl != null)
                     {
-                        LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), Event);
+                        LastCursorControl.PropagateUp((x, y) => x?.OnMouseDoubleClick?.Invoke(x, (ClickEventArgs)y), Event);
                     }
-
-                    LeftClickCount = 0;
                 }
 
-                if (RightClickCount == 0 && LeftClickCount == 0)
-                    ClickBegin = 0;
+                RightClickCount = 0;
+                LeftClickCount = 0;
+                ClickBegin = 0;
             }
         }
 
@@ -100,32 +97,37 @@ namespace OrbisGL.Controls
             {
                 var ReleasedEvent = new ClickEventArgs(CurrentPosition, NewReleased, false);
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
-            }
 
-            if (NewReleased.HasFlag(MouseButtons.Left))
-            {
-                if (ClickBegin <= 0)
+                Focus();
+
+                ReleasedEvent.Handled = false;
+                LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
+
+                if (NewReleased.HasFlag(MouseButtons.Left))
                 {
-                    ClickBegin = LastDrawTick;
-                    LeftClickCount = 1;
+                    if (ClickBegin <= 0)
+                    {
+                        ClickBegin = LastDrawTick;
+                        LeftClickCount = 1;
+                    }
+                    else
+                        LeftClickCount++;
+
+                    LeftClickPos = CurrentPosition;
                 }
-                else
-                    LeftClickCount++;
 
-                LeftClickPos = CurrentPosition;
-            }
-
-            if (NewReleased.HasFlag(MouseButtons.Right))
-            {
-                if (ClickBegin <= 0)
+                if (NewReleased.HasFlag(MouseButtons.Right))
                 {
-                    ClickBegin = LastDrawTick;
-                    RightClickCount = 1;
-                }
-                else
-                    RightClickCount++;
+                    if (ClickBegin <= 0)
+                    {
+                        ClickBegin = LastDrawTick;
+                        RightClickCount = 1;
+                    }
+                    else
+                        RightClickCount++;
 
-                RightClickPos = CurrentPosition;
+                    RightClickPos = CurrentPosition;
+                }
             }
         }
 
@@ -142,6 +144,7 @@ namespace OrbisGL.Controls
         public event ClickEvent OnMouseButtonDown;
         public event ClickEvent OnMouseButtonUp;
         public event ClickEvent OnMouseClick;
+        public event ClickEvent OnMouseDoubleClick;
 
     }
 }

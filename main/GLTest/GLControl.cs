@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using OrbisGL.GL;
+using Application = OrbisGL.GL.Application;
 using Timer = System.Windows.Forms.Timer;
 
 namespace GLTest
@@ -14,7 +15,7 @@ namespace GLTest
     public partial class GLControl : Panel
     {
 #if !ORBIS
-        public Display GLDisplay;
+        public Application GLApplication;
         public GLControl(int Width, int Height)
         {
             Size = new Size(Width, Height);
@@ -43,20 +44,20 @@ namespace GLTest
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            GLDisplay?.DrawOnce();
-            GLDisplay?.SwapBuffers();
+            GLApplication?.DrawOnce();
+            GLApplication?.SwapBuffers();
         }
 
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
 
-            GLDisplay = new Display(Width, Height, 30, Handle);
+            GLApplication = new Application(Width, Height, 30, Handle);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
-            GLDisplay.Dispose();
+            GLApplication.Dispose();
 
             base.OnHandleDestroyed(e);
         }

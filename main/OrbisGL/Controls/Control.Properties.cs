@@ -92,7 +92,6 @@ namespace OrbisGL.Controls
 
         public abstract bool Focusable { get; }
 
-
         public abstract string Name { get; set; }
 
         bool _Focused;

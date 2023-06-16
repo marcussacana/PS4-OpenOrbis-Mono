@@ -99,6 +99,7 @@
     <Compile Include="GL2D\GLObject2D.cs" />
     <Compile Include="GL2D\Rectangle2D.cs" />
     <Compile Include="GL2D\Elipse2D.cs" />
+    <Compile Include="GL2D\RichText2D.cs" />
     <Compile Include="GL2D\RoundedRectangle2D.cs" />
     <Compile Include="GL2D\Text2D.cs" />
     <Compile Include="GL2D\Texture2D.cs" />

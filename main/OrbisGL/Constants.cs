@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace OrbisGL
+﻿namespace OrbisGL
 {
     public static class Constants
     {

@@ -144,5 +144,20 @@ namespace OrbisGL.GL2D
             Child.Parent = null;
             Child.RefreshVertex();
         }
+
+        public void RemoveChildren(bool Dispose)
+        {
+            foreach (var Child in Children)
+            {
+                Child.Parent = null;
+
+                if (Dispose)
+                    Child.Dispose();
+                else
+                    Child.RefreshVertex();
+            }
+
+            Children.Clear();
+        }
     }
 }

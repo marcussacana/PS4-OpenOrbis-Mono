@@ -4,12 +4,15 @@ using OrbisGL.GL;
 using SharpGLES;
 using System;
 using static OrbisGL.GL2D.Coordinates2D;
+using System.Numerics;
 
 namespace OrbisGL.GL2D
 {
     public unsafe class Text2D : GLObject2D
     {
         Texture FontTexture;
+
+        public Vector4[] GlyphsSpace { get; private set; } = null;
         public string Text { get; private set; } = null;
         public FT_Face* Face { get; set; }
 
@@ -69,14 +72,24 @@ namespace OrbisGL.GL2D
             base.RefreshVertex();
         }
 
+        
 
         public void SetText(string Text)
         {
             this.Text = Text;
-            Render.MeasureText(Text, Face, out int Width, out int Height);
+
+            if (Text == null)
+            {
+                FontTexture.SetData(1, 1, new byte[4], PixelFormat.RGBA);
+                GlyphsSpace = null;
+                return;
+            }
+
+            Render.MeasureText(Text, Face, out int Width, out int Height, out Vector4[] Glyphs);
             
             base.Width = Width;
             base.Height = Height;
+            GlyphsSpace = Glyphs;
 
 
             byte[] Buffer = new byte[Width * Height * 4];

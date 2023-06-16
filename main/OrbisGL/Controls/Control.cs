@@ -62,7 +62,7 @@ namespace OrbisGL.Controls
         }
 
 
-        public virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
+        protected virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -75,7 +75,7 @@ namespace OrbisGL.Controls
 
         }
 
-        public virtual void OnButtonPressed(object Sender, ButtonEventArgs Args)
+        protected virtual void OnButtonPressed(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -88,7 +88,7 @@ namespace OrbisGL.Controls
 
         }
 
-        public virtual void OnButtonUp(object Sender, ButtonEventArgs Args)
+        protected virtual void OnButtonUp(object Sender, ButtonEventArgs Args)
         {
             if (!Focused)
                 return;
@@ -100,7 +100,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        public virtual void OnFocus(object Sender, EventArgs Args)
+        protected virtual void OnFocus(object Sender, EventArgs Args)
         {
             if (Focused)
                 return;
@@ -117,7 +117,7 @@ namespace OrbisGL.Controls
             } 
         }
 
-        public virtual void OnLostFocus(object Sender, EventArgs Args)
+        protected virtual void OnLostFocus(object Sender, EventArgs Args)
         {
             if (Focused)
             {

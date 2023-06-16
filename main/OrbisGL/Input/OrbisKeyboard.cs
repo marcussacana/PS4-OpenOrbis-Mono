@@ -1,7 +1,6 @@
-﻿using OrbisGL.Controls.Events;
+﻿using System;
 using OrbisGL.Input.Layouts;
-using System;
-using System.Net.NetworkInformation;
+using OrbisGL.Controls.Events;
 using System.Runtime.InteropServices;
 
 namespace OrbisGL.Input

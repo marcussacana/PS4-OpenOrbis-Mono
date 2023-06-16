@@ -109,15 +109,15 @@ void main(void) {
 
             Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
 
-            GLControl.GLDisplay.Objects.Add(Obj);
+            GLControl.GLApplication.Objects.Add(Obj);
 #endif
        }
 
         private void button2_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var Objs = GLControl.GLDisplay.Objects.ToArray();
-            GLControl.GLDisplay.Objects.Clear();
+            var Objs = GLControl.GLApplication.Objects.ToArray();
+            GLControl.GLApplication.Objects.Clear();
 
             foreach (var Obj in Objs)
             {
@@ -165,7 +165,7 @@ void main(void) {
 
             Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
 
-            GLControl.GLDisplay.Objects.Add(Obj);
+            GLControl.GLApplication.Objects.Add(Obj);
 #endif
         }
 
@@ -199,7 +199,7 @@ void main(void) {
 
             GLProg.SetUniform("Transformation", Translation);
 
-            GLControl.GLDisplay.Objects.Add(Obj);
+            GLControl.GLApplication.Objects.Add(Obj);
 #endif
         }
 
@@ -211,7 +211,7 @@ void main(void) {
 
             Rect.Program.SetUniform("Resolution", new Vector2(1280f, 720f));
 
-            GLControl.GLDisplay.Objects.Add(Rect);
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
 
@@ -224,7 +224,7 @@ void main(void) {
             //Rect.Transparecy = (byte)Rand.Next(0, 255);
 
             Rect.RoundLevel = Rand.Next(0, 100) / 100f;
-            GLControl.GLDisplay.Objects.Add(Rect);
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
 
@@ -236,7 +236,7 @@ void main(void) {
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             Rect.Transparency = (byte)Rand.Next(0, 255);
 
-            GLControl.GLDisplay.Objects.Add(Rect);
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
 
@@ -253,7 +253,7 @@ void main(void) {
 
             //Rect.Transparency = (byte)Rand.Next(0, 255);
 
-            GLControl.GLDisplay.Objects.Add(Rect);
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
 
@@ -265,7 +265,7 @@ void main(void) {
             Text.SetText("Hello World");
             Text.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
-            GLControl.GLDisplay.Objects.Add(Text);
+            GLControl.GLApplication.Objects.Add(Text);
 #endif
         }
 
@@ -285,7 +285,7 @@ void main(void) {
 
             Rect.SetVisibleRectangle(0, 0, 200, 100);
 
-            GLControl.GLDisplay.Objects.Add(Rect);
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
 
@@ -304,9 +304,9 @@ void main(void) {
 
             BG.AddChild(Button);
 
-            GLControl.GLDisplay.Objects.Add(BG);
+            GLControl.GLApplication.Objects.Add(BG);
 
-            GLControl.GLDisplay.MouseDriver = new GenericMouse(() =>
+            GLControl.GLApplication.MouseDriver = new GenericMouse(() =>
             {
                 var Pos = System.Windows.Forms.Cursor.Position;
                 var CPos = GLControl.PointToClient(Pos);

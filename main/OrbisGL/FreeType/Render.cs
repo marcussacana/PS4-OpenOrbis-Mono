@@ -3,6 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 using Orbis.Internals;
 using System.IO;
+using System.Numerics;
 
 namespace OrbisGL.FreeType
 {
@@ -48,8 +49,11 @@ namespace OrbisGL.FreeType
             return rc >= 0;
         }
 
-        public static unsafe void MeasureText(string Text, FT_Face* Face, out int Width, out int Height)
+        public static unsafe void MeasureText(string Text, FT_Face* Face, out int Width, out int Height, out Vector4[] GlyphsRectangles)
         {
+
+            GlyphsRectangles = new Vector4[Text.Length];
+
             int rc;
             int totalWidth = 0;
             int lineWidth = 0;
@@ -79,8 +83,15 @@ namespace OrbisGL.FreeType
                 if (rc != 0)
                     continue;
 
+                int XOffset = lineWidth;
+                int YOffset = maxHeight;
+                int GlyphWidth = slot->Advance.X;
+                int GlyphHeight = slot->Advance.Y;
+
+                GlyphsRectangles[n] = new Vector4(XOffset, YOffset, GlyphWidth, GlyphHeight);
+
                 // Increment total width for the character
-                lineWidth += slot->Advance.X;
+                lineWidth += GlyphWidth;
             }
 
             totalWidth = Math.Max(totalWidth, lineWidth);

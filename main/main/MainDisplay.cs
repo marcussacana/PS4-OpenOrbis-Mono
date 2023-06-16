@@ -10,7 +10,9 @@ namespace Orbis
         public MainDisplay() : base(1920, 1080, 60)
         {
             InitializeComponents();
+#if ORBIS
             EnabledKeyboard();
+#endif
         }
 
         Random Rand = new Random();
@@ -38,8 +40,7 @@ namespace Orbis
             
             Button.OnMouseClick += (sender, args) =>
             {
-                Button.Name = "Focused!";
-                Button.Focus();
+                Button.Name = "Clicked!";
             };
 
             Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));

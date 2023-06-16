@@ -1,5 +1,10 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.ColorSpaces;
+using System;
+using System.CodeDom;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
 
 namespace OrbisGL.GL
 {
@@ -15,6 +20,64 @@ namespace OrbisGL.GL
             RedF = Red / 255f;
             GreenF = Green / 255f;
             BlueF = Blue / 255f;
+        }
+
+        static Dictionary<string, RGBColor> NameMap = new Dictionary<string, RGBColor>();
+        static RGBColor()
+        {
+            FieldInfo[] Colors = typeof(RGBColor).GetFields(BindingFlags.Static | BindingFlags.Public);
+
+            foreach (var Color in Colors)
+            {
+                var ColorVal = Color.GetValue(null);
+                var ColorName = Color.Name;
+
+                if (!(ColorVal is RGBColor))
+                    continue;
+
+                NameMap[ColorName.ToLowerInvariant()] = (RGBColor)ColorVal;
+            }
+        }
+
+        public RGBColor(string ColorCode)
+        {
+            int R = 0, G = 0, B = 0;
+            if (NameMap.TryGetValue(ColorCode.ToLowerInvariant(), out RGBColor Target))
+            {
+                R = Target.R; 
+                G = Target.G;
+                B = Target.B;
+            }
+            else
+            {
+                switch (ColorCode.Length)
+                {
+                    case 3://FED
+                        R = int.Parse(new string(ColorCode[0], 2), NumberStyles.HexNumber);
+                        G = int.Parse(new string(ColorCode[1], 2), NumberStyles.HexNumber);
+                        B = int.Parse(new string(ColorCode[2], 2), NumberStyles.HexNumber);
+                        break;
+                    case 4://FEDC
+                        R = int.Parse(new string(ColorCode[0], 2), NumberStyles.HexNumber);
+                        G = int.Parse(new string(ColorCode[1], 2), NumberStyles.HexNumber);
+                        B = int.Parse(new string(ColorCode[2], 2), NumberStyles.HexNumber);
+                        break;
+                    case 6://FFEEDD
+                        R = int.Parse(ColorCode.Substring(0, 2), NumberStyles.HexNumber);
+                        G = int.Parse(ColorCode.Substring(2, 2), NumberStyles.HexNumber);
+                        B = int.Parse(ColorCode.Substring(4, 2), NumberStyles.HexNumber);
+                        break;
+                    case 8://FFEEDDCC
+                        R = int.Parse(ColorCode.Substring(0, 2), NumberStyles.HexNumber);
+                        G = int.Parse(ColorCode.Substring(2, 2), NumberStyles.HexNumber);
+                        B = int.Parse(ColorCode.Substring(4, 2), NumberStyles.HexNumber);
+                        break;
+                }
+            }
+
+            RedF = R / 255f;
+            GreenF = G / 255f;
+            BlueF = B / 255f;
         }
 
         public RGBColor Grayscale()

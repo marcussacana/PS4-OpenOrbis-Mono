@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Threading;
-using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL.GL2D;
 using OrbisGL.Input;
@@ -201,10 +198,6 @@ namespace OrbisGL.GL
                                 Ctrl.ProcessMouseMove(CurrentPosition);
                                 break;
                             }
-                            else
-                            {
-
-                            }
                         }
                     }
                 }
@@ -230,8 +223,10 @@ namespace OrbisGL.GL
                     }
                 }
             }
-            
+
+#if ORBIS
             Keyboard?.RefreshData();
+#endif
         }
 
 #if ORBIS
