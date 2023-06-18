@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrbisGL.GL2D
 {
@@ -16,16 +13,23 @@ namespace OrbisGL.GL2D
         public bool DefaultBold { get; set; }
         public bool DefaultItalic { get; set; }
 
+        public string DefaultFontPath { get; set; }
+
         public string RichText { get; private set; }
 
         public string Text { get; private set; }
 
         public Vector4[] GlyphsSpace { get; private set; }
 
-        //<i></i>
-        //<color=FFFFFFFF></color>
-        //<b></b>
-        //<size=28></size>
+        //<i></i>                   - Swap the italic effect (if enabled, disable it, otherwise enable it)
+        //<i=false></i>             - Disable the italic effect
+        //<i=true></i>              - Enable the italic effect
+        //<color=FFFFFF></color>    - Set the font color as RGB
+        //<b></b>                   - Swap the bold effect (if enabled, disable it, otherwise enable it)
+        //<b=false></b>             - Disable the italic effect
+        //<b=true></b>              - Enable the italic effect
+        //<size=28></size>          - Set the font size
+
         public bool SetRichText(string String)
         {
             RemoveChildren(true);
@@ -59,26 +63,51 @@ namespace OrbisGL.GL2D
 
         private void ProcessTextBlock(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref Dictionary<int, Vector4> GlyphsSpace)
         {
-            var CurrentColor = Colors.Peek();
-            var CurrentBold = Bold.Peek();
-            var CurrentItalic = Bold.Peek();
-            var CurrentSize = FontSize.Peek();
+            string Accumulator = string.Empty;
 
             for (int i = 0; i < String.Length; i++)
             {
                 char Current = String[i];
                 char? Next = i + 1 < String.Length ? (char?)String[i + 1] : null;
 
+                //handle line breaks
+
                 if (Current == '<' && Next != '<')
                 {
+                    FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
+
                     if (ProcessTextBlockTag(String, Index, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace, ref i))
                         continue;
                 }
                 else if (Current == Next && Current == '<')
                     i++;
 
-
+                Accumulator += Current;
             }
+        }
+
+        private void FlushString(int Index, ref int XOffset, int YOffset, ref int AdvanceY, Dictionary<int, Vector4> GlyphsSpace, ref string Accumulator)
+        {
+            var CurrentColor = Colors.Peek();
+            var CurrentBold = Bold.Peek();
+            var CurrentItalic = Bold.Peek();
+            var CurrentSize = FontSize.Peek();
+
+            var TextFragment = new Text2D(DefaultFontPath, CurrentSize);
+            TextFragment.Position = new Vector2(XOffset, YOffset);
+            TextFragment.SetText(Accumulator);
+            AddChild(TextFragment);
+
+            for (int x = 0; x < TextFragment.Text.Length; x++)
+            {
+                var AbsIndex = x + Index;
+                var CurrentGlyphSpace = TextFragment.GlyphsSpace[x];
+                GlyphsSpace[AbsIndex] = new Vector4(CurrentGlyphSpace.X + XOffset, CurrentGlyphSpace.Y + YOffset, CurrentGlyphSpace.Z, CurrentGlyphSpace.W);
+            }
+
+            AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
+            XOffset += TextFragment.Width;
+            Accumulator = string.Empty;
         }
 
         private bool ProcessTextBlockTag(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref Dictionary<int, Vector4> GlyphsSpace, ref int i)
@@ -108,7 +137,12 @@ namespace OrbisGL.GL2D
 
             EnableTag(TagName, AttributeValue);
 
-            ProcessTextBlock(String, Index + i, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace);
+            ProcessTextBlock(InnerContent, Index + i, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace);
+
+            Colors.Pop();
+            Bold.Pop();
+            Italic.Pop();
+            FontSize.Pop();
 
             i = TagClose;
             return true;
@@ -118,15 +152,43 @@ namespace OrbisGL.GL2D
         {
             int.TryParse(Value, out int ValueAsInt);
 
+            var lValue = Value.ToLowerInvariant();
+            var ValueAsBoolean = lValue == "true" || lValue == "1" || lValue == "enable" || lValue == "enabled" || lValue == "yes";
+
             switch (Name.ToLowerInvariant())
             {
                 case "color":
+                    Bold.Push(Bold.Peek());
+                    Italic.Push(Italic.Peek());
+                    FontSize.Push(FontSize.Peek());
                     Colors.Push(new RGBColor(Value));
                     break;
                 case "size":
+                    Bold.Push(Bold.Peek());
+                    Italic.Push(Italic.Peek());
+                    Colors.Push(Colors.Peek());
                     FontSize.Push(ValueAsInt);
                     break;
-                case "bold":
+                case "b":
+                    Italic.Push(Italic.Peek());
+                    FontSize.Push(FontSize.Peek());
+                    Colors.Push(Colors.Peek());
+
+                    if (Value == null)
+                        Bold.Push(!Bold.Peek());
+                    else
+                        Bold.Push(ValueAsBoolean);
+
+                    break;
+                case "i":
+                    FontSize.Push(FontSize.Peek());
+                    Colors.Push(Colors.Peek());
+                    Bold.Push(Bold.Peek());
+
+                    if (Value == null)
+                        Italic.Push(!Italic.Peek());
+                    else
+                        Italic.Push(ValueAsBoolean);
                     break;
             }
         }

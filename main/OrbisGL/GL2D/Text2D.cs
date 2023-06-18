@@ -5,6 +5,8 @@ using SharpGLES;
 using System;
 using static OrbisGL.GL2D.Coordinates2D;
 using System.Numerics;
+using System.Linq;
+using System.IO;
 
 namespace OrbisGL.GL2D
 {
@@ -14,7 +16,7 @@ namespace OrbisGL.GL2D
 
         public Vector4[] GlyphsSpace { get; private set; } = null;
         public string Text { get; private set; } = null;
-        public FT_Face* Face { get; set; }
+        public FontFaceHandler Face { get; set; }
 
         int ColorUniformLocation = -1;
         int TextureUniformLocation = -1;
@@ -24,7 +26,7 @@ namespace OrbisGL.GL2D
         public byte Transparency = 255;
 
         public Text2D(string FontPath, int FontSize) : this(GetFont(FontPath, FontSize)) { }
-        public Text2D(FT_Face* Font)
+        public Text2D(FontFaceHandler Font)
         {
             var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentFont"));
             Program = new GLProgram(hProgram);
@@ -39,28 +41,50 @@ namespace OrbisGL.GL2D
             Face = Font;
         }
 
-        static Dictionary<string, IntPtr> FontCache = new Dictionary<string, IntPtr>();
+        static Dictionary<string, FontFaceHandler> FontCache = new Dictionary<string, FontFaceHandler>();
 
-        static FT_Face* GetFont(string FontPath, int FontSize)
+        internal static FontFaceHandler GetFont(string FontPath, int FontSize)
         {
+            if (FontPath == null || !File.Exists(FontPath))
+            {
+                foreach (var CurrentFont in FontCache.Values)
+                {
+                    if (CurrentFont.Disposed)
+                        continue;
+
+                    return CurrentFont;
+                }
+            }
+
             string FontKey = $"{FontPath}-{FontSize}";
 
             if (FontCache.ContainsKey(FontKey))
             {
-                return (FT_Face*)FontCache[FontKey];
+                var CurrentFont = FontCache[FontKey];
+                if (!CurrentFont.Disposed)
+                    return CurrentFont;
             }
-            else
+
+            if (!FreeType.FreeType.LoadFont(FontPath, FontSize, out FontFaceHandler Font))
             {
-                if (!Render.LoadFont(FontPath, FontSize, out FT_Face* Font))
-                {
-                    throw new Exception("Failed to Load the Font");
-                }
-
-
-                FontCache[FontKey] = new IntPtr(Font);
-
-                return Font;
+                throw new Exception("Failed to Load the Font");
             }
+
+
+            FontCache[FontKey] = Font;
+
+            return Font;
+            
+        }
+
+        public static void ClearFontCache()
+        {
+            foreach (var Font in FontCache.Values)
+            {
+                FreeType.FreeType.UnloadFont(Font);
+            }
+
+            FontCache.Clear();
         }
 
         public override void RefreshVertex()
@@ -85,7 +109,7 @@ namespace OrbisGL.GL2D
                 return;
             }
 
-            Render.MeasureText(Text, Face, out int Width, out int Height, out Vector4[] Glyphs);
+            FreeType.FreeType.MeasureText(Text, Face, out int Width, out int Height, out Vector4[] Glyphs);
             
             base.Width = Width;
             base.Height = Height;
@@ -94,7 +118,7 @@ namespace OrbisGL.GL2D
 
             byte[] Buffer = new byte[Width * Height * 4];
 
-            Render.RenderText(Buffer, Width, Height, Text, Face, RGBColor.White);
+            FreeType.FreeType.RenderText(Buffer, Width, Height, Text, Face, RGBColor.White);
 
             FontTexture.SetData(Width, Height, Buffer, PixelFormat.RGBA);
 

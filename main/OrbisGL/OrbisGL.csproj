@@ -76,10 +76,11 @@
     <Compile Include="Controls\Control.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="FreeType\FontHandler.cs" />
     <Compile Include="FreeType\FT_GlyphRec.cs" />
     <Compile Include="FreeType\FT_List.cs" />
     <Compile Include="FreeType\FT_Primitives.cs" />
-    <Compile Include="FreeType\Render.cs" />
+    <Compile Include="FreeType\FreeType.cs" />
     <Compile Include="FreeType\FT_BBox.cs" />
     <Compile Include="FreeType\FT_Bitmap.cs" />
     <Compile Include="FreeType\FT_Bitmap_Size.cs" />

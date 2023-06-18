@@ -7,9 +7,9 @@ using System.Numerics;
 
 namespace OrbisGL.FreeType
 {
-    public static class Render
+    public static class FreeType
     {
-        static Render()
+        static FreeType()
         {
             if (FT_Library == IntPtr.Zero)
             {
@@ -33,7 +33,7 @@ namespace OrbisGL.FreeType
 
         public readonly static IntPtr FT_Library = IntPtr.Zero;
 
-        public static unsafe bool LoadFont(string FontPath, int FontSize, out FT_Face* Face)
+        public static unsafe bool LoadFont(string FontPath, int FontSize, out FontFaceHandler Face)
         {
             Face = default;
 
@@ -49,8 +49,15 @@ namespace OrbisGL.FreeType
             return rc >= 0;
         }
 
-        public static unsafe void MeasureText(string Text, FT_Face* Face, out int Width, out int Height, out Vector4[] GlyphsRectangles)
+        public static unsafe bool UnloadFont(FontFaceHandler Face)
         {
+            return FT_Done_Face(Face) == 0;
+        }
+
+        public static unsafe void MeasureText(string Text, FontFaceHandler FontFace, out int Width, out int Height, out Vector4[] GlyphsRectangles)
+        {
+
+            FT_Face* Face = FontFace;
 
             GlyphsRectangles = new Vector4[Text.Length];
 
@@ -101,7 +108,7 @@ namespace OrbisGL.FreeType
             Height = maxHeight;
         }
 
-        public unsafe static int RenderText(byte[] Buffer, int BufferWidth, int BufferHeight, string Text, FT_Face* Face, RGBColor FGColor)
+        public unsafe static int RenderText(byte[] Buffer, int BufferWidth, int BufferHeight, string Text, FontFaceHandler Face, RGBColor FGColor)
         {
             fixed (byte* pBuffer = Buffer)
             {
@@ -110,8 +117,11 @@ namespace OrbisGL.FreeType
             }
         }
 
-        public static unsafe int RenderText(byte* Buffer, int BufferWidth, int BufferHeight, string Text, FT_Face* Face, RGBColor FGColor)
+        public static unsafe int RenderText(byte* Buffer, int BufferWidth, int BufferHeight, string Text, FontFaceHandler FontFace, RGBColor FGColor)
         {
+
+            FT_Face* Face = FontFace;
+
             int rc;
             int xOffset = 0;
             int yOffset = 0;
@@ -228,25 +238,28 @@ namespace OrbisGL.FreeType
         private const string FreeTypeLib = "freetype";
 #endif
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
         private static extern int FT_Init_FreeType(out IntPtr ftLib);
 
-        [DllImport(FreeTypeLib, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib, CharSet = CharSet.Ansi)]
         private static extern unsafe int FT_New_Face(IntPtr ftLib, string fontPath, int faceIndex, out FT_Face* face);
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
+        private static extern unsafe int FT_Done_Face(FT_Face* face);
+
+        [DllImport(FreeTypeLib)]
         private static extern unsafe int FT_Set_Pixel_Sizes(FT_Face* face, int pixelWidth, int pixelHeight);
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
         private static extern unsafe int FT_Load_Glyph(FT_Face* face, uint glyphIndex, FT_Load_Flag loadFlags);
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
         private static extern unsafe int FT_Render_Glyph(FT_GlyphSlot* slot, FT_Render_Mode renderMode);
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
         private static extern unsafe int FT_Get_Glyph(FT_GlyphSlot* Slot, FT_GlyphRec* Glyph);
 
-        [DllImport(FreeTypeLib, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(FreeTypeLib)]
         private static extern unsafe uint FT_Get_Char_Index(FT_Face* face, char c);
     }
 }
