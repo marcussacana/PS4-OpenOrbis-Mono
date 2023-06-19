@@ -1,4 +1,4 @@
-namespace OrbisGL.FreeType
+namespace OrbisGL.FreeTypeLib
 {
     public enum FT_Glyph_Format : uint
     {

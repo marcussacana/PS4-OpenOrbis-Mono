@@ -1,19 +1,32 @@
-﻿using OrbisGL.GL;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Collections.Generic;
+using OrbisGL.FreeTypeLib;
+using OrbisGL.GL;
 
 namespace OrbisGL.GL2D
 {
-    internal class RichText2D : GLObject2D
+    public class RichText2D : GLObject2D
     {
-        public RGBColor DefaultTextColor { get; set; } = RGBColor.White;
-        public int DefaultFontSize { get; set; }
-        public bool DefaultBold { get; set; }
-        public bool DefaultItalic { get; set; }
+        public RGBColor FontColor { get; set; } = RGBColor.White;
+        public int FontSize { get; set; }
+        public bool Bold { get; set; }
+        public bool Italic { get; set; }
 
-        public string DefaultFontPath { get; set; }
+
+        public FontFaceHandler Font { get; set; }
+
+        public RichText2D(int FontSize, RGBColor FontColor, string FontPath) : this(Text2D.GetFont(FontPath, FontSize, out _), FontSize, FontColor) {
+
+        }
+
+        public RichText2D(FontFaceHandler FontFace, int FontSize, RGBColor FontColor)
+        {
+            this.FontColor = FontColor;
+            this.Font = FontFace;
+            this.FontSize = FontSize;
+        }
 
         public string RichText { get; private set; }
 
@@ -21,14 +34,9 @@ namespace OrbisGL.GL2D
 
         public Vector4[] GlyphsSpace { get; private set; }
 
-        //<i></i>                   - Swap the italic effect (if enabled, disable it, otherwise enable it)
-        //<i=false></i>             - Disable the italic effect
-        //<i=true></i>              - Enable the italic effect
-        //<color=FFFFFF></color>    - Set the font color as RGB
-        //<b></b>                   - Swap the bold effect (if enabled, disable it, otherwise enable it)
-        //<b=false></b>             - Disable the italic effect
-        //<b=true></b>              - Enable the italic effect
-        //<size=28></size>          - Set the font size
+        //<font=Font file name.ttf></font>  - Search the Font in directories defined in FreeType.FontSearchDirectories
+        //<color=FFFFFF></color>            - Set the font color as RGB
+        //<size=28></size>                  - Set the font size
 
         public bool SetRichText(string String)
         {
@@ -42,10 +50,15 @@ namespace OrbisGL.GL2D
                 return true;
             }
 
-            Colors.Clear();
-            FontSize.Clear();
-            Bold.Clear();
-            Italic.Clear();
+            Text = string.Empty;
+
+            sColors.Clear();
+            sFontSize.Clear();
+            sFont.Clear();
+
+            sColors.Push(FontColor);
+            sFontSize.Push(FontSize);
+            sFont.Push(Font);
 
             int XOffset = 0;
             int YOffset = 0;
@@ -56,10 +69,9 @@ namespace OrbisGL.GL2D
             return true;
         }
 
-        Stack<RGBColor> Colors = new Stack<RGBColor>();
-        Stack<int> FontSize = new Stack<int>();
-        Stack<bool> Bold = new Stack<bool>();
-        Stack<bool> Italic = new Stack<bool>();
+        Stack<RGBColor> sColors = new Stack<RGBColor>();
+        Stack<int> sFontSize = new Stack<int>();
+        Stack<FontFaceHandler> sFont = new Stack<FontFaceHandler>();
 
         private void ProcessTextBlock(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref Dictionary<int, Vector4> GlyphsSpace)
         {
@@ -70,7 +82,19 @@ namespace OrbisGL.GL2D
                 char Current = String[i];
                 char? Next = i + 1 < String.Length ? (char?)String[i + 1] : null;
 
-                //handle line breaks
+                if (Current == '\n')
+                {
+                    FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
+
+                    Text += '\n';
+
+                    GlyphsSpace.Add(Index + i, new Vector4(XOffset, YOffset, 1, AdvanceY));
+
+                    XOffset = 0;
+                    YOffset += AdvanceY;
+                    AdvanceY = 0;
+                    continue;
+                }
 
                 if (Current == '<' && Next != '<')
                 {
@@ -84,18 +108,24 @@ namespace OrbisGL.GL2D
 
                 Accumulator += Current;
             }
+
+            FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
         }
 
         private void FlushString(int Index, ref int XOffset, int YOffset, ref int AdvanceY, Dictionary<int, Vector4> GlyphsSpace, ref string Accumulator)
         {
-            var CurrentColor = Colors.Peek();
-            var CurrentBold = Bold.Peek();
-            var CurrentItalic = Bold.Peek();
-            var CurrentSize = FontSize.Peek();
+            if (Accumulator == string.Empty)
+                return;
 
-            var TextFragment = new Text2D(DefaultFontPath, CurrentSize);
+            var CurrentColor = sColors.Peek();
+            var CurrentFace = sFont.Peek();
+            var CurrentSize = sFontSize.Peek();
+
+            var TextFragment = new Text2D(CurrentFace, CurrentSize);
+            TextFragment.Color = CurrentColor;
             TextFragment.Position = new Vector2(XOffset, YOffset);
             TextFragment.SetText(Accumulator);
+
             AddChild(TextFragment);
 
             for (int x = 0; x < TextFragment.Text.Length; x++)
@@ -107,6 +137,8 @@ namespace OrbisGL.GL2D
 
             AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
             XOffset += TextFragment.Width;
+
+            Text += Accumulator;
             Accumulator = string.Empty;
         }
 
@@ -133,18 +165,17 @@ namespace OrbisGL.GL2D
             //Get the inner content of the tag
             var InnerContent = String.Substring(TagOpen, TagClose - TagOpen);
             InnerContent = InnerContent.Substring(InnerContent.IndexOf('>') + 1);
-            InnerContent.Substring(0, InnerContent.LastIndexOf('<'));
+            InnerContent = InnerContent.Substring(0, InnerContent.LastIndexOf('<'));
 
             EnableTag(TagName, AttributeValue);
 
             ProcessTextBlock(InnerContent, Index + i, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace);
 
-            Colors.Pop();
-            Bold.Pop();
-            Italic.Pop();
-            FontSize.Pop();
+            sColors.Pop();
+            sFont.Pop();
+            sFontSize.Pop();
 
-            i = TagClose;
+            i = TagClose - 1;
             return true;
         }
 
@@ -153,42 +184,33 @@ namespace OrbisGL.GL2D
             int.TryParse(Value, out int ValueAsInt);
 
             var lValue = Value.ToLowerInvariant();
-            var ValueAsBoolean = lValue == "true" || lValue == "1" || lValue == "enable" || lValue == "enabled" || lValue == "yes";
-
+            
             switch (Name.ToLowerInvariant())
             {
                 case "color":
-                    Bold.Push(Bold.Peek());
-                    Italic.Push(Italic.Peek());
-                    FontSize.Push(FontSize.Peek());
-                    Colors.Push(new RGBColor(Value));
+                    sFont.Push(sFont.Peek());
+                    sFontSize.Push(sFontSize.Peek());
+                    sColors.Push(new RGBColor(Value));
                     break;
                 case "size":
-                    Bold.Push(Bold.Peek());
-                    Italic.Push(Italic.Peek());
-                    Colors.Push(Colors.Peek());
-                    FontSize.Push(ValueAsInt);
+                    sFont.Push(sFont.Peek());
+                    sColors.Push(sColors.Peek());
+                    sFontSize.Push(ValueAsInt);
                     break;
-                case "b":
-                    Italic.Push(Italic.Peek());
-                    FontSize.Push(FontSize.Peek());
-                    Colors.Push(Colors.Peek());
-
-                    if (Value == null)
-                        Bold.Push(!Bold.Peek());
+                case "font":
+                    var NewFont = Text2D.GetFont(Value, sFontSize.Peek(), out bool Success);
+                    if (Success)
+                    {
+                        sFontSize.Push(sFontSize.Peek());
+                        sColors.Push(sColors.Peek());
+                        sFont.Push(NewFont);
+                    }
                     else
-                        Bold.Push(ValueAsBoolean);
-
-                    break;
-                case "i":
-                    FontSize.Push(FontSize.Peek());
-                    Colors.Push(Colors.Peek());
-                    Bold.Push(Bold.Peek());
-
-                    if (Value == null)
-                        Italic.Push(!Italic.Peek());
-                    else
-                        Italic.Push(ValueAsBoolean);
+                    {
+                        sFontSize.Push(sFontSize.Peek());
+                        sColors.Push(sColors.Peek());
+                        sFont.Push(sFont.Peek());
+                    }
                     break;
             }
         }

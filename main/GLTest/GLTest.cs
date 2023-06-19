@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using System.Windows.Input;
 using static OrbisGL.GL2D.Coordinates2D;
@@ -326,5 +327,19 @@ void main(void) {
 #endif
         }
 
+        private void button12_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var BG = new OrbisGL.Controls.Panel();
+            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+
+            var RT2D = new RichText2D(28, RGBColor.Black, null);
+
+            RT2D.SetRichText("Hello World\nTesting<size=48>simple</size><font=Inkfree.ttf>rich</font> <color=F00>text</color>");
+
+            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.Objects.Add(RT2D);
+#endif
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrbisGL.FreeType
+namespace OrbisGL.FreeTypeLib
 {
 #if ORBIS
     public enum FT_Long : long {}

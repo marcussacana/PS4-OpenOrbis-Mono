@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OrbisGL.FreeType
+namespace OrbisGL.FreeTypeLib
 {
     public unsafe class FontFaceHandler : IDisposable
     {

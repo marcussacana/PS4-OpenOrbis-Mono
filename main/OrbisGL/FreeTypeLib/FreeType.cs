@@ -1,14 +1,25 @@
 ﻿using OrbisGL.GL;
 using System;
 using System.Runtime.InteropServices;
-using Orbis.Internals;
 using System.IO;
 using System.Numerics;
+using System.Collections.Generic;
 
-namespace OrbisGL.FreeType
+namespace OrbisGL.FreeTypeLib
 {
     public static class FreeType
     {
+        public static List<string> FontSearchDirectories = new List<string>()
+        {
+#if ORBIS
+            Path.Combine(IO.GetAppBaseDirectory(), "assets", "fonts"),
+            IO.GetAppBaseDirectory(),
+#else
+            Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
+            AppDomain.CurrentDomain.BaseDirectory
+#endif
+        };
+
         static FreeType()
         {
             if (FT_Library == IntPtr.Zero)
@@ -23,9 +34,9 @@ namespace OrbisGL.FreeType
             }
 
 #if ORBIS
-            DefaultFace = Path.Combine(IO.GetAppBaseDirectory(), "assets", "fonts", "Gontserrat-Regular.ttf");
+            DefaultFace = "Gontserrat-Regular.ttf";
 #else
-            DefaultFace = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf");
+            DefaultFace = "segoeui.ttf";
 #endif
         }
 
@@ -37,16 +48,38 @@ namespace OrbisGL.FreeType
         {
             Face = default;
 
+            if (!File.Exists(FontPath))
+            {
+                bool Found = false;
+                var FontName = Path.GetFileName(FontPath);
+                foreach (var SearchPath in FontSearchDirectories)
+                {
+                    var FullHint = Path.Combine(SearchPath, FontName);
+                    if (File.Exists(FullHint))
+                    {
+                        FontPath = FullHint;
+                        Found = true;
+                        break;
+                    }
+                }
+
+                if (!Found)
+                    return false;
+            }
+
             var rc = FT_New_Face(FT_Library, FontPath, 0, out var FontFace);
 
             if (rc != 0)
                 return false;
 
-            rc = FT_Set_Pixel_Sizes(FontFace, 0, FontSize);
-
             Face = FontFace;
 
-            return rc >= 0;
+            return SetFontSize(Face, FontSize);
+        }
+
+        public static unsafe bool SetFontSize(FontFaceHandler Face, int FontSize)
+        {
+            return FT_Set_Pixel_Sizes(Face, 0, FontSize) >= 0;
         }
 
         public static unsafe bool UnloadFont(FontFaceHandler Face)

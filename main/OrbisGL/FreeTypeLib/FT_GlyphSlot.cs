@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace OrbisGL.FreeType
+namespace OrbisGL.FreeTypeLib
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct FT_GlyphSlot

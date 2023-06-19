@@ -1,7 +1,7 @@
-﻿using OrbisGL.FreeType;
-using OrbisGL.GL;
+﻿using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System.Numerics;
+using OrbisGL.FreeTypeLib;
 
 namespace OrbisGL.Controls
 {
@@ -38,13 +38,13 @@ namespace OrbisGL.Controls
 
         public Button(int Width, int Height, int FontSize) : this (Width, Height)
         {
-            Foreground = new Text2D(FreeType.FreeType.DefaultFace, FontSize);
+            Foreground = new Text2D(FreeType.DefaultFace, FontSize);
             GLObject.AddChild(Foreground);
         }
 
-        public unsafe Button(int Width, int Height, FT_Face* Font) : this(Width, Height)
+        public unsafe Button(int Width, int Height, FontFaceHandler Font, int FontSize) : this(Width, Height)
         {
-            Foreground = new Text2D(Font);
+            Foreground = new Text2D(Font, FontSize);
             GLObject.AddChild(Foreground);
         }
 
