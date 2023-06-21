@@ -335,7 +335,7 @@ void main(void) {
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
 
-            RT2D.SetRichText("Hello World\nTesting<size=48>simple</size><font=Inkfree.ttf>rich</font> <color=F00>text</color>");
+            RT2D.SetRichText("<align=horizontal>Hello <color=0f0>World</color></align>\n<align=top>Testing<size=48> simple </size><font=Inkfree.ttf>rich</font> <color=F00>text</color></align>");
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.GLApplication.Objects.Add(RT2D);

@@ -4,6 +4,8 @@ using System.Numerics;
 using System.Collections.Generic;
 using OrbisGL.FreeTypeLib;
 using OrbisGL.GL;
+using System.CodeDom;
+using System.Security.Permissions;
 
 namespace OrbisGL.GL2D
 {
@@ -32,11 +34,12 @@ namespace OrbisGL.GL2D
 
         public string Text { get; private set; }
 
-        public Vector4[] GlyphsSpace { get; private set; }
+        public Dictionary<int, Vector4> GlyphsSpace { get; private set; } = new Dictionary<int, Vector4>();
 
         //<font=Font file name.ttf></font>  - Search the Font in directories defined in FreeType.FontSearchDirectories
         //<color=FFFFFF></color>            - Set the font color as RGB
         //<size=28></size>                  - Set the font size
+        //<align=center></align>            - Set the line alignment, valid values: top|bottom|left|right|center|verticalcenter|horizontalcenter
 
         public bool SetRichText(string String)
         {
@@ -56,93 +59,274 @@ namespace OrbisGL.GL2D
             sFontSize.Clear();
             sFont.Clear();
 
+            LinesInfoList.Clear();
+
             sColors.Push(FontColor);
             sFontSize.Push(FontSize);
             sFont.Push(Font);
 
+            CurrentAlign = LineAlignMode.None;
+
             int XOffset = 0;
             int YOffset = 0;
             int AdvanceY = 0;
-            Dictionary<int, Vector4> GlyphsSpace = new Dictionary<int, Vector4>();
-            ProcessTextBlock(String, 0, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace);
+
+            CurrentLineGlyphIndex = 0;
+
+            GlyphsSpace.Clear();
+
+            List<Text2D> LineBuffer = new List<Text2D>();
+
+            ProcessTextBlock(String, 0, ref XOffset, ref YOffset, ref AdvanceY, ref LineBuffer);
+
+            //Flush Last Line Info
+            LinesInfoList.Add(new LineInfo(LineBuffer.ToList(), CurrentAlign, CurrentLineGlyphIndex));
+
+
+            ProcessAlignment();
 
             return true;
         }
+
+        private void ProcessAlignment()
+        {
+            float MaxLineWidth = LinesInfoList.Max(x => x.LineWidth);
+            float TextHCenter = MaxLineWidth / 2;
+
+
+            for (int i = 0; i < LinesInfoList.Count; i++)
+            {
+                var LineInfo = LinesInfoList[i];
+                int LineGlyphIndex = 0;
+
+                float LineWidth = LineInfo.LineWidth;
+                float LineHeight = LineInfo.LineHeight;
+
+                float LineXOffset = 0;
+
+                float LineHCenter = (LineInfo.LineWidth / 2f);
+                float LineVCenter = (LineInfo.LineHeight / 2f);
+                foreach (var Item in LineInfo.Items)
+                {
+                    float NewX = 0, NewY = 0;
+
+                    float VCenterDistance = LineVCenter - Item.Position.X;
+
+                    switch (LineInfo.AlignMode)
+                    {
+                        //Default Aligns
+                        case LineAlignMode.Left:
+                        case LineAlignMode.Top:
+                        case LineAlignMode.Left | LineAlignMode.Top:
+                        case LineAlignMode.None:
+                            goto NextLine;
+
+                        case LineAlignMode.VerticalCenter:
+                            NewX = float.NaN;
+                            NewY = LineVCenter - (Item.Height / 2f);
+                            break;
+
+                        case LineAlignMode.HorizontalCenter:
+                            NewX = TextHCenter - LineHCenter + LineXOffset;
+                            NewY = float.NaN;
+                            break;
+
+                        case LineAlignMode.Center:
+                            NewY = LineVCenter - (Item.Height / 2f);
+                            NewX = TextHCenter - LineHCenter + LineXOffset;
+                            break;
+
+                        case LineAlignMode.Right:
+                            NewY = float.NaN;
+                            NewX = (MaxLineWidth - LineWidth) + LineXOffset;
+                            break;
+
+                        case LineAlignMode.Bottom:
+                            NewX = float.NaN;
+                            NewY = LineHeight - Item.Height;
+                            break;
+                    }
+
+                    if (float.IsNaN(NewX))
+                        NewX = Item.Position.X;
+
+                    if (float.IsNaN(NewY))
+                        NewY = Item.Position.Y;
+
+                    Item.Position = new Vector2(NewX, NewY + LineInfo.LineY);
+
+                    //Update glyph space offsets
+                    UpdateGlyphOffset(LineInfo.GlyphIndex + LineGlyphIndex, (int)NewX, (int)NewY, Item);
+
+                    LineXOffset += Item.Width;
+                    LineGlyphIndex += Item.Text.Length;
+                }
+
+            NextLine:;
+            }
+        }
+
+        struct LineInfo
+        {
+            public LineInfo(List<Text2D> Items, LineAlignMode AlignMode, int GlyphIndex)
+            {
+                this.Items = Items;
+                this.AlignMode = AlignMode;
+                this.GlyphIndex = GlyphIndex;
+            }
+
+            public List<Text2D> Items;
+
+            public LineAlignMode AlignMode;
+
+            public int GlyphIndex;
+
+            public float LineWidth => Items.Max(x => x.Position.X + x.Width);
+            public float LineHeight => Items.Max(x => x.Height);
+
+            public float LineX => Items.Min(x => x.Position.X);
+            public float LineY => Items.Min(x => x.Position.Y);
+        }
+
+        [Flags]
+        enum LineAlignMode
+        {
+            None = 0, 
+            Left = 1 << 0, 
+            Right = 1 << 1, 
+            Top = 1 << 2,
+            Bottom = 1 << 3,
+            VerticalCenter = Top | Bottom,
+            HorizontalCenter = Left | Right,
+            Center = VerticalCenter | HorizontalCenter
+        }
+
+        List<LineInfo> LinesInfoList = new List<LineInfo>();
 
         Stack<RGBColor> sColors = new Stack<RGBColor>();
         Stack<int> sFontSize = new Stack<int>();
         Stack<FontFaceHandler> sFont = new Stack<FontFaceHandler>();
 
-        private void ProcessTextBlock(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref Dictionary<int, Vector4> GlyphsSpace)
+        LineAlignMode CurrentAlign = LineAlignMode.None;
+        int CurrentLineGlyphIndex = 0;
+
+        private void ProcessTextBlock(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref List<Text2D> LineBuffer)
         {
+            //The Accumulator holds the max sequential string with no style changes
+            //and it is flushed when a new tag or a new line appears in the string
             string Accumulator = string.Empty;
 
             for (int i = 0; i < String.Length; i++)
             {
+                //Get the current string char and the next one
+                //The next character is used to determine if the current character is escaped
                 char Current = String[i];
                 char? Next = i + 1 < String.Length ? (char?)String[i + 1] : null;
 
+
+                //End of the current Line
                 if (Current == '\n')
                 {
-                    FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
+                    //Flush the Accumulator and store the text information
+                    var TextItem = FlushString(Index, ref XOffset, YOffset, ref AdvanceY, ref Accumulator);
 
+                    if (TextItem != null)
+                        LineBuffer.Add(TextItem);
+
+                    //Update the plain text output
                     Text += '\n';
 
+                    //Add empty glyph to keep the glyph space index equivalent with the input string
                     GlyphsSpace.Add(Index + i, new Vector4(XOffset, YOffset, 1, AdvanceY));
 
+                    //Add Current Line Info to the list
+                    LinesInfoList.Add(new LineInfo(LineBuffer.ToList(), CurrentAlign, CurrentLineGlyphIndex));
+
+                    //Clear the line buffer
+                    LineBuffer.Clear();
+
+                    //Update the line draw offsets
                     XOffset = 0;
                     YOffset += AdvanceY;
                     AdvanceY = 0;
+
+                    //Update Line Params
+                    CurrentAlign = LineAlignMode.None;
+                    CurrentLineGlyphIndex = GlyphsSpace.Count;
                     continue;
                 }
 
+                //Non escaped tag, start the processing
                 if (Current == '<' && Next != '<')
                 {
-                    FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
+                    //Flush the Accumulator and store the text information
+                    var TextItem = FlushString(Index, ref XOffset, YOffset, ref AdvanceY, ref Accumulator);
 
-                    if (ProcessTextBlockTag(String, Index, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace, ref i))
+                    if (TextItem != null)
+                        LineBuffer.Add(TextItem);
+
+                    //Process the style tag and his contents and continue to the string after the tag end
+                    if (ProcessTextBlockTag(String, Index, ref XOffset, ref YOffset, ref AdvanceY, ref i, ref LineBuffer))
                         continue;
                 }
-                else if (Current == Next && Current == '<')
+                else if (Current == Next && Current == '<') //Escaped '<', just push to accumulator
                     i++;
 
                 Accumulator += Current;
             }
 
-            FlushString(Index, ref XOffset, YOffset, ref AdvanceY, GlyphsSpace, ref Accumulator);
+            var NewTextItem = FlushString(Index, ref XOffset, YOffset, ref AdvanceY, ref Accumulator);
+
+            if (NewTextItem != null)
+                LineBuffer.Add(NewTextItem);
         }
 
-        private void FlushString(int Index, ref int XOffset, int YOffset, ref int AdvanceY, Dictionary<int, Vector4> GlyphsSpace, ref string Accumulator)
+        //Flush the string accumulator with the current text style
+        private Text2D FlushString(int Index, ref int XOffset, int YOffset, ref int AdvanceY, ref string Accumulator)
         {
+            //Empty Accumulator, just return
             if (Accumulator == string.Empty)
-                return;
+                return null;
 
+            //Peek the current Font style, the alignment is a post-process
             var CurrentColor = sColors.Peek();
             var CurrentFace = sFont.Peek();
             var CurrentSize = sFontSize.Peek();
 
+            //Create the text fragment in the current style
             var TextFragment = new Text2D(CurrentFace, CurrentSize);
             TextFragment.Color = CurrentColor;
             TextFragment.Position = new Vector2(XOffset, YOffset);
             TextFragment.SetText(Accumulator);
 
+            //Add fragment as object child
             AddChild(TextFragment);
 
+            //Update the relative fragment glyph space to a relative one with the RichText2D position
+            UpdateGlyphOffset(Index, XOffset, YOffset, TextFragment);
+
+            //Update the Line X/Y Advance
+            AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
+            XOffset += TextFragment.Width;
+
+            //Update the plain text string
+            Text += Accumulator;
+            Accumulator = string.Empty;
+
+            return TextFragment;
+        }
+
+        private void UpdateGlyphOffset(int Index, int XOffset, int YOffset, Text2D TextFragment)
+        {
             for (int x = 0; x < TextFragment.Text.Length; x++)
             {
                 var AbsIndex = x + Index;
                 var CurrentGlyphSpace = TextFragment.GlyphsSpace[x];
                 GlyphsSpace[AbsIndex] = new Vector4(CurrentGlyphSpace.X + XOffset, CurrentGlyphSpace.Y + YOffset, CurrentGlyphSpace.Z, CurrentGlyphSpace.W);
             }
-
-            AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
-            XOffset += TextFragment.Width;
-
-            Text += Accumulator;
-            Accumulator = string.Empty;
         }
 
-        private bool ProcessTextBlockTag(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref Dictionary<int, Vector4> GlyphsSpace, ref int i)
+        private bool ProcessTextBlockTag(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref int i, ref List<Text2D> LineBuffer)
         {
             //Find Tag Begin and End Position
             var TagOpen = i;
@@ -167,10 +351,13 @@ namespace OrbisGL.GL2D
             InnerContent = InnerContent.Substring(InnerContent.IndexOf('>') + 1);
             InnerContent = InnerContent.Substring(0, InnerContent.LastIndexOf('<'));
 
+            //Apply Tag Styles
             EnableTag(TagName, AttributeValue);
 
-            ProcessTextBlock(InnerContent, Index + i, ref XOffset, ref YOffset, ref AdvanceY, ref GlyphsSpace);
+            //Render the inner tag text content
+            ProcessTextBlock(InnerContent, Index + i, ref XOffset, ref YOffset, ref AdvanceY, ref LineBuffer);
 
+            //Undo Style changes
             sColors.Pop();
             sFont.Pop();
             sFontSize.Pop();
@@ -199,18 +386,44 @@ namespace OrbisGL.GL2D
                     break;
                 case "font":
                     var NewFont = Text2D.GetFont(Value, sFontSize.Peek(), out bool Success);
-                    if (Success)
+
+                    sFontSize.Push(sFontSize.Peek());
+                    sColors.Push(sColors.Peek());
+                    sFont.Push(Success ? NewFont : sFont.Peek());                    
+                    break;
+                case "align":
+                    CurrentAlign = LineAlignMode.None;
+                    foreach (var Frag in Value.Split(';', ',', '|'))
                     {
-                        sFontSize.Push(sFontSize.Peek());
-                        sColors.Push(sColors.Peek());
-                        sFont.Push(NewFont);
+                        switch (Frag.Trim())
+                        {
+                            case "top":
+                                CurrentAlign |= LineAlignMode.Top;
+                                break;
+                            case "bottom":
+                                CurrentAlign |= LineAlignMode.Bottom;
+                                break;
+                            case "right":
+                                CurrentAlign |= LineAlignMode.Right;
+                                break;
+                            case "left":
+                                CurrentAlign |= LineAlignMode.Left;
+                                break;
+                            case "center":
+                                CurrentAlign |= LineAlignMode.Center;
+                                break;
+                            case "horizontal":
+                                CurrentAlign |= LineAlignMode.HorizontalCenter;
+                                break;
+                            case "vertical":
+                                CurrentAlign |= LineAlignMode.VerticalCenter;
+                                break;
+                        }
                     }
-                    else
-                    {
-                        sFontSize.Push(sFontSize.Peek());
-                        sColors.Push(sColors.Peek());
-                        sFont.Push(sFont.Peek());
-                    }
+
+                    sFont.Push(sFont.Peek());
+                    sColors.Push(sColors.Peek());
+                    sFontSize.Push(sFontSize.Peek());
                     break;
             }
         }
