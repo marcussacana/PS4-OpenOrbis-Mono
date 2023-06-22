@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using OrbisGL.GL;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace OrbisGL.GL2D
@@ -87,12 +88,6 @@ namespace OrbisGL.GL2D
             float ThisCenterY = Size.Y / 2;
 
             return new Vector2(ThisCenterX - CenterX, ThisCenterY - CenterY);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsInBounds(this Vector4 Rectangle, Vector2 XY)
-        {
-            return XY.X >= Rectangle.X&& XY.Y >= Rectangle.Y && XY.X <= Rectangle.X + Rectangle.Z && XY.Y <= Rectangle.Y + Rectangle.W;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace OrbisGL.GL2D
     {
         Texture FontTexture;
 
-        public Vector4[] GlyphsSpace { get; private set; } = null;
+        public GlyphInfo[] GlyphsInfo { get; private set; } = null;
         public string Text { get; private set; } = null;
         public FontFaceHandler Font { get; set; }
 
@@ -115,17 +115,17 @@ namespace OrbisGL.GL2D
             if (Text == null)
             {
                 FontTexture.SetData(1, 1, new byte[4], PixelFormat.RGBA);
-                GlyphsSpace = null;
+                GlyphsInfo = null;
                 return;
             }
 
             FreeType.SetFontSize(Font, FontSize);
 
-            FreeType.MeasureText(Text, Font, out int Width, out int Height, out Vector4[] Glyphs);
+            FreeType.MeasureText(Text, Font, out int Width, out int Height, out GlyphInfo[] Glyphs);
             
             base.Width = Width;
             base.Height = Height;
-            GlyphsSpace = Glyphs;
+            GlyphsInfo = Glyphs;
 
 
             byte[] Buffer = new byte[Width * Height * 4];

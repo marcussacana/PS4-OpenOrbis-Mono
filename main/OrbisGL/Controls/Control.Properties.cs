@@ -161,7 +161,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        public Vector4 Rectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
+        public Rectangle Rectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
 
         protected readonly Blank2D GLObject = new Blank2D();
 

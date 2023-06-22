@@ -335,7 +335,25 @@ void main(void) {
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
 
-            RT2D.SetRichText("<align=horizontal>Hello <color=0f0>World</color></align>\n<align=top>Testing<size=48> simple </size><font=Inkfree.ttf>rich</font> <color=F00>text</color></align>");
+            RT2D.SetRichText("<align=horizontal>Hello <color=0f0>World</color></align>\n<align=vertical>Testing<size=48> simple </size><font=Inkfree.ttf>rich</font> <color=F00>text</color></align>");
+
+            foreach (var Glyph in RT2D.GlyphsSpace)
+            {
+                var Box = new Rectangle2D(Glyph.Area, false);
+                Box.Color = RGBColor.Red;
+                RT2D.AddChild(Box);
+            }
+
+            GLControl.MouseUp += (This, Args) =>
+            {
+                foreach (var Glyph in RT2D.GlyphsSpace)
+                {
+                    if (Glyph.Area.IsInBounds(Args.X, Args.Y))
+                    {
+                        MessageBox.Show($"{Glyph.Char} Clicked, Index: {Glyph.Index}, RichIndex: {RT2D.RichText[Glyph.Index]}");
+                    }
+                }
+            };
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.GLApplication.Objects.Add(RT2D);

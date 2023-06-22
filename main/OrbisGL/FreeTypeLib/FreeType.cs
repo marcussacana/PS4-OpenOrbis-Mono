@@ -87,12 +87,12 @@ namespace OrbisGL.FreeTypeLib
             return FT_Done_Face(Face) == 0;
         }
 
-        public static unsafe void MeasureText(string Text, FontFaceHandler FontFace, out int Width, out int Height, out Vector4[] GlyphsRectangles)
+        public static unsafe void MeasureText(string Text, FontFaceHandler FontFace, out int Width, out int Height, out GlyphInfo[] GlyphsRectangles)
         {
 
             FT_Face* Face = FontFace;
 
-            GlyphsRectangles = new Vector4[Text.Length];
+            GlyphsRectangles = new GlyphInfo[Text.Length];
 
             int rc;
             int totalWidth = 0;
@@ -102,12 +102,16 @@ namespace OrbisGL.FreeTypeLib
             // Iterate each character of the text to measure its size
             for (int n = 0; n < Text.Length; n++)
             {
+                int FaceHeight = (int)Face->Size->Metrics.Height >> 6;
+
                 // Handle newline characters
                 if (Text[n] == '\n')
                 {
+                    GlyphsRectangles[n] = new GlyphInfo(lineWidth, maxHeight, 0, FaceHeight, Text[n], n);
+
                     totalWidth = Math.Max(totalWidth, lineWidth);
                     lineWidth = 0;
-                    maxHeight += ((int)Face->Size->Metrics.Height >> 6);
+                    maxHeight += FaceHeight;
                     continue;
                 }
 
@@ -126,9 +130,9 @@ namespace OrbisGL.FreeTypeLib
                 int XOffset = lineWidth;
                 int YOffset = maxHeight;
                 int GlyphWidth = slot->Advance.X;
-                int GlyphHeight = slot->Advance.Y;
+                int GlyphHeight = FaceHeight;
 
-                GlyphsRectangles[n] = new Vector4(XOffset, YOffset, GlyphWidth, GlyphHeight);
+                GlyphsRectangles[n] = new GlyphInfo(XOffset, YOffset, GlyphWidth, GlyphHeight, Text[n], n);
 
                 // Increment total width for the character
                 lineWidth += GlyphWidth;

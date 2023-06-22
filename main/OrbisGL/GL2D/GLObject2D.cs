@@ -66,7 +66,7 @@ namespace OrbisGL.GL2D
             }
         }
 
-        private Vector4 VisibleRect = Vector4.Zero;
+        private Rectangle VisibleRect = Vector4.Zero;
 
         //cut with uv not working, try with shader
         public virtual void SetVisibleRectangle(float X, float Y, int Width, int Height)

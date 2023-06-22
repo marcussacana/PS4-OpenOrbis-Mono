@@ -94,6 +94,7 @@
     <Compile Include="FreeTypeLib\FT_Outline.cs" />
     <Compile Include="FreeTypeLib\FT_Size.cs" />
     <Compile Include="FreeTypeLib\FT_Vector.cs" />
+    <Compile Include="FreeTypeLib\GlyphInfo.cs" />
     <Compile Include="GL2D\Blank2D.cs" />
     <Compile Include="GL2D\Coordinates2D.cs" />
     <Compile Include="GL2D\PartialElipse2D.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="GL\IRenderable.cs" />
     <Compile Include="GL\Object.cs" />
     <Compile Include="GL\Program.cs" />
+    <Compile Include="GL\Rectangle.cs" />
     <Compile Include="GL\RGBColor.cs" />
     <Compile Include="GL\Texture.cs" />
     <Compile Include="GL\Application.cs" />

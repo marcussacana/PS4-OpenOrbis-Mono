@@ -1,4 +1,5 @@
 ﻿using OrbisGL.GL;
+using System.Numerics;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
@@ -10,6 +11,12 @@ namespace OrbisGL.GL2D
         public byte Transparecy { get; set; } = 255;
 
         public RGBColor Color { get; set; } = RGBColor.White;
+
+        public Rectangle2D(Rectangle Rectangle, bool Fill) : this((int)Rectangle.Width, (int)Rectangle.Height, Fill)
+        {
+            Position = new Vector2(Rectangle.X, Rectangle.Y);
+        }
+
         public Rectangle2D(int Width, int Height, bool Fill) : this(Width, Height, Fill, null)
         {
 

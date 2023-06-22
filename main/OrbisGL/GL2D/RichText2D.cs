@@ -4,8 +4,6 @@ using System.Numerics;
 using System.Collections.Generic;
 using OrbisGL.FreeTypeLib;
 using OrbisGL.GL;
-using System.CodeDom;
-using System.Security.Permissions;
 
 namespace OrbisGL.GL2D
 {
@@ -34,7 +32,7 @@ namespace OrbisGL.GL2D
 
         public string Text { get; private set; }
 
-        public Dictionary<int, Vector4> GlyphsSpace { get; private set; } = new Dictionary<int, Vector4>();
+        public List<GlyphInfo> GlyphsSpace { get; private set; } = new List<GlyphInfo>();
 
         //<font=Font file name.ttf></font>  - Search the Font in directories defined in FreeType.FontSearchDirectories
         //<color=FFFFFF></color>            - Set the font color as RGB
@@ -119,7 +117,9 @@ namespace OrbisGL.GL2D
                         case LineAlignMode.Top:
                         case LineAlignMode.Left | LineAlignMode.Top:
                         case LineAlignMode.None:
-                            goto NextLine;
+                            NewX = float.NaN;
+                            NewY = float.NaN;
+                            break;
 
                         case LineAlignMode.VerticalCenter:
                             NewX = float.NaN;
@@ -156,13 +156,11 @@ namespace OrbisGL.GL2D
                     Item.Position = new Vector2(NewX, NewY + LineInfo.LineY);
 
                     //Update glyph space offsets
-                    UpdateGlyphOffset(LineInfo.GlyphIndex + LineGlyphIndex, (int)NewX, (int)NewY, Item);
+                    UpdateGlyphOffset(LineInfo.GlyphIndex + LineGlyphIndex, (int)NewX, (int)(NewY + LineInfo.LineY), Item);
 
                     LineXOffset += Item.Width;
                     LineGlyphIndex += Item.Text.Length;
                 }
-
-            NextLine:;
             }
         }
 
@@ -237,7 +235,7 @@ namespace OrbisGL.GL2D
                     Text += '\n';
 
                     //Add empty glyph to keep the glyph space index equivalent with the input string
-                    GlyphsSpace.Add(Index + i, new Vector4(XOffset, YOffset, 1, AdvanceY));
+                    GlyphsSpace.Add(new GlyphInfo(XOffset, YOffset, 1, AdvanceY, '\n', Text.Length - 1));
 
                     //Add Current Line Info to the list
                     LinesInfoList.Add(new LineInfo(LineBuffer.ToList(), CurrentAlign, CurrentLineGlyphIndex));
@@ -302,16 +300,18 @@ namespace OrbisGL.GL2D
             //Add fragment as object child
             AddChild(TextFragment);
 
-            //Update the relative fragment glyph space to a relative one with the RichText2D position
-            UpdateGlyphOffset(Index, XOffset, YOffset, TextFragment);
-
-            //Update the Line X/Y Advance
-            AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
-            XOffset += TextFragment.Width;
+            int TextIndex = Text.Length;
 
             //Update the plain text string
             Text += Accumulator;
             Accumulator = string.Empty;
+
+            //Update the relative fragment glyph space to a relative one with the RichText2D position
+            UpdateGlyphOffset(TextIndex, XOffset, YOffset, TextFragment);
+
+            //Update the Line X/Y Advance
+            AdvanceY = Math.Max(AdvanceY, TextFragment.Height);
+            XOffset += TextFragment.Width;
 
             return TextFragment;
         }
@@ -321,9 +321,89 @@ namespace OrbisGL.GL2D
             for (int x = 0; x < TextFragment.Text.Length; x++)
             {
                 var AbsIndex = x + Index;
-                var CurrentGlyphSpace = TextFragment.GlyphsSpace[x];
-                GlyphsSpace[AbsIndex] = new Vector4(CurrentGlyphSpace.X + XOffset, CurrentGlyphSpace.Y + YOffset, CurrentGlyphSpace.Z, CurrentGlyphSpace.W);
+                var CurrentGlyph = TextFragment.GlyphsInfo[x];
+                var Area = CurrentGlyph.Area;
+                
+                if (AbsIndex == GlyphsSpace.Count)
+                    GlyphsSpace.Add(default);
+
+                GlyphsSpace[AbsIndex] = new GlyphInfo(Area.X + XOffset, Area.Y + YOffset, Area.Width, Area.Height, CurrentGlyph.Char, PlainIndexToRichIndex(AbsIndex));
             }
+
+            var NextIndex = Index + TextFragment.Text.Length;
+            if (NextIndex < GlyphsSpace.Count)
+            {
+                var Glyph = GlyphsSpace[NextIndex];
+                if (Glyph.Char == '\n')
+                {
+                    Glyph.Area.X = XOffset + TextFragment.Width;
+                    Glyph.Area.Y = YOffset;
+
+                    Glyph.Index = PlainIndexToRichIndex(NextIndex);
+
+                    GlyphsSpace[Index + TextFragment.Text.Length] = Glyph;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Convert an <see cref="RichText"/> index to <see cref="Text"/> index
+        /// </summary>
+        public int RichIndexToPlainIndex(int RichIndex)
+        {
+            bool InTag = false;
+            for (int i = 0, x = 0; i < RichText.Length; i++)
+            {
+                char Char = RichText[i];
+                char? NChar = i + 1 < RichText.Length ? (char?)RichText[i + 1] : null;
+
+                if (Char == '<' && NChar != '<')
+                    InTag = true;
+
+                if (Char == '>')
+                {
+                    InTag = false;
+                    continue;
+                }
+
+                if (i >= RichIndex)
+                    return x;
+
+                if (!InTag)
+                    x++;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Convert an <see cref="Text"/> index to <see cref="RichText"/> index
+        /// </summary>
+        public int PlainIndexToRichIndex(int PlainIndex)
+        {
+            bool InTag = false;
+            for (int i = 0, x = 0; i < RichText.Length; i++)
+            {
+                char Char = RichText[i];
+                char? NChar = i + 1 < RichText.Length ? (char?)RichText[i + 1] : null;
+
+                if (Char == '<' && NChar != '<')
+                    InTag = true;
+
+                if (Char == '>')
+                {
+                    InTag = false;
+                    continue;
+                }
+
+                if (x >= PlainIndex && !InTag)
+                    return i;
+
+                if (!InTag)
+                    x++;
+            }
+
+            return -1;
         }
 
         private bool ProcessTextBlockTag(string String, int Index, ref int XOffset, ref int YOffset, ref int AdvanceY, ref int i, ref List<Text2D> LineBuffer)
@@ -348,7 +428,8 @@ namespace OrbisGL.GL2D
 
             //Get the inner content of the tag
             var InnerContent = String.Substring(TagOpen, TagClose - TagOpen);
-            InnerContent = InnerContent.Substring(InnerContent.IndexOf('>') + 1);
+            int InnerIndex = InnerContent.IndexOf('>') + 1;
+            InnerContent = InnerContent.Substring(InnerIndex);
             InnerContent = InnerContent.Substring(0, InnerContent.LastIndexOf('<'));
 
             //Apply Tag Styles
@@ -393,7 +474,7 @@ namespace OrbisGL.GL2D
                     break;
                 case "align":
                     CurrentAlign = LineAlignMode.None;
-                    foreach (var Frag in Value.Split(';', ',', '|'))
+                    foreach (var Frag in lValue.Split(';', ',', '|'))
                     {
                         switch (Frag.Trim())
                         {
@@ -466,7 +547,7 @@ namespace OrbisGL.GL2D
                     if (Closing)
                         TagContent = TagContent.Substring(1);
 
-                    //if the tag is the same of the openning, process the tag level
+                    //if the tag is the same of the opened one, process the tag level
                     if (TagContent.ToLowerInvariant() == TagName.ToLowerInvariant())
                     {
                         Level += Closing ? -1 : 1;
