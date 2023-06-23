@@ -28,7 +28,9 @@ namespace OrbisGL.Controls
 
         public override bool Focusable => false;
 
-        public override string Name { get; set; }
+        public override string Name { get; }
+
+        public override string Text { get; set; }
 
         Rectangle2D Background;
 

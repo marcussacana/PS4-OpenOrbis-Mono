@@ -57,8 +57,12 @@ namespace OrbisGL.GL2D
             {
                 Success = true;
                 var CurrentFont = FontCache[FontKey];
+
                 if (!CurrentFont.Disposed)
+                {
+                    FreeType.SetFontSize(CurrentFont, FontSize);
                     return CurrentFont;
+                }
             }
 
             if (!FreeType.LoadFont(FontPath, FontSize, out FontFaceHandler Font))

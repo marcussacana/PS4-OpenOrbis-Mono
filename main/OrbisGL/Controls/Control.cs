@@ -58,6 +58,7 @@ namespace OrbisGL.Controls
 
         public virtual void Invalidate()
         {
+            Invalidated = true;
             Parent?.Invalidate();
         }
 

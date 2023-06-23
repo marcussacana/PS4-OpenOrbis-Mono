@@ -20,20 +20,20 @@ namespace OrbisGL.Controls
             } 
         }
 
-        bool Invalidated = true;
-
-        string _Name = "";
-        public override string Name { 
-            get => _Name; 
+        string _Text = "";
+        public override string Text { 
+            get => _Text; 
             set 
-            { 
-                _Name = value;
+            {
+                _Text = value;
                 Invalidate();
             }
         }
 
+        public override string Name => "Button";
+
         RoundedRectangle2D Background;
-        RoundedRectangle2D BackgroundCountor;
+        RoundedRectangle2D BackgroundContour;
         Text2D Foreground;
 
         public Button(int Width, int Height, int FontSize) : this (Width, Height)
@@ -65,15 +65,15 @@ namespace OrbisGL.Controls
             Background.Color = BackgroundColor;
             Background.RoundLevel = 1.8f;
 
-            BackgroundCountor = new RoundedRectangle2D(Width, Height, false);
-            BackgroundCountor.Color = BackgroundColor;
-            BackgroundCountor.Transparency = 100;
-            BackgroundCountor.RoundLevel = 1.2f;
-            BackgroundCountor.ContourWidth = 0.5f;
-            BackgroundCountor.Margin = new Vector2(-0.4f, -0.25f);
+            BackgroundContour = new RoundedRectangle2D(Width, Height, false);
+            BackgroundContour.Color = BackgroundColor;
+            BackgroundContour.Transparency = 100;
+            BackgroundContour.RoundLevel = 1.2f;
+            BackgroundContour.ContourWidth = 0.5f;
+            BackgroundContour.Margin = new Vector2(-0.4f, -0.25f);
 
             GLObject.AddChild(Background);
-            GLObject.AddChild(BackgroundCountor);
+            GLObject.AddChild(BackgroundContour);
 
             OnMouseEnter += (sender, e) => {
                 if (!Enabled)
@@ -138,10 +138,10 @@ namespace OrbisGL.Controls
             Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
             Background.RefreshVertex();
 
-            BackgroundCountor.Width = (int)Size.X;
-            BackgroundCountor.Height = (int)Size.Y;
-            BackgroundCountor.Color = ForegroundColor;
-            BackgroundCountor.RefreshVertex();
+            BackgroundContour.Width = (int)Size.X;
+            BackgroundContour.Height = (int)Size.Y;
+            BackgroundContour.Color = ForegroundColor;
+            BackgroundContour.RefreshVertex();
 
             Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
             Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
@@ -169,12 +169,6 @@ namespace OrbisGL.Controls
                 Refresh();
 
             base.Draw(Tick);
-        }
-
-        public override void Invalidate()
-        {
-            Invalidated = true;
-            base.Invalidate();
         }
 
         private RGBColor DesaturateColor(RGBColor color, byte Alpha)

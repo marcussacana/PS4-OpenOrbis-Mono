@@ -8,17 +8,9 @@ namespace OrbisGL.Controls
         public float Margin { get; set; } = 5;
         public bool Horizontal { get; set; } = false;
 
-        bool Invalidated = true;
-
         public override bool Focusable => false;
 
-        public override string Name { get; set; }
-
-        public override void Invalidate()
-        {
-            Invalidated = true;
-            base.Invalidate();
-        }
+        public override string Name { get; } = "ListContainer";
 
         public override void Draw(long Tick)
         {

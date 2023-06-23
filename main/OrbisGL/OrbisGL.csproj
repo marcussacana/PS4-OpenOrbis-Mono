@@ -74,6 +74,7 @@
     <Compile Include="Controls\Events\ClickEvent.cs" />
     <Compile Include="Controls\Events\PropagableEvent.cs" />
     <Compile Include="Controls\Control.cs" />
+    <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="FreeTypeLib\FontHandler.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="FreeTypeLib\GlyphInfo.cs" />
     <Compile Include="GL2D\Blank2D.cs" />
     <Compile Include="GL2D\Coordinates2D.cs" />
+    <Compile Include="GL2D\Line2D.cs" />
     <Compile Include="GL2D\PartialElipse2D.cs" />
     <Compile Include="GL2D\GLObject2D.cs" />
     <Compile Include="GL2D\Rectangle2D.cs" />
@@ -107,6 +109,7 @@
     <Compile Include="GL2D\Texture2D.cs" />
     <Compile Include="GL\BufferAttribute.cs" />
     <Compile Include="GL\IRenderable.cs" />
+    <Compile Include="GL\Line.cs" />
     <Compile Include="GL\Object.cs" />
     <Compile Include="GL\Program.cs" />
     <Compile Include="GL\Rectangle.cs" />

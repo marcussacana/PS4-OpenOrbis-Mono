@@ -4,9 +4,8 @@
     {
         public override bool Focusable => false;
 
-        bool Invalidated = true;
-
-        public override string Name { get; set; }
+        public override string Name { get; }
+        public override string Text { get; set; }
 
         public override void Draw(long Tick)
         {

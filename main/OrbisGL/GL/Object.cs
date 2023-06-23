@@ -27,6 +27,8 @@ namespace OrbisGL.GL
 
         private Texture Texture;
 
+        private bool ValidBuffer = false;
+
         protected GLObject() {
             this.RenderMode = (int)OrbisGL.RenderMode.Triangle;
         }
@@ -90,12 +92,15 @@ namespace OrbisGL.GL
             IndexBuffer.Clear();
             BufferInvalidated = true;
         }
+
+
         
         public unsafe void BuildBuffers()
         {
             if (!BufferInvalidated)
                 return;
-            
+
+            ValidBuffer = false;
             BufferInvalidated = false;
             
             FreeBuffer();
@@ -118,7 +123,9 @@ namespace OrbisGL.GL
                 }
                 
                 GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);
-                GLES20.BufferData(GLES20.GL_ARRAY_BUFFER, ArrayBuffer.Count, pArrayBuffer, GLES20.GL_STATIC_DRAW);                
+                GLES20.BufferData(GLES20.GL_ARRAY_BUFFER, ArrayBuffer.Count, pArrayBuffer, GLES20.GL_STATIC_DRAW);
+
+                ValidBuffer = true;
             }
             
             if (IndexBuffer.Count > 0)
@@ -187,6 +194,9 @@ namespace OrbisGL.GL
             UpdateUniforms(Tick);
 
             BuildBuffers();
+
+            if (!ValidBuffer)
+                return;
 
             GLES20.BindBuffer(GLES20.GL_ARRAY_BUFFER, GLArrayBuffer);
 

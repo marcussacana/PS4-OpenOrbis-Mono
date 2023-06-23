@@ -298,7 +298,7 @@ void main(void) {
 
 
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
-            Button.Name = "Hello World";
+            Button.Text = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
 
             Button.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
@@ -357,6 +357,45 @@ void main(void) {
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.GLApplication.Objects.Add(RT2D);
+#endif
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            var Line = new Line2D(new Line[]
+            {
+                new Line()
+                {
+                    Begin = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                    End = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                },
+                new Line()
+                {
+                    Begin = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                    End = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                },
+                new Line()
+                {
+                    Begin = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                    End = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height)),
+                }
+            }, false);
+
+            GLControl.GLApplication.Objects.Add(Line);
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+
+#if !ORBIS
+            var BG = new OrbisGL.Controls.Panel();
+            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+
+            var TB = new OrbisGL.Controls.TextBox(100, 28);
+            TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
+
+            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.Objects.Add(TB);
 #endif
         }
     }

@@ -8,7 +8,7 @@ namespace OrbisGL.GL2D
     {
         bool FillMode;
 
-        public byte Transparecy { get; set; } = 255;
+        public byte Transparency { get; set; } = 255;
 
         public RGBColor Color { get; set; } = RGBColor.White;
 
@@ -102,7 +102,7 @@ namespace OrbisGL.GL2D
 
         public override void Draw(long Tick)
         {
-            Program.SetUniform("Color", Color, Transparecy);
+            Program.SetUniform("Color", Color, Transparency);
 
             base.Draw(Tick);
         }

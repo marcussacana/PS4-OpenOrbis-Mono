@@ -92,7 +92,8 @@ namespace OrbisGL.Controls
 
         public abstract bool Focusable { get; }
 
-        public abstract string Name { get; set; }
+        public abstract string Name { get; }
+        public abstract string Text { get; set; }
 
         bool _Focused;
         public bool Focused { get => _Focused | Children.Any(x => x.Focused); }
@@ -168,5 +169,8 @@ namespace OrbisGL.Controls
         public IEnumerable<Control> Childs => Children;
 
         List<Control> Children = new List<Control>();
+
+
+        protected bool Invalidated { get; set; } = true;
     }
 }
