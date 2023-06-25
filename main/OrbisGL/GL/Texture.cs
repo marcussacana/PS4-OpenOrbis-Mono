@@ -10,7 +10,7 @@ namespace OrbisGL.GL
     public class Texture : IDisposable
     {
         private static List<int> SlotQueue = new List<int>(32);
-        
+
         private static List<int> SlotTexture = new List<int>(32);
 
         static Texture()
@@ -21,23 +21,28 @@ namespace OrbisGL.GL
             for (int i = 0; i < 32; i++)
                 SlotTexture.Add(0);
         }
-        
+
         internal int TextureID;
         private int TextureType;
+
         public Texture(bool Is2DTexture)
         {
             TextureType = Is2DTexture ? GLES20.GL_TEXTURE_2D : GLES20.GL_TEXTURE;
-            
+
             int[] Textures = new int[1];
             GLES20.GenTextures(1, Textures);
             TextureID = Textures.First();
         }
 
-        public void Bind() => GLES20.BindTexture(TextureType, TextureID);
+        private void Bind(int Slot)
+        {
+            GLES20.ActiveTexture(GLES20.GL_TEXTURE0 + Slot);
+            GLES20.BindTexture(TextureType, TextureID);
+        }
 
         public unsafe void SetData(int Width, int Height, byte[] Data, PixelFormat Format)
         {
-            Bind();
+            Active();
 
             fixed (byte* pData = Data)
             {
@@ -80,6 +85,10 @@ namespace OrbisGL.GL
             SetData(Width, Height, Data, TextureFormat);
         }
 
+        /// <summary>
+        /// Select the oldest texture slot, activate this texture and bind it
+        /// </summary>
+        /// <returns>The used texture slot</returns>
         public int Active()
         {
             if (SlotTexture.Contains(TextureID))
@@ -95,12 +104,11 @@ namespace OrbisGL.GL
             
             var ActiveSlot = SlotQueue.First();
             SlotQueue.RemoveAt(0);
-            SlotQueue.Add(0);
+            SlotQueue.Add(ActiveSlot);
 
             SlotTexture[ActiveSlot] = TextureID;
 
-            GLES20.ActiveTexture(GLES20.GL_TEXTURE0 + ActiveSlot);
-            Bind();
+            Bind(ActiveSlot);
 
             return ActiveSlot;
         }
