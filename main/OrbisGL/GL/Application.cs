@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading;
+using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL.GL2D;
 using OrbisGL.Input;
@@ -245,7 +248,7 @@ namespace OrbisGL.GL
             Draw(DateTime.Now.Ticks/10);
         }
 #endif
-
+        bool GLReady = false;
         public virtual void Draw(long Tick)
         {
             if (ClearColor != null)
@@ -254,18 +257,20 @@ namespace OrbisGL.GL
                 GLES20.Clear(GLES20.GL_COLOR_BUFFER_BIT);
             }
 
+            if (!GLReady)
+            {
+                //GLES20.BlendEquation(GLES20.GL_FUNC_ADD);
 
-            //GLES20.BlendEquation(GLES20.GL_FUNC_ADD);
+                //GLES20.BlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+                GLES20.BlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+                GLES20.Enable(GLES20.GL_BLEND);
 
-            //GLES20.BlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-            GLES20.BlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
-            //GLES20.Disable(GLES20.GL_CULL_FACE);
-            GLES20.Enable(GLES20.GL_BLEND);
+                //GLES20.Disable(GLES20.GL_CULL_FACE);
+                GLReady = true;
+            }
 
             foreach (var Object in  Objects)
             {
-
                 Object.Draw(Tick);
                 GLES20.Flush();
             }
