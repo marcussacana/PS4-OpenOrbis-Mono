@@ -133,6 +133,7 @@ namespace OrbisGL.Controls
             set 
             {
                 _Position = value;
+                GLObject.Position = AbsolutePosition;
                 Invalidate();
             }
         }

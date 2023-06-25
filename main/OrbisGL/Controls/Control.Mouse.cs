@@ -89,6 +89,8 @@ namespace OrbisGL.Controls
 
             if (NewPressed != 0)
             {
+                LastCursorControl.Focus();
+
                 var PressedEvent = new ClickEventArgs(CurrentPosition, NewPressed, false);
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseButtonDown?.Invoke(x, (ClickEventArgs)y), PressedEvent);
             }
@@ -97,8 +99,6 @@ namespace OrbisGL.Controls
             {
                 var ReleasedEvent = new ClickEventArgs(CurrentPosition, NewReleased, false);
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
-
-                Focus();
 
                 ReleasedEvent.Handled = false;
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
