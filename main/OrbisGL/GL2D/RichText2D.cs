@@ -152,11 +152,13 @@ namespace OrbisGL.GL2D
 
                     if (float.IsNaN(NewY))
                         NewY = Item.Position.Y;
+                    else
+                        NewY += LineInfo.LineY;
 
-                    Item.Position = new Vector2(NewX, NewY + LineInfo.LineY);
+                    Item.Position = new Vector2(NewX, NewY);
 
                     //Update glyph space offsets
-                    UpdateGlyphOffset(LineInfo.GlyphIndex + LineGlyphIndex, (int)NewX, (int)(NewY + LineInfo.LineY), Item);
+                    UpdateGlyphOffset(LineInfo.GlyphIndex + LineGlyphIndex, (int)NewX, (int)NewY, Item);
 
                     LineXOffset += Item.Width;
                     LineGlyphIndex += Item.Text.Length;
@@ -179,11 +181,11 @@ namespace OrbisGL.GL2D
 
             public int GlyphIndex;
 
-            public float LineWidth => Items.Max(x => x.Position.X + x.Width);
-            public float LineHeight => Items.Max(x => x.Height);
+            public float LineWidth => Items.Count == 0 ? 0 : Items.Max(x => x.Position.X + x.Width);
+            public float LineHeight => Items.Count == 0 ? 0 : Items.Max(x => x.Height);
 
-            public float LineX => Items.Min(x => x.Position.X);
-            public float LineY => Items.Min(x => x.Position.Y);
+            public float LineX => Items.Count == 0 ? 0 : Items.Min(x => x.Position.X);
+            public float LineY => Items.Count == 0 ? 0 : Items.Min(x => x.Position.Y);
         }
 
         [Flags]
