@@ -2,6 +2,7 @@
 using System;
 using System.Numerics;
 using OrbisGL.Input;
+using OrbisGL.Controls;
 
 namespace Orbis
 {
@@ -25,27 +26,32 @@ namespace Orbis
             MouseDriver = new OrbisMouse();
 
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
-            Button.Name = "Hello World";
+            Button.Text = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
 
             Button.OnKeyDown += (sender, args) =>
             {
-                Button.Name = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Pressed";
+                Button.Text = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Pressed";
             };
 
             Button.OnKeyUp += (sender, args) =>
             {
-                Button.Name = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Released";
+                Button.Text = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Released";
             };
             
             Button.OnMouseClick += (sender, args) =>
             {
-                Button.Name = "Clicked!";
+                Button.Text = "Clicked!";
             };
 
             Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
 
+            var TB = new TextBox(200, 24);
+            TB.Text = "test";
+            TB.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
+
             BG.AddChild(Button);
+            BG.AddChild(TB);
 
             Objects.Add(BG);
         }

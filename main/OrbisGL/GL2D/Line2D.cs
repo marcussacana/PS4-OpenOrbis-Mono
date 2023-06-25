@@ -73,7 +73,7 @@ namespace OrbisGL.GL2D
         {
             Program.SetUniform(ColorUniformLocation, Color, Transparency);
 
-            GLES20.LineWidth(LineWidth);
+            GLES20.LineWidth(LineWidth);//Not supported in PC GLES, but supported in PS4
 
             base.Draw(Tick);
         }

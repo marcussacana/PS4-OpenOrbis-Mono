@@ -59,12 +59,11 @@ namespace OrbisGL.Controls
             OnFocus(this, new EventArgs());
         }
 
-        public virtual void Invalidate()
+        public void Invalidate()
         {
             Invalidated = true;
             Parent?.Invalidate();
         }
-
 
         protected virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
         {

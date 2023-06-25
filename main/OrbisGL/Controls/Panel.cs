@@ -19,13 +19,6 @@ namespace OrbisGL.Controls
             Background.Color = BackgroundColor;
         }
 
-        bool Invalidated = false;
-        public override void Invalidate()
-        {
-            Invalidated = true;
-            base.Invalidate();
-        }
-
         public override bool Focusable => false;
 
         public override string Name { get; }
@@ -42,6 +35,8 @@ namespace OrbisGL.Controls
                 {
                     Background = new Rectangle2D((int)Size.X, (int)Size.Y, true);
                 }
+
+                Background.Color = BackgroundColor;
                 Invalidated = true;
             }
 

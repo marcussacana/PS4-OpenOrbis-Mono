@@ -1,13 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
-using OrbisGL.GL;
+using OrbisGL.Input;
 using Application = OrbisGL.GL.Application;
-using Timer = System.Windows.Forms.Timer;
+using MButtons = OrbisGL.MouseButtons;
+using System.Numerics;
 
 namespace GLTest
 {
@@ -53,6 +51,24 @@ namespace GLTest
             base.OnHandleCreated(e);
 
             GLApplication = new Application(Width, Height, 30, Handle);
+
+            GLApplication.MouseDriver = new GenericMouse(() =>
+            {
+                var Pos = Cursor.Position;
+                var CPos = PointToClient(Pos);
+                return new Vector2(CPos.X, CPos.Y);
+            }, () =>
+            {
+                MButtons Buttons = 0;
+                if (MouseButtons.HasFlag(MouseButtons.Left))
+                    Buttons |= MButtons.Left;
+                if (MouseButtons.HasFlag(MouseButtons.Right))
+                    Buttons |= MButtons.Right;
+                if (MouseButtons.HasFlag(MouseButtons.Middle))
+                    Buttons |= MButtons.Middle;
+
+                return Buttons;
+            });
         }
 
         protected override void OnHandleDestroyed(EventArgs e)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SixLabors.ImageSharp;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 
@@ -92,6 +93,11 @@ namespace OrbisGL.GL
             byte NewG = (byte)(G * Amount + Secondary.G * (1 - Amount));
             byte NewB = (byte)(B * Amount + Secondary.B * (1 - Amount));
             return new RGBColor((byte)NewR, (byte)NewG, (byte)NewB);
+        }
+
+        public RGBColor Desaturate(byte Alpha)
+        {
+            return Blend(Black, Alpha);
         }
 
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }

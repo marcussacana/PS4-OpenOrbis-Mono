@@ -1,16 +1,12 @@
 ﻿using OrbisGL;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
-using OrbisGL.Input;
 using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
-using System.Windows.Input;
 using static OrbisGL.GL2D.Coordinates2D;
-using MButtons = OrbisGL.MouseButtons;
 
 namespace GLTest
 {
@@ -22,8 +18,8 @@ namespace GLTest
         {
             InitializeComponent();
 
-                GLControl = new GLControl(1280, 720);
-                this.Controls.Add(GLControl);
+            GLControl = new GLControl(1280, 720);
+            this.Controls.Add(GLControl);
         }
 #endif
 const string Vertex =
@@ -306,24 +302,6 @@ void main(void) {
             BG.AddChild(Button);
 
             GLControl.GLApplication.Objects.Add(BG);
-
-            GLControl.GLApplication.MouseDriver = new GenericMouse(() =>
-            {
-                var Pos = System.Windows.Forms.Cursor.Position;
-                var CPos = GLControl.PointToClient(Pos);
-                return new Vector2(CPos.X, CPos.Y);
-            }, () =>
-            {
-                MButtons Buttons = 0;
-                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Left))
-                    Buttons |= MButtons.Left;
-                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Right))
-                    Buttons |= MButtons.Right;
-                if (GLControl.MouseButtons.HasFlag(System.Windows.Forms.MouseButtons.Middle))
-                    Buttons |= MButtons.Middle;
-
-                return Buttons;
-            });
 #endif
         }
 
@@ -362,6 +340,7 @@ void main(void) {
 
         private void button13_Click(object sender, EventArgs e)
         {
+#if !ORBIS
             var Line = new Line2D(new Line[]
             {
                 new Line()
@@ -382,20 +361,37 @@ void main(void) {
             }, false);
 
             GLControl.GLApplication.Objects.Add(Line);
+#endif
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
 
 #if !ORBIS
+
             var BG = new OrbisGL.Controls.Panel();
+            BG.BackgroundColor = RGBColor.ReallyLightBlue;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
-            var TB = new OrbisGL.Controls.TextBox(100, 28);
+            var TB = new OrbisGL.Controls.TextBox(100, 24);
             TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
 
+            var RT2D = new RichText2D(28, RGBColor.Black, null);
+            RT2D.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
+
+            RT2D.SetRichText(" \n<align=horizontal>Hello World</align>");
+
+            foreach (var Glyph in RT2D.GlyphsSpace)
+            {
+                var Box = new Rectangle2D(Glyph.Area, false);
+                Box.Color = RGBColor.Red;
+                RT2D.AddChild(Box);
+            }
+
+            BG.AddChild(TB);
+
             GLControl.GLApplication.Objects.Add(BG);
-            GLControl.GLApplication.Objects.Add(TB);
+            GLControl.GLApplication.Objects.Add(RT2D);
 #endif
         }
     }

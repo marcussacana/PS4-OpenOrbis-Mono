@@ -149,10 +149,10 @@ namespace OrbisGL.Controls
             switch (CurrentState)
             {
                 case ButtonState.Pressed:
-                    Background.Color = DesaturateColor(Background.Color, 180);
+                    Background.Color = Background.Color.Desaturate(180);
                     break;
                 case ButtonState.Hover:
-                    Background.Color = DesaturateColor(Background.Color, 215);
+                    Background.Color = Background.Color.Desaturate(215);
                     break;
                 case ButtonState.Disabled:
                     Background.Color = BackgroundColor.Grayscale();
@@ -169,11 +169,6 @@ namespace OrbisGL.Controls
                 Refresh();
 
             base.Draw(Tick);
-        }
-
-        private RGBColor DesaturateColor(RGBColor color, byte Alpha)
-        {
-            return color.Blend(RGBColor.Black, Alpha);
         }
     }
 }

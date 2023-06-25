@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Numerics;
 using System.Collections.Generic;
+using Orbis.Internals;
 
 namespace OrbisGL.FreeTypeLib
 {

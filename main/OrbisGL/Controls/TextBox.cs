@@ -1,4 +1,5 @@
-﻿using OrbisGL.FreeTypeLib;
+﻿using OrbisGL.Controls.Events;
+using OrbisGL.FreeTypeLib;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
@@ -47,41 +48,61 @@ namespace OrbisGL.Controls
             BackgroundContour.Color = ForegroundColor;
             BackgroundContour.Transparency = 60;
             BackgroundContour.RoundLevel = 1.2f;
-            BackgroundContour.ContourWidth = 0.75f;
-            BackgroundContour.Margin = new Vector2(-0.4f, -0.25f);
+            BackgroundContour.ContourWidth = 0.8f;
+            BackgroundContour.Margin = new Vector2(-0.2f, -0.2f);
 
             Foreground = new RichText2D(Face, FontSize, ForegroundColor);
 
             FocusIndicator = new Line2D(false);
             FocusIndicator.Color = ForegroundColor;
-            FocusIndicator.LineWidth = 2;
-            FocusIndicator.Transparency = 100;
+            FocusIndicator.LineWidth = 0.2f;
+            FocusIndicator.Transparency = 150;
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BackgroundContour);
             GLObject.AddChild(FocusIndicator);
             GLObject.AddChild(Foreground);
+
+            OnMouseEnter += TextBox_OnMouseEnter;
+            OnMouseLeave += TextBox_OnMouseLeave;
         }
 
+        bool Desaturate = false;
+        private void TextBox_OnMouseEnter(object Sender, MouseEventArgs EventArgs)
+        {
+            if (Focused)
+                return;
+
+            Desaturate = true;
+            Invalidate();
+        }
+
+        private void TextBox_OnMouseLeave(object Sender, MouseEventArgs EventArgs)
+        {
+            Desaturate = false;
+            Invalidate();
+        }
 
         RoundedRectangle2D Background;
         RoundedRectangle2D BackgroundContour;
         RichText2D Foreground;
 
-        Line2D FocusIndicator; //must implement SetVisibleRectangle of Line2D
+        Line2D FocusIndicator; //[WIP] must implement SetVisibleRectangle of Line2D
 
 
         public void Refresh()
         {
-            Background.Color = BackgroundColor;
+            Background.Color = Desaturate && !Focused ? BackgroundColor.Desaturate(240) : BackgroundColor;
             BackgroundContour.Color = ForegroundColor;
+
+            FocusIndicator.Transparency = Focused ? (byte)255 : (byte)60;
             FocusIndicator.Color = Focused ? PrimaryBackgroundColor : ForegroundColor;
 
             FocusIndicator.SetLines(new Line[] { 
                 new Line()
                 {
-                    Begin = new Vector2(10, Size.Y - 1),
-                    End = new Vector2(Size.X - 10, Size.Y - 1)
+                    Begin = new Vector2(5, Size.Y - 1),
+                    End = new Vector2(Size.X - 5, Size.Y - 1)
                 }
             });
 
@@ -97,13 +118,7 @@ namespace OrbisGL.Controls
         {
             if (Invalidated)
                 Refresh();
-
             base.Draw(Tick);
-        }
-
-        private RGBColor DesaturateColor(RGBColor color, byte Alpha)
-        {
-            return color.Blend(RGBColor.Black, Alpha);
         }
     }
 }
