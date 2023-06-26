@@ -360,6 +360,8 @@ void main(void) {
                 }
             }, false);
 
+            Line.SetVisibleRectangle(300, 100, 800, 500);
+
             GLControl.GLApplication.Objects.Add(Line);
 #endif
         }
@@ -373,7 +375,7 @@ void main(void) {
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
-            var TB = new OrbisGL.Controls.TextBox(100, 24);
+            var TB = new OrbisGL.Controls.TextBox(100, 18);
             TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
