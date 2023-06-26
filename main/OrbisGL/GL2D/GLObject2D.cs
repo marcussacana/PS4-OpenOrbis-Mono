@@ -9,6 +9,8 @@ namespace OrbisGL.GL2D
 {
     public abstract class GLObject2D : GLObject
     {
+        public bool Visible { get; set; } = true;
+
         public int Width { get; set; }
         public int Height { get; set; }
 
@@ -119,6 +121,9 @@ namespace OrbisGL.GL2D
 
         public override void Draw(long Tick)
         {
+            if (!Visible)
+                return;
+
             if (Program != null)
             {
                 UpdateUniforms();

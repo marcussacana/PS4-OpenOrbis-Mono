@@ -378,22 +378,12 @@ void main(void) {
             var TB = new OrbisGL.Controls.TextBox(100, 18);
             TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
 
-            var RT2D = new RichText2D(28, RGBColor.Black, null);
-            RT2D.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
-
-            RT2D.SetRichText(" \n<align=horizontal>Hello World</align>");
-
-            foreach (var Glyph in RT2D.GlyphsSpace)
-            {
-                var Box = new Rectangle2D(Glyph.Area, false);
-                Box.Color = RGBColor.Red;
-                RT2D.AddChild(Box);
-            }
+            TB.Text = "Debug texbox test";
+            TB.SelectionStart = Rand.Next(0, TB.Text.Length);
 
             BG.AddChild(TB);
 
             GLControl.GLApplication.Objects.Add(BG);
-            GLControl.GLApplication.Objects.Add(RT2D);
 #endif
         }
     }

@@ -83,6 +83,9 @@ namespace OrbisGL.GL2D
 
             ProcessAlignment();
 
+            Width = (int)LinesInfoList.Max(x => x.LineWidth);
+            Height = YOffset;
+
             return true;
         }
 
