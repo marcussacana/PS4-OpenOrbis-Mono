@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Orbis.Internals;
 using OrbisGL.Controls;
-using OrbisGL.GL2D;
 using OrbisGL.Input;
 using SharpGLES;
 
@@ -14,6 +12,8 @@ namespace OrbisGL.GL
 {
     public class Application : IRenderable
     {
+
+        public static bool PhysicalKeyboardAvailable { get; set; }
 
         public int UserID = -1;
         public IMouse MouseDriver { get; set; } = null;

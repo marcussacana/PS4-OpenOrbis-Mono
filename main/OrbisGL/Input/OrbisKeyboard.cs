@@ -2,6 +2,7 @@
 using OrbisGL.Input.Layouts;
 using OrbisGL.Controls.Events;
 using System.Runtime.InteropServices;
+using OrbisGL.GL;
 
 namespace OrbisGL.Input
 {
@@ -24,14 +25,20 @@ namespace OrbisGL.Input
             {
                 case IME_KeyboardEvent.OPEN: break;
                 case IME_KeyboardEvent.KEYCODE_REPEAT: break;
-                case IME_KeyboardEvent.CONNECTION: break;//keyboard connected
-                case IME_KeyboardEvent.DISCONNECTION: break;//keyboard disconnected
+                case IME_KeyboardEvent.CONNECTION:
+                    Application.PhysicalKeyboardAvailable = true;
+                    break;
+                case IME_KeyboardEvent.DISCONNECTION: 
+                    Application.PhysicalKeyboardAvailable = false; 
+                    break;
                 case IME_KeyboardEvent.KEYCODE_DOWN:
+                    Application.PhysicalKeyboardAvailable = true;
                     var dKeyCode = *(OrbisKeyboardKeycode*)Event->EventData;
                     var dEventArgs = new KeyboardEventArgs(dKeyCode.keycode, dKeyCode.status, GetKeyChar(dKeyCode.keycode, dKeyCode.status));
                     OnKeyDown?.Invoke(this, dEventArgs);
                     break;
                 case IME_KeyboardEvent.KEYCODE_UP:
+                    Application.PhysicalKeyboardAvailable = true;
                     var uKeyCode =  *(OrbisKeyboardKeycode*)Event->EventData;
                     var uEventArgs = new KeyboardEventArgs(uKeyCode.keycode, uKeyCode.status, GetKeyChar(uKeyCode.keycode, uKeyCode.status));
                     OnKeyUp?.Invoke(this, uEventArgs);

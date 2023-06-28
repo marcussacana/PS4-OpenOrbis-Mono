@@ -80,6 +80,11 @@ namespace OrbisGL.GL
             BlueF = B / 255f;
         }
 
+        public string AsHex()
+        {
+            return R.ToString("X2") + G.ToString("X2") + B.ToString("X2");
+        }
+
         public RGBColor Grayscale()
         {
             float RGB = (RedF + GreenF + BlueF) / 3;
@@ -98,6 +103,11 @@ namespace OrbisGL.GL
         public RGBColor Desaturate(byte Alpha)
         {
             return Blend(Black, Alpha);
+        }
+
+        public RGBColor Saturate(byte Alpha)
+        {
+            return Blend(White, Alpha);
         }
 
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }

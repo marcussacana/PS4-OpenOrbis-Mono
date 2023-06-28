@@ -119,6 +119,8 @@
     <Compile Include="Input\GenericMouse.cs" />
     <Compile Include="Input\IKeyboard.cs" />
     <Compile Include="Input\IMouse.cs" />
+    <Compile Include="Input\ITypewriter.cs" />
+    <Compile Include="Input\KeyboardTypewriter.cs" />
     <Compile Include="Input\Layouts\ASCII.cs" />
     <Compile Include="Input\Layouts\ABNT2.cs" />
     <Compile Include="Input\Layouts\ILayout.cs" />

@@ -2,6 +2,7 @@
 using OrbisGL.FreeTypeLib;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
+using OrbisGL.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,9 @@ namespace OrbisGL.Controls
 {
     public class TextBox : Control
     {
-
+        ITypewriter TypeWriter { get; set; }
         public int SelectionStart { get; set; } = 0;
+        public int SelectionLength { get; set; }
         public int TextMargin { get; set; } = 10;
 
         public override bool Focusable => true;
@@ -32,6 +34,7 @@ namespace OrbisGL.Controls
             } 
         }
 
+        bool Typing;
         float CurrentTextXOffset = 0;
 
         public TextBox(int Width, int FontSize)
@@ -87,6 +90,69 @@ namespace OrbisGL.Controls
 
             OnMouseEnter += TextBox_OnMouseEnter;
             OnMouseLeave += TextBox_OnMouseLeave;
+
+            OnKeyDown += TextBox_OnKeyDown;
+            OnKeyUp += TextBox_OnKeyUp;
+        }
+
+        private void TextBox_OnKeyDown(object Sender, KeyboardEventArgs Args)
+        {
+            if (TypeWriter is KeyboardTypewriter Keyboard)
+            {
+                Keyboard.OnKeyDown(Args);
+            }
+        }
+
+        private void TextBox_OnKeyUp(object Sender, KeyboardEventArgs Args)
+        {
+            if (TypeWriter is KeyboardTypewriter Keyboard)
+            {
+                Keyboard.OnKeyUp(Args);
+            }
+        }
+
+        protected override void OnFocus(object Sender, EventArgs Args)
+        {
+            if (Application.PhysicalKeyboardAvailable && !(TypeWriter is KeyboardTypewriter))
+            {
+                TypeWriter = new KeyboardTypewriter();
+                TypeWriter.OnTextChanged += TypeWriter_OnTextChanged;
+                TypeWriter.OnCaretMove += TypeWriter_OnCaretMove;
+                TypeWriter.OnComplete += TypeWriter_OnComplete;
+            }
+
+            TypeWriter.Enter(new Rectangle(Position.X, Position.Y, Size.X, Size.Y));
+            Typing = true;
+
+            base.OnFocus(Sender, Args);
+        }
+
+        private void TypeWriter_OnComplete(object sender, EventArgs e)
+        {
+            Typing = false;
+        }
+
+        private void TypeWriter_OnCaretMove(object sender, EventArgs e)
+        {
+            SelectionStart = TypeWriter.CaretPosition;
+            SelectionLength = 0;
+        }
+
+        private void TypeWriter_OnTextChanged(object sender, EventArgs e)
+        {
+            var RichText = TypeWriter.CurrentText.Replace("<", "<<");
+            RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
+
+            Foreground.SetRichText(RichText);
+        }
+        public RGBColor Highlight(RGBColor Color, byte Alpha)
+        {
+            if (Color.R + Color.G + Color.B / 3 > 255 / 2)
+            {
+                return Color.Desaturate(Alpha);
+            }
+
+            return Color.Saturate(Alpha);
         }
 
         bool Desaturate = false;
