@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Orbis.Internals;
 using OrbisGL.Controls;
@@ -113,23 +114,29 @@ namespace OrbisGL.GL
             }
         }
 
-#if ORBIS
-        private static IKeyboard Keyboard;
-        public void EnabledKeyboard()
+        public IKeyboard KeyboardDriver;
+
+        private bool KeyboardEnabled = false;
+
+        public void EnableKeyboard()
         {
-            if (Keyboard != null)
+            if (KeyboardEnabled)
                 return;
-            
+#if ORBIS
+
             if (UserID == -1)
             {
                 UserService.Initialize();
                 UserService.GetInitialUser(out UserID);
             }
-            
+
             Keyboard = new OrbisKeyboard();
             Keyboard.Initialize(UserID);
-            
-            Keyboard.OnKeyDown += (sender, args) =>
+#endif
+
+            KeyboardEnabled = true;
+
+            KeyboardDriver.OnKeyDown += (sender, args) =>
             {
                 foreach (var Child in Objects)
                 {
@@ -144,7 +151,7 @@ namespace OrbisGL.GL
                 }
             };
             
-            Keyboard.OnKeyUp += (sender, args) =>
+            KeyboardDriver.OnKeyUp += (sender, args) =>
             {
                 foreach (var Child in Objects)
                 {
@@ -159,7 +166,6 @@ namespace OrbisGL.GL
                 }
             };
         }
-#endif
 
         public Vector2 CursorPosition { get; private set; } = Vector2.Zero;
         public MouseButtons MousePressedButtons { get; private set; }

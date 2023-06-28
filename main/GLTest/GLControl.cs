@@ -3,9 +3,12 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using OrbisGL.Input;
+using System.Numerics;
+using OrbisGL.Controls.Events;
+using System.Collections.Generic;
+
 using Application = OrbisGL.GL.Application;
 using MButtons = OrbisGL.MouseButtons;
-using System.Numerics;
 
 namespace GLTest
 {
@@ -69,6 +72,18 @@ namespace GLTest
 
                 return Buttons;
             });
+
+            GLApplication.KeyboardDriver = Keyboard = new DesktopKeyboard();
+        }
+        DesktopKeyboard Keyboard;
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (Keyboard != null)
+            {
+                Keyboard.KeyDown(e.KeyCode, e.);
+            }
+
+            base.OnKeyDown(e);
         }
 
         protected override void OnHandleDestroyed(EventArgs e)
@@ -76,6 +91,146 @@ namespace GLTest
             GLApplication.Dispose();
 
             base.OnHandleDestroyed(e);
+        }
+
+        class DesktopKeyboard : IKeyboard
+        {
+            Dictionary<Keys, OrbisGL.IME_KeyCode> KeyMap = new Dictionary<Keys, OrbisGL.IME_KeyCode>() 
+            {
+#region Mapping
+                { Keys.Escape, OrbisGL.IME_KeyCode.ESCAPE },
+                { Keys.Up, OrbisGL.IME_KeyCode.UPARROW },
+                { Keys.Down, OrbisGL.IME_KeyCode.DOWNARROW },
+                { Keys.Left, OrbisGL.IME_KeyCode.LEFTALT },
+                { Keys.Right, OrbisGL.IME_KeyCode.RIGHTARROW },
+                { Keys.A, OrbisGL.IME_KeyCode.A },
+                { Keys.B, OrbisGL.IME_KeyCode.B },
+                { Keys.C, OrbisGL.IME_KeyCode.C },
+                { Keys.D, OrbisGL.IME_KeyCode.D },
+                { Keys.E, OrbisGL.IME_KeyCode.E },
+                { Keys.F, OrbisGL.IME_KeyCode.F },
+                { Keys.G, OrbisGL.IME_KeyCode.G },
+                { Keys.H, OrbisGL.IME_KeyCode.H },
+                { Keys.I, OrbisGL.IME_KeyCode.I },
+                { Keys.J, OrbisGL.IME_KeyCode.J },
+                { Keys.K, OrbisGL.IME_KeyCode.K },
+                { Keys.L, OrbisGL.IME_KeyCode.L },
+                { Keys.M, OrbisGL.IME_KeyCode.M },
+                { Keys.N, OrbisGL.IME_KeyCode.N },
+                { Keys.O, OrbisGL.IME_KeyCode.O },
+                { Keys.P, OrbisGL.IME_KeyCode.P },
+                { Keys.Q, OrbisGL.IME_KeyCode.Q },
+                { Keys.R, OrbisGL.IME_KeyCode.R },
+                { Keys.S, OrbisGL.IME_KeyCode.S },
+                { Keys.T, OrbisGL.IME_KeyCode.T },
+                { Keys.U, OrbisGL.IME_KeyCode.U },
+                { Keys.V, OrbisGL.IME_KeyCode.V },
+                { Keys.W, OrbisGL.IME_KeyCode.W },
+                { Keys.X, OrbisGL.IME_KeyCode.X },
+                { Keys.Y, OrbisGL.IME_KeyCode.Y },
+                { Keys.Z, OrbisGL.IME_KeyCode.Z },
+                { Keys.D1, OrbisGL.IME_KeyCode.N1 },
+                { Keys.D2, OrbisGL.IME_KeyCode.N2 },
+                { Keys.D3, OrbisGL.IME_KeyCode.N3 },
+                { Keys.D4, OrbisGL.IME_KeyCode.N4 },
+                { Keys.D5, OrbisGL.IME_KeyCode.N5 },
+                { Keys.D6, OrbisGL.IME_KeyCode.N6 },
+                { Keys.D7, OrbisGL.IME_KeyCode.N7 },
+                { Keys.D8, OrbisGL.IME_KeyCode.N8 },
+                { Keys.D9, OrbisGL.IME_KeyCode.N9 },
+                { Keys.D0, OrbisGL.IME_KeyCode.N0 },
+                { Keys.Return, OrbisGL.IME_KeyCode.RETURN },
+                { Keys.Escape, OrbisGL.IME_KeyCode.ESCAPE },
+                { Keys.Back, OrbisGL.IME_KeyCode.BACKSPACE },
+                { Keys.Tab, OrbisGL.IME_KeyCode.TAB },
+                { Keys.Space, OrbisGL.IME_KeyCode.SPACEBAR },
+                { Keys.OemMinus, OrbisGL.IME_KeyCode.MINUS },
+                { Keys.Oemplus, OrbisGL.IME_KeyCode.EQUAL },
+                { Keys.OemOpenBrackets, OrbisGL.IME_KeyCode.LEFTBRACKET },
+                { Keys.OemCloseBrackets, OrbisGL.IME_KeyCode.RIGHTBRACKET },
+                { Keys.OemBackslash, OrbisGL.IME_KeyCode.BACKSLASH },
+                { Keys.OemPipe, OrbisGL.IME_KeyCode.NONUS_POUND },
+                { Keys.OemSemicolon, OrbisGL.IME_KeyCode.SEMICOLON },
+                { Keys.OemQuotes, OrbisGL.IME_KeyCode.SINGLEQUOTE },
+                { Keys.Oemtilde, OrbisGL.IME_KeyCode.BACKQUOTE },
+                { Keys.Oemcomma, OrbisGL.IME_KeyCode.COMMA },
+                { Keys.OemPeriod, OrbisGL.IME_KeyCode.PERIOD },
+                { Keys.OemQuestion, OrbisGL.IME_KeyCode.SLASH },
+                { Keys.CapsLock, OrbisGL.IME_KeyCode.CAPSLOCK },
+                { Keys.CapsLock, OrbisGL.IME_KeyCode.CAPSLOCK },
+                { Keys.F1, OrbisGL.IME_KeyCode.F1 },
+                { Keys.F2, OrbisGL.IME_KeyCode.F2 },
+                { Keys.F3, OrbisGL.IME_KeyCode.F3 },
+                { Keys.F4, OrbisGL.IME_KeyCode.F4 },
+                { Keys.F5, OrbisGL.IME_KeyCode.F5 },
+                { Keys.F6, OrbisGL.IME_KeyCode.F6 },
+                { Keys.F7, OrbisGL.IME_KeyCode.F7 },
+                { Keys.F8, OrbisGL.IME_KeyCode.F8 },
+                { Keys.F9, OrbisGL.IME_KeyCode.F9 },
+                { Keys.F10, OrbisGL.IME_KeyCode.F10 },
+                { Keys.F11, OrbisGL.IME_KeyCode.F11 },
+                { Keys.F12, OrbisGL.IME_KeyCode.F12 },
+                { Keys.PrintScreen, OrbisGL.IME_KeyCode.PRINTSCREEN },
+                { Keys.Scroll, OrbisGL.IME_KeyCode.SCROLLLOCK },
+                { Keys.Pause, OrbisGL.IME_KeyCode.PAUSE },
+                { Keys.Insert, OrbisGL.IME_KeyCode.INSERT },
+                { Keys.Home, OrbisGL.IME_KeyCode.HOME },
+                { Keys.Delete, OrbisGL.IME_KeyCode.DELETE },
+                { Keys.End, OrbisGL.IME_KeyCode.END },
+                { Keys.PageUp, OrbisGL.IME_KeyCode.PAGEUP },
+                { Keys.PageDown, OrbisGL.IME_KeyCode.PAGEDOWN },
+                { Keys.NumLock, OrbisGL.IME_KeyCode.KEYPAD_NUMLOCK },
+                { Keys.NumPad0, OrbisGL.IME_KeyCode.KEYPAD_0 },
+                { Keys.NumPad1, OrbisGL.IME_KeyCode.KEYPAD_1 },
+                { Keys.NumPad2, OrbisGL.IME_KeyCode.KEYPAD_2 },
+                { Keys.NumPad3, OrbisGL.IME_KeyCode.KEYPAD_3 },
+                { Keys.NumPad4, OrbisGL.IME_KeyCode.KEYPAD_4 },
+                { Keys.NumPad5, OrbisGL.IME_KeyCode.KEYPAD_5 },
+                { Keys.NumPad6, OrbisGL.IME_KeyCode.KEYPAD_6 },
+                { Keys.NumPad7, OrbisGL.IME_KeyCode.KEYPAD_7 },
+                { Keys.NumPad8, OrbisGL.IME_KeyCode.KEYPAD_8 },
+                { Keys.NumPad9, OrbisGL.IME_KeyCode.KEYPAD_9 },
+                { Keys.Multiply, OrbisGL.IME_KeyCode.KEYPAD_MEMORY_MULTIPLY },
+                { Keys.Add, OrbisGL.IME_KeyCode.KEYPAD_MEMORY_ADD },
+                { Keys.Subtract, OrbisGL.IME_KeyCode.KEYPAD_MEMORY_SUBTRACT },
+                { Keys.Divide, OrbisGL.IME_KeyCode.KEYPAD_MEMORY_DIVIDE },
+                { Keys.Decimal, OrbisGL.IME_KeyCode.KEYPAD_DECIMAL },
+                { Keys.LShiftKey, OrbisGL.IME_KeyCode.LEFTSHIFT },
+                { Keys.RShiftKey, OrbisGL.IME_KeyCode.RIGHTSHIFT },
+                { Keys.LControlKey, OrbisGL.IME_KeyCode.LEFTCONTROL },
+                { Keys.RControlKey, OrbisGL.IME_KeyCode.RIGHTCONTROL },
+                { Keys.Alt, OrbisGL.IME_KeyCode.LEFTALT },
+                { Keys.RMenu, OrbisGL.IME_KeyCode.RIGHTALT },
+                { Keys.LWin, OrbisGL.IME_KeyCode.LEFTGUI },
+                { Keys.RWin, OrbisGL.IME_KeyCode.RIGHTGUI },
+                { Keys.Apps, OrbisGL.IME_KeyCode.APPLICATION },
+                { Keys.VolumeMute, OrbisGL.IME_KeyCode.MUTE },
+                { Keys.VolumeDown, OrbisGL.IME_KeyCode.VOLUMEDOWN },
+                { Keys.VolumeUp, OrbisGL.IME_KeyCode.VOLUMEUP }
+#endregion
+            };
+
+            public event KeyboardEventDelegate OnKeyDown;
+            public event KeyboardEventDelegate OnKeyUp;
+
+            public bool Initialize(int UserID = -1)
+            {
+                return true;
+            }
+
+            public void RefreshData()
+            {
+                
+            }
+
+            public void KeyDown(Keys Key, char? Char)
+            {
+                if (!KeyMap.ContainsKey(Key))
+                    return;
+
+                OnKeyDown.Invoke(this, new KeyboardEventArgs(KeyMap[Key], OrbisGL.IME_KeycodeState.VALID, Char));
+                //[WIP] Handle Key Modifier and get Key Character
+            }
         }
 #endif
     }

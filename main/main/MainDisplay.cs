@@ -12,7 +12,7 @@ namespace Orbis
         {
             InitializeComponents();
 #if ORBIS
-            EnabledKeyboard();
+            EnableKeyboard();
 #endif
         }
 
