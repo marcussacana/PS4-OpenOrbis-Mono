@@ -375,7 +375,7 @@ void main(void) {
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
-            var TB = new OrbisGL.Controls.TextBox(100, 18);
+            var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
 
             TB.Text = "Debug texbox test";
@@ -384,6 +384,7 @@ void main(void) {
             BG.AddChild(TB);
 
             GLControl.GLApplication.Objects.Add(BG);
+            GLControl.Focus();
 #endif
         }
     }

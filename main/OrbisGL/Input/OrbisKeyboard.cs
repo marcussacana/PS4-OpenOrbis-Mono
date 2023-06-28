@@ -6,7 +6,7 @@ using OrbisGL.GL;
 
 namespace OrbisGL.Input
 {
-    internal unsafe class OrbisKeyboard : IKeyboard
+    public unsafe class OrbisKeyboard : IKeyboard
     {
         public readonly static ILayout[] Layouts = new ILayout[]
         {

@@ -119,10 +119,15 @@ namespace OrbisGL.Controls
                 TypeWriter.OnTextChanged += TypeWriter_OnTextChanged;
                 TypeWriter.OnCaretMove += TypeWriter_OnCaretMove;
                 TypeWriter.OnComplete += TypeWriter_OnComplete;
+                TypeWriter.CurrentText = Text;
+                TypeWriter.CaretPosition = SelectionStart;
             }
 
-            TypeWriter.Enter(new Rectangle(Position.X, Position.Y, Size.X, Size.Y));
-            Typing = true;
+            if (TypeWriter != null)
+            {
+                TypeWriter.Enter(new Rectangle(Position.X, Position.Y, Size.X, Size.Y));
+                Typing = true;
+            }
 
             base.OnFocus(Sender, Args);
         }
@@ -136,14 +141,27 @@ namespace OrbisGL.Controls
         {
             SelectionStart = TypeWriter.CaretPosition;
             SelectionLength = 0;
+            Invalidate();
         }
 
         private void TypeWriter_OnTextChanged(object sender, EventArgs e)
         {
-            var RichText = TypeWriter.CurrentText.Replace("<", "<<");
-            RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
+            var RichText = string.Empty;
+            for (int i = 0; i < TypeWriter.CurrentText.Length; i++)
+            {
+                if (i == SelectionStart && TypeWriter.CurrentAccumulator != string.Empty)
+                    RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
+
+                if (TypeWriter.CurrentText[i] == '<')
+                {
+                    RichText += '<';
+                }
+
+                RichText += TypeWriter.CurrentText[i];
+            }
 
             Foreground.SetRichText(RichText);
+            Invalidate();
         }
         public RGBColor Highlight(RGBColor Color, byte Alpha)
         {
@@ -216,6 +234,22 @@ namespace OrbisGL.Controls
                 }
 
                 CaretPos.X = Foreground.Position.X + GlyphX;
+            }
+            else if (SelectionStart == Foreground.GlyphsSpace.Count && Foreground.GlyphsSpace.Any())
+            {
+                var LastGlyph = Foreground.GlyphsSpace.Last();
+                var GlyphX = LastGlyph.Area.X;
+                var GlyphMaxX = GlyphX + LastGlyph.Area.Width;
+
+                if (GlyphX < CurrentTextXOffset)
+                    SetDisplayOffset(GlyphX);
+
+                if (GlyphMaxX >= CurrentTextXOffset + ForegroundWidth)
+                {
+                    float DisplayX = GlyphMaxX - ForegroundWidth;
+                    SetDisplayOffset(DisplayX);
+                }
+                CaretPos.X = Foreground.Position.X + GlyphMaxX;
             }
 
             Caret.Position = CaretPos;

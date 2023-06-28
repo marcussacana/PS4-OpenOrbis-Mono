@@ -130,11 +130,12 @@ namespace OrbisGL.GL
                 UserService.GetInitialUser(out UserID);
             }
 
-            Keyboard = new OrbisKeyboard();
-            Keyboard.Initialize(UserID);
+            KeyboardDriver = new OrbisKeyboard();
 #endif
 
             KeyboardEnabled = true;
+
+            KeyboardDriver.Initialize(UserID);
 
             KeyboardDriver.OnKeyDown += (sender, args) =>
             {

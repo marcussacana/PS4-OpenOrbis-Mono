@@ -73,6 +73,8 @@ namespace OrbisGL.FreeTypeLib
             if (rc != 0)
                 return false;
 
+            FT_Select_Charmap(FontFace, FT_Encoding.Unicode);
+
             Face = FontFace;
 
             return SetFontSize(Face, FontSize);
@@ -299,5 +301,8 @@ namespace OrbisGL.FreeTypeLib
 
         [DllImport(FreeTypeLib)]
         private static extern unsafe uint FT_Get_Char_Index(FT_Face* face, char c);
+
+        [DllImport(FreeTypeLib)]
+        private static extern unsafe uint FT_Select_Charmap(FT_Face* face, FT_Encoding Encoding);
     }
 }

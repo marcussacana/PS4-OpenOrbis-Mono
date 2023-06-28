@@ -9,11 +9,12 @@ using System.Collections.Generic;
 
 using Application = OrbisGL.GL.Application;
 using MButtons = OrbisGL.MouseButtons;
+using System.Linq;
 
 namespace GLTest
 {
 
-    public partial class GLControl : Panel
+    public partial class GLControl : Control
     {
 #if !ORBIS
         public Application GLApplication;
@@ -70,21 +71,45 @@ namespace GLTest
                 if (MouseButtons.HasFlag(MouseButtons.Middle))
                     Buttons |= MButtons.Middle;
 
+                if (Buttons != 0 && DisplayRectangle.IntersectsWith(new Rectangle(Cursor.Position, new Size(1, 1))))
+                    Focus();
+
                 return Buttons;
             });
 
             GLApplication.KeyboardDriver = Keyboard = new DesktopKeyboard();
-        }
-        DesktopKeyboard Keyboard;
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (Keyboard != null)
-            {
-                Keyboard.KeyDown(e.KeyCode, e.);
-            }
+            GLApplication.EnableKeyboard();
 
-            base.OnKeyDown(e);
+            
         }
+
+        const int WM_KEYDOWN = 0x100;
+        const int WM_KEYUP = 0x101;
+        const int WM_CHAR = 0x102;
+        const int WM_SYSKEYDOWN = 0x0104;
+        const int WM_SYSKEYUP = 0x0105;
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            switch (msg.Msg)
+            {
+                case WM_SYSKEYDOWN:
+                case WM_KEYDOWN:
+                    if (Keyboard != null)
+                    {
+                        Keyboard.KeyDown(keyData);
+                        Keyboard.KeyUp(keyData);
+                        return true;
+                    }
+                    break;
+
+                case WM_SYSKEYUP:
+                case WM_KEYUP:
+                    break;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        DesktopKeyboard Keyboard;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -98,10 +123,9 @@ namespace GLTest
             Dictionary<Keys, OrbisGL.IME_KeyCode> KeyMap = new Dictionary<Keys, OrbisGL.IME_KeyCode>() 
             {
 #region Mapping
-                { Keys.Escape, OrbisGL.IME_KeyCode.ESCAPE },
                 { Keys.Up, OrbisGL.IME_KeyCode.UPARROW },
                 { Keys.Down, OrbisGL.IME_KeyCode.DOWNARROW },
-                { Keys.Left, OrbisGL.IME_KeyCode.LEFTALT },
+                { Keys.Left, OrbisGL.IME_KeyCode.LEFTARROW },
                 { Keys.Right, OrbisGL.IME_KeyCode.RIGHTARROW },
                 { Keys.A, OrbisGL.IME_KeyCode.A },
                 { Keys.B, OrbisGL.IME_KeyCode.B },
@@ -157,7 +181,6 @@ namespace GLTest
                 { Keys.OemPeriod, OrbisGL.IME_KeyCode.PERIOD },
                 { Keys.OemQuestion, OrbisGL.IME_KeyCode.SLASH },
                 { Keys.CapsLock, OrbisGL.IME_KeyCode.CAPSLOCK },
-                { Keys.CapsLock, OrbisGL.IME_KeyCode.CAPSLOCK },
                 { Keys.F1, OrbisGL.IME_KeyCode.F1 },
                 { Keys.F2, OrbisGL.IME_KeyCode.F2 },
                 { Keys.F3, OrbisGL.IME_KeyCode.F3 },
@@ -206,7 +229,9 @@ namespace GLTest
                 { Keys.Apps, OrbisGL.IME_KeyCode.APPLICATION },
                 { Keys.VolumeMute, OrbisGL.IME_KeyCode.MUTE },
                 { Keys.VolumeDown, OrbisGL.IME_KeyCode.VOLUMEDOWN },
-                { Keys.VolumeUp, OrbisGL.IME_KeyCode.VOLUMEUP }
+                { Keys.VolumeUp, OrbisGL.IME_KeyCode.VOLUMEUP },
+                { Keys.ControlKey | Keys.Control, OrbisGL.IME_KeyCode.LEFTCONTROL },
+                { Keys.Shift | Keys.ShiftKey, OrbisGL.IME_KeyCode.LEFTSHIFT }
 #endregion
             };
 
@@ -215,6 +240,7 @@ namespace GLTest
 
             public bool Initialize(int UserID = -1)
             {
+                Application.PhysicalKeyboardAvailable = true;
                 return true;
             }
 
@@ -223,13 +249,62 @@ namespace GLTest
                 
             }
 
-            public void KeyDown(Keys Key, char? Char)
+            public OrbisGL.Input.Layouts.ILayout Layout = OrbisKeyboard.Layouts.First();
+
+
+            const Keys ModifierMask = (Keys.Shift | Keys.Control);
+
+            public void KeyDown(Keys Key)
             {
-                if (!KeyMap.ContainsKey(Key))
-                    return;
+                Keys Modifiers = Key & ModifierMask;
+
+                if (Key == 0)
+                    Key = Modifiers;
+
+                if (!KeyMap.ContainsKey(Key)) {
+                    Key &= ~Modifiers;
+                    if (!KeyMap.ContainsKey(Key))
+                        return;
+                }
+
+                var Modifier = new OrbisGL.IMEKeyModifier() 
+                {
+                    Code = KeyMap[Key],
+                    Alt = Modifiers.HasFlag(Keys.Alt) | Modifiers.HasFlag(Keys.RMenu),
+                    Shift = Modifiers.HasFlag(Keys.Shift) | Modifiers.HasFlag(Keys.RShiftKey) | Modifiers.HasFlag(Keys.LShiftKey),
+                    NumLock = Modifiers.HasFlag(Keys.NumLock)
+                };
+
+                var Char = Layout.GetKeyChar(Modifier);
 
                 OnKeyDown.Invoke(this, new KeyboardEventArgs(KeyMap[Key], OrbisGL.IME_KeycodeState.VALID, Char));
-                //[WIP] Handle Key Modifier and get Key Character
+            }
+            public void KeyUp(Keys Key)
+            {
+                Keys Modifiers = Key & ModifierMask;
+
+                if (Key == 0)
+                    Key = Modifiers;
+
+                if (!KeyMap.ContainsKey(Key))
+                {
+                    Key &= ~Modifiers;
+                    if (!KeyMap.ContainsKey(Key))
+                        return;
+                }
+
+                var Modifier = new OrbisGL.IMEKeyModifier()
+                {
+                    Code = KeyMap[Key],
+                    Alt = Modifiers.HasFlag(Keys.Alt) | Modifiers.HasFlag(Keys.RMenu),
+                    Shift = Modifiers.HasFlag(Keys.Shift) | Modifiers.HasFlag(Keys.RShiftKey) | Modifiers.HasFlag(Keys.LShiftKey),
+                    NumLock = Modifiers.HasFlag(Keys.NumLock)
+                };
+
+
+                var Char = Layout.GetKeyChar(Modifier);
+
+                OnKeyUp.Invoke(this, new KeyboardEventArgs(KeyMap[Key], OrbisGL.IME_KeycodeState.VALID, Char));
             }
         }
 #endif
