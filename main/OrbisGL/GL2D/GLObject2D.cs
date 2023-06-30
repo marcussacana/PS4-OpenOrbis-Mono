@@ -93,15 +93,25 @@ namespace OrbisGL.GL2D
 
         protected void SetChildrenVisibleRectangle(float X, float Y, int Width, int Height)
         {
+            float RectangleLeft = X + Width;
+            float RectangleBottom = Y + Height;
+
             foreach (var Child in Childs)
             {
+                float ChildRectLeft = Child.Position.X + Child.Width;
+                float ChildRectBottom = Child.Position.Y + Child.Height;
+
                 float ChildX = Math.Max(0, X - Child.Position.X);
                 float ChildY = Math.Max(0, Y - Child.Position.Y);
 
-                int ChildWidth = Math.Min(Child.Width, Width - (int)Child.Position.X);
-                int ChildHeight = Math.Min(Child.Height, Height - (int)Child.Position.Y);
+                float XOverflow = Math.Max(ChildRectLeft - RectangleLeft, 0);
+                float YOverflow = Math.Max(RectangleBottom - ChildRectBottom, 0);
 
-                Child.SetVisibleRectangle(ChildX, ChildY, ChildWidth, ChildHeight);
+
+                int ChildLeft = Math.Min(Child.Width, (int)(Child.Width - XOverflow));
+                int ChildBottom = Math.Min(Child.Height, (int)(Child.Height - YOverflow));
+
+                Child.SetVisibleRectangle(ChildX, ChildY, ChildLeft - (int)ChildX, ChildBottom - (int)ChildY);
             }
         }
 
