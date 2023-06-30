@@ -147,17 +147,22 @@ namespace OrbisGL.Controls
         private void TypeWriter_OnTextChanged(object sender, EventArgs e)
         {
             var RichText = string.Empty;
-            for (int i = 0; i < TypeWriter.CurrentText.Length; i++)
+            for (int i = 0; i <= TypeWriter.CurrentText.Length; i++)
             {
                 if (i == SelectionStart && TypeWriter.CurrentAccumulator != string.Empty)
-                    RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
-
-                if (TypeWriter.CurrentText[i] == '<')
                 {
-                    RichText += '<';
+                    RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
                 }
 
-                RichText += TypeWriter.CurrentText[i];
+                if (i >= TypeWriter.CurrentText.Length)
+                    continue;
+
+                char CurrentChar = TypeWriter.CurrentText[i];
+
+                if (CurrentChar == '<')
+                    RichText += '<';
+
+                RichText += CurrentChar;
             }
 
             Foreground.SetRichText(RichText);
@@ -213,14 +218,20 @@ namespace OrbisGL.Controls
                 }
             });
 
+            //Update Text Visible Range
+            SetDisplayOffset(CurrentTextXOffset);
+
             //Update TextBox Caret
             Caret.Color = ForegroundColor;
 
             Vector2 CaretPos = new Vector2(TextMargin, TextMargin);
 
-            if (SelectionStart >= 0 && SelectionStart < Foreground.GlyphsSpace.Count)
+
+            //Update the Caret and Display position
+            int GlyphInCaret = SelectionStart;// + (TypeWriter?.CurrentAccumulator?.Length??0);
+            if (GlyphInCaret >= 0 && GlyphInCaret < Foreground.GlyphsSpace.Count)
             {
-                var CurrentGlyph = Foreground.GlyphsSpace[SelectionStart];
+                var CurrentGlyph = Foreground.GlyphsSpace[GlyphInCaret];
                 var GlyphX = CurrentGlyph.Area.X;
                 var GlyphMaxX = GlyphX + CurrentGlyph.Area.Width;
 
@@ -235,7 +246,7 @@ namespace OrbisGL.Controls
 
                 CaretPos.X = Foreground.Position.X + GlyphX;
             }
-            else if (SelectionStart == Foreground.GlyphsSpace.Count && Foreground.GlyphsSpace.Any())
+            else if (GlyphInCaret == Foreground.GlyphsSpace.Count && Foreground.GlyphsSpace.Any())
             {
                 var LastGlyph = Foreground.GlyphsSpace.Last();
                 var GlyphX = LastGlyph.Area.X;
@@ -255,21 +266,20 @@ namespace OrbisGL.Controls
             Caret.Position = CaretPos;
 
 
-            //Update Text Visible Range
-            SetDisplayOffset(CurrentTextXOffset);
 
             Invalidated = false;
         }
 
         int ForegroundWidth => (int)Size.X - (TextMargin * 2);
+        int ForegroundHeight => (int)Size.Y - (TextMargin * 2);
 
         private void SetDisplayOffset(float X)
         {
-            X = Math.Min(Foreground.Width - (Size.X - (TextMargin * 2f)), X);
+            X = Math.Min(Foreground.Width - ForegroundWidth, X);
             X = Math.Max(0, X);
 
 
-            Foreground.SetVisibleRectangle(X, 0, ForegroundWidth, (int)Size.Y - (TextMargin * 2));
+            Foreground.SetVisibleRectangle(X, 0, ForegroundWidth, ForegroundHeight);
             Foreground.Position = new Vector2(-X + TextMargin, TextMargin);
 
             CurrentTextXOffset = X;

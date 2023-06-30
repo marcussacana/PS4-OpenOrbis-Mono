@@ -188,17 +188,6 @@ namespace OrbisGL.Input
             if (Args.KeyChar == null)
                 return;
 
-            if (CombiningMap.ContainsKey((char)Args.KeyChar))
-            {
-                CurrentAccumulator += (char)Args.KeyChar;
-                InternalAccumulator += CombiningMap[(char)Args.KeyChar].ToString();
-                AccumulatorCaret++;
-
-                OnTextChanged?.Invoke(this, new EventArgs());
-                OnCaretMove?.Invoke(this, new EventArgs());
-                return;
-            }
-
             if (Args.KeyChar == '\n' && !Multiline)
             {
                 OnComplete?.Invoke(this, new EventArgs());
@@ -219,13 +208,24 @@ namespace OrbisGL.Input
                 }
                 else
                 {
-                    CurrentText = CurrentText.Insert(CurrentCaret, InternalAccumulator);
+                    CurrentText = CurrentText.Insert(CurrentCaret, CurrentAccumulator);
                     CurrentCaret += 2;
                 }
 
                 CurrentAccumulator = string.Empty;
                 InternalAccumulator = string.Empty; 
                 AccumulatorCaret = 0;
+
+                OnTextChanged?.Invoke(this, new EventArgs());
+                OnCaretMove?.Invoke(this, new EventArgs());
+                return;
+            }
+
+            if (CombiningMap.ContainsKey((char)Args.KeyChar))
+            {
+                CurrentAccumulator += (char)Args.KeyChar;
+                InternalAccumulator += CombiningMap[(char)Args.KeyChar].ToString();
+                AccumulatorCaret++;
 
                 OnTextChanged?.Invoke(this, new EventArgs());
                 OnCaretMove?.Invoke(this, new EventArgs());
