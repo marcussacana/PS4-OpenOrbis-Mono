@@ -105,13 +105,15 @@ namespace OrbisGL.GL2D
                 float ChildY = Math.Max(0, Y - Child.Position.Y);
 
                 float XOverflow = Math.Max(ChildRectLeft - RectangleLeft, 0);
-                float YOverflow = Math.Max(RectangleBottom - ChildRectBottom, 0);
-
+                float YOverflow = Math.Max(ChildRectBottom - RectangleBottom, 0);
 
                 int ChildLeft = Math.Min(Child.Width, (int)(Child.Width - XOverflow));
                 int ChildBottom = Math.Min(Child.Height, (int)(Child.Height - YOverflow));
 
-                Child.SetVisibleRectangle(ChildX, ChildY, ChildLeft - (int)ChildX, ChildBottom - (int)ChildY);
+                int ChildWidth = ChildLeft - (int)ChildX;
+                int ChildHeight = ChildBottom - (int)ChildY;
+
+                Child.SetVisibleRectangle(ChildX, ChildY, ChildWidth, ChildHeight);
             }
         }
 
