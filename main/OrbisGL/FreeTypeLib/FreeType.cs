@@ -300,7 +300,7 @@ namespace OrbisGL.FreeTypeLib
         private static extern unsafe int FT_Get_Glyph(FT_GlyphSlot* Slot, FT_GlyphRec* Glyph);
 
         [DllImport(FreeTypeLib)]
-        private static extern unsafe uint FT_Get_Char_Index(FT_Face* face, char c);
+        private static extern unsafe uint FT_Get_Char_Index(FT_Face* face, int c);
 
         [DllImport(FreeTypeLib)]
         private static extern unsafe uint FT_Select_Charmap(FT_Face* face, FT_Encoding Encoding);
