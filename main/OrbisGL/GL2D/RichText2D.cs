@@ -10,6 +10,8 @@ namespace OrbisGL.GL2D
     public class RichText2D : GLObject2D
     {
         public RGBColor FontColor { get; set; } = RGBColor.White;
+        public RGBColor BackColor { get; set; } = null;
+
         public int FontSize { get; set; }
         public bool Bold { get; set; }
         public bool Italic { get; set; }
@@ -36,6 +38,7 @@ namespace OrbisGL.GL2D
 
         //<font=Font file name.ttf></font>  - Search the Font in directories defined in FreeType.FontSearchDirectories
         //<color=FFFFFF></color>            - Set the font color as RGB
+        //<backcolor=FFFFFF></backcolor>    - Set the text background color as RGB
         //<size=28></size>                  - Set the font size
         //<align=center></align>            - Set the line alignment, valid values: top|bottom|left|right|center|verticalcenter|horizontalcenter
 
@@ -54,11 +57,13 @@ namespace OrbisGL.GL2D
             Text = string.Empty;
 
             sColors.Clear();
+            sBackColors.Clear();
             sFontSize.Clear();
             sFont.Clear();
 
             LinesInfoList.Clear();
 
+            sBackColors.Push(BackColor);
             sColors.Push(FontColor);
             sFontSize.Push(FontSize);
             sFont.Push(Font);
@@ -207,6 +212,7 @@ namespace OrbisGL.GL2D
         List<LineInfo> LinesInfoList = new List<LineInfo>();
 
         Stack<RGBColor> sColors = new Stack<RGBColor>();
+        Stack<RGBColor> sBackColors = new Stack<RGBColor>();
         Stack<int> sFontSize = new Stack<int>();
         Stack<FontFaceHandler> sFont = new Stack<FontFaceHandler>();
 
@@ -293,12 +299,14 @@ namespace OrbisGL.GL2D
 
             //Peek the current Font style, the alignment is a post-process
             var CurrentColor = sColors.Peek();
+            var CurrentBackColor = sBackColors.Peek();
             var CurrentFace = sFont.Peek();
             var CurrentSize = sFontSize.Peek();
 
             //Create the text fragment in the current style
             var TextFragment = new Text2D(CurrentFace, CurrentSize);
             TextFragment.Color = CurrentColor;
+            TextFragment.BackgroundColor = CurrentBackColor;
             TextFragment.Position = new Vector2(XOffset, YOffset);
             TextFragment.SetText(Accumulator);
 
@@ -445,6 +453,7 @@ namespace OrbisGL.GL2D
 
             //Undo Style changes
             sColors.Pop();
+            sBackColors.Pop();
             sFont.Pop();
             sFontSize.Pop();
 
@@ -464,10 +473,18 @@ namespace OrbisGL.GL2D
                     sFont.Push(sFont.Peek());
                     sFontSize.Push(sFontSize.Peek());
                     sColors.Push(new RGBColor(Value));
+                    sBackColors.Push(sBackColors.Peek());
+                    break;
+                case "backcolor":
+                    sFont.Push(sFont.Peek());
+                    sFontSize.Push(sFontSize.Peek());
+                    sColors.Push(sBackColors.Peek());
+                    sBackColors.Push(new RGBColor(Value));
                     break;
                 case "size":
                     sFont.Push(sFont.Peek());
                     sColors.Push(sColors.Peek());
+                    sBackColors.Push(sBackColors.Peek());
                     sFontSize.Push(ValueAsInt);
                     break;
                 case "font":
@@ -475,6 +492,7 @@ namespace OrbisGL.GL2D
 
                     sFontSize.Push(sFontSize.Peek());
                     sColors.Push(sColors.Peek());
+                    sBackColors.Push(sBackColors.Peek());
                     sFont.Push(Success ? NewFont : sFont.Peek());                    
                     break;
                 case "align":
@@ -510,6 +528,7 @@ namespace OrbisGL.GL2D
                     sFont.Push(sFont.Peek());
                     sColors.Push(sColors.Peek());
                     sFontSize.Push(sFontSize.Peek());
+                    sBackColors.Push(sBackColors.Peek());
                     break;
             }
         }

@@ -313,7 +313,7 @@ void main(void) {
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
 
-            RT2D.SetRichText("<align=horizontal>Hello <color=0f0>World</color></align>\n<align=vertical>Testing<size=48> simple </size><font=Inkfree.ttf>rich</font> <color=F00>text</color></align>");
+            RT2D.SetRichText("<align=horizontal>Hello <backcolor=f00><color=0f0>World</color></backcolor></align>\n<align=vertical>Testing<size=48> simple </size><font=Inkfree.ttf>rich</font> <color=F00>text</color></align>");
 
             foreach (var Glyph in RT2D.GlyphsSpace)
             {
