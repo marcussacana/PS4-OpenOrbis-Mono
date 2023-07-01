@@ -162,6 +162,7 @@ namespace OrbisGL.Controls
             bool SelectionStarted = false;
             for (int i = 0; i <= TypeWriter.CurrentText.Length; i++)
             {
+                //Apply the style if the current text is inside the selection range
                 bool InSelection = i >= SelectionStart && i < SelectionStart + SelectionLength;
 
                 if (InSelection && !SelectionStarted && SelectionLength > 0)
@@ -176,22 +177,29 @@ namespace OrbisGL.Controls
                     SelectionStarted = false;
                 }
 
+                //The current text is in accumulator
                 if (i == SelectionStart && TypeWriter.CurrentAccumulator != string.Empty)
                 {
                     RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
                 }
 
+
                 if (i >= TypeWriter.CurrentText.Length)
                     continue;
 
+                //Get the next character
                 char CurrentChar = TypeWriter.CurrentText[i];
 
+                //Escape the '<' character
                 if (CurrentChar == '<')
                     RichText += '<';
 
+                //Append the character to the rich text
                 RichText += CurrentChar;
             }
 
+
+            //Close selection style if not closed
             if (SelectionStarted)
             {
                 RichText += "</color></backcolor>";
@@ -242,7 +250,7 @@ namespace OrbisGL.Controls
             FocusIndicator.Transparency = Focused ? (byte)255 : (byte)60;
             FocusIndicator.Color = Focused ? PrimaryBackgroundColor : ForegroundColor;
 
-            FocusIndicator.SetLines(new Line[] { 
+            FocusIndicator.SetLines(new Line[] {
                 new Line()
                 {
                     Begin = new Vector2(5, Size.Y - 1),
@@ -260,46 +268,58 @@ namespace OrbisGL.Controls
 
 
             //Update the Caret and Display position
-            int GlyphInCaret = SelectionStart;// + (TypeWriter?.CurrentAccumulator?.Length??0);
-            if (GlyphInCaret >= 0 && GlyphInCaret < Foreground.GlyphsSpace.Count)
-            {
-                var CurrentGlyph = Foreground.GlyphsSpace[GlyphInCaret];
-                var GlyphX = CurrentGlyph.Area.X;
-                var GlyphMaxX = GlyphX + CurrentGlyph.Area.Width;
-
-                if (GlyphX < CurrentTextXOffset)
-                    SetDisplayOffset(GlyphX);
-
-                if (GlyphMaxX >= CurrentTextXOffset + ForegroundWidth)
-                {
-                    float DisplayX = GlyphMaxX - ForegroundWidth;
-                    SetDisplayOffset(DisplayX);
-                }
-
-                CaretPos.X = Foreground.Position.X + GlyphX;
-            }
-            else if (GlyphInCaret == Foreground.GlyphsSpace.Count && Foreground.GlyphsSpace.Any())
-            {
-                var LastGlyph = Foreground.GlyphsSpace.Last();
-                var GlyphX = LastGlyph.Area.X;
-                var GlyphMaxX = GlyphX + LastGlyph.Area.Width;
-
-                if (GlyphX < CurrentTextXOffset)
-                    SetDisplayOffset(GlyphX);
-
-                if (GlyphMaxX >= CurrentTextXOffset + ForegroundWidth)
-                {
-                    float DisplayX = GlyphMaxX - ForegroundWidth;
-                    SetDisplayOffset(DisplayX);
-                }
-                CaretPos.X = Foreground.Position.X + GlyphMaxX;
-            }
+            CaretPos = RefreshCaretAndEnsureVisible(CaretPos);
 
             Caret.Position = CaretPos;
 
 
 
             Invalidated = false;
+        }
+
+        private Vector2 RefreshCaretAndEnsureVisible(Vector2 CaretPos)
+        {
+            var Glyphs = Foreground.GlyphsSpace;
+            int GlyphInCaret = SelectionStart;
+            bool CaretOnEnd = false;
+
+            GlyphInfo CurrentGlyph;
+
+            if (GlyphInCaret >= 0 && GlyphInCaret < Glyphs.Count) //Caret in the begin or middle of the text
+            {
+                CurrentGlyph = Glyphs[GlyphInCaret];
+            }
+            else if (GlyphInCaret == Glyphs.Count && Glyphs.Any()) //Caret in the end of the text
+            {
+                CurrentGlyph = Glyphs.Last();
+                CaretOnEnd = true;
+            }
+            else //Caret out of bound
+            {
+                return CaretPos;
+            }
+
+            var GlyphX = CurrentGlyph.Area.X;
+            var GlyphMaxX = GlyphX + CurrentGlyph.Area.Width;
+
+            EnsureGlyphVisible(GlyphX, GlyphMaxX);
+
+            //Update Caret Position
+            CaretPos.X = Foreground.Position.X + (CaretOnEnd ? GlyphMaxX : GlyphX);
+
+            return CaretPos;
+        }
+
+        private void EnsureGlyphVisible(float GlyphX, float GlyphMaxX)
+        {
+            if (GlyphX < CurrentTextXOffset)
+                SetDisplayOffset(GlyphX);
+
+            if (GlyphMaxX >= CurrentTextXOffset + ForegroundWidth)
+            {
+                float DisplayX = GlyphMaxX - ForegroundWidth;
+                SetDisplayOffset(DisplayX);
+            }
         }
 
         int ForegroundWidth => (int)Size.X - (TextMargin * 2);
