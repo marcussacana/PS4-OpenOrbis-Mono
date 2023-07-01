@@ -11,6 +11,7 @@ namespace OrbisGL.Input
         string CurrentText { get; set; }
         string CurrentAccumulator { get; set; }
         int CaretPosition { get; set; }
+        int SelectionLength { get; set; }
         void Enter(Rectangle TextArea);
     }
 }

@@ -139,16 +139,43 @@ namespace OrbisGL.Controls
 
         private void TypeWriter_OnCaretMove(object sender, EventArgs e)
         {
+            bool MustRefreshRichText = SelectionLength != TypeWriter.SelectionLength;
+
             SelectionStart = TypeWriter.CaretPosition;
-            SelectionLength = 0;
+            SelectionLength = TypeWriter.SelectionLength;
+
+            if (MustRefreshRichText)
+                RefreshRichText();
+
             Invalidate();
         }
 
         private void TypeWriter_OnTextChanged(object sender, EventArgs e)
         {
+            RefreshRichText();
+            Invalidate();
+        }
+
+        private void RefreshRichText()
+        {
             var RichText = string.Empty;
+            bool SelectionStarted = false;
             for (int i = 0; i <= TypeWriter.CurrentText.Length; i++)
             {
+                bool InSelection = i >= SelectionStart && i < SelectionStart + SelectionLength;
+
+                if (InSelection && !SelectionStarted && SelectionLength > 0)
+                {
+                    RichText += $"<backcolor={Highlight(PrimaryBackgroundColor, 200).AsHex()}><color={PrimaryForegroundColor.AsHex()}>";
+                    SelectionStarted = true;
+                }
+
+                if (!InSelection && SelectionStarted)
+                {
+                    RichText += "</color></backcolor>";
+                    SelectionStarted = false;
+                }
+
                 if (i == SelectionStart && TypeWriter.CurrentAccumulator != string.Empty)
                 {
                     RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
@@ -165,9 +192,14 @@ namespace OrbisGL.Controls
                 RichText += CurrentChar;
             }
 
+            if (SelectionStarted)
+            {
+                RichText += "</color></backcolor>";
+            }
+
             Foreground.SetRichText(RichText);
-            Invalidate();
         }
+
         public RGBColor Highlight(RGBColor Color, byte Alpha)
         {
             if (Color.R + Color.G + Color.B / 3 > 255 / 2)
