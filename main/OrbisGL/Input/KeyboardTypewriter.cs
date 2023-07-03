@@ -220,6 +220,14 @@ namespace OrbisGL.Input
                     }
                     if (CurrentText != string.Empty)
                     {
+                        if (SelectionLength > 0)
+                        {
+                            ReplaceSelection();
+                            OnTextChanged?.Invoke(this, new EventArgs());
+                            OnCaretMove?.Invoke(this, new EventArgs());
+                            return;
+                        }
+
                         CurrentText = RemoveAt(CurrentText, CurrentCaret);
                         CurrentCaret--;
 
@@ -358,6 +366,7 @@ namespace OrbisGL.Input
 
         private void ReplaceSelection()
         {
+            int SelLen = Math.Min(SelectionLength - CurrentCaret, CurrentText.Length);
             if (SelectionLength > 0)
             {
                 CurrentText = CurrentText.Remove(CurrentCaret, SelectionLength);

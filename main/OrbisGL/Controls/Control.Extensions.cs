@@ -12,7 +12,7 @@ namespace OrbisGL.Controls
         public Vector2 ToRelativeCoordinates(Vector2 AbsoluteCoordinates)
         {
             if (Parent != null)
-                return AbsoluteCoordinates - Parent.AbsolutePosition;
+                return AbsoluteCoordinates - AbsolutePosition;
 
             return AbsoluteCoordinates;
         }
@@ -20,7 +20,7 @@ namespace OrbisGL.Controls
         public Vector2 ToAbsoluteCoordinates(Vector2 RelativeCoordinates)
         {
             if (Parent != null)
-                return Parent.AbsolutePosition + RelativeCoordinates;
+                return AbsolutePosition + RelativeCoordinates;
 
             return RelativeCoordinates;
         }

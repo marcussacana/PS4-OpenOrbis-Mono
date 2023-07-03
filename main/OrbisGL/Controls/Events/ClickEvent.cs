@@ -6,6 +6,10 @@ namespace OrbisGL.Controls.Events
     public class ClickEventArgs : PropagableEventArgs
     {
         public MouseButtons Type { get; }
+
+        /// <summary>
+        /// Absolute Cursor Position when the Event Occurs
+        /// </summary>
         public Vector2 Position { get; }
 
         public bool DoubleClick { get; }

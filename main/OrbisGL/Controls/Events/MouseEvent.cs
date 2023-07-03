@@ -7,9 +7,13 @@ namespace OrbisGL.Controls.Events
 
     public class MouseEventArgs : PropagableEventArgs
     {
-        public Vector2 CursorPosition { get; }
+        /// <summary>
+        /// Absolute Cursor Position when the Event Occurs
+        /// </summary>
+        public Vector2 Position { get; }
+
         public MouseEventArgs(Vector2 Cursor) {
-            CursorPosition = Cursor;
+            Position = Cursor;
         }
     }
 }

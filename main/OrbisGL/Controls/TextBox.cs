@@ -93,10 +93,145 @@ namespace OrbisGL.Controls
 
             OnKeyDown += TextBox_OnKeyDown;
             OnKeyUp += TextBox_OnKeyUp;
+
+            OnMouseButtonDown += MouseButtonDown;
+            OnMouseButtonUp += MouseButtonUp;
+            OnMouseMove += MouseMoved;
+        }
+
+
+        bool ButtonDown = false;
+        Vector2 ClickBeginCursorPosition;
+        Vector2 CurrentCursorPosition;
+        int ClickBeginIndex = -1;
+        int CurrentClickIndex = -1;
+
+        private void MouseButtonDown(object Sender, ClickEventArgs EventArgs)
+        {
+            if (EventArgs.Type != MouseButtons.Left)
+                return;
+
+            if (!Rectangle.IsInBounds(EventArgs.Position))
+                return;
+
+            var RelativeClick = ToRelativeCoordinates(EventArgs.Position);
+
+            ButtonDown = true;
+            CurrentCursorPosition = ClickBeginCursorPosition = RelativeClick;
+            ClickBeginIndex = CurrentClickIndex = GetIndexByPosition(RelativeClick);
+
+            EventArgs.Handled = true;
+        }
+        private void MouseMoved(object Sender, MouseEventArgs EventArgs)
+        {
+            if (!ButtonDown)
+                return;
+
+            var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
+            bool Moved = IsCursorMoved(RelativeCursor);
+
+            if (Moved)
+            {
+                var CurrentIndex = GetIndexByPosition(RelativeCursor);
+                if (ClickBeginIndex != CurrentIndex && CurrentIndex > -1)
+                {
+                    int SelectionStart = Math.Min(ClickBeginIndex, CurrentIndex);
+                    int SelectionEnd = Math.Max(ClickBeginIndex, CurrentIndex);
+
+                    int SelectionLength = SelectionEnd - SelectionStart;
+
+                    CurrentClickIndex = CurrentIndex;
+
+                    //Selection Length has no event therefore must be set first
+                    //The selection will be refreshed in the CaretPosition Changed Event
+                    TypeWriter.SelectionLength = SelectionLength;
+                    TypeWriter.CaretPosition = SelectionStart;
+                }
+            }
+
+            EventArgs.Handled = true;
+        }
+
+        private void MouseButtonUp(object Sender, ClickEventArgs EventArgs)
+        {
+            if (EventArgs.Type != MouseButtons.Left)
+                return;
+
+            var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
+            bool Moved = IsCursorMoved(RelativeCursor);
+
+            ButtonDown = false;
+
+            if (!Moved)
+            {
+                var CurrentIndex = GetIndexByPosition(RelativeCursor);
+
+                if (CurrentIndex > -1)
+                {
+                    CurrentClickIndex = CurrentIndex;
+
+                    //Selection Length has no event therefore must be set first
+                    //The selection will be refreshed in the CaretPosition Changed Event
+                    TypeWriter.SelectionLength = 0;
+                    TypeWriter.CaretPosition = CurrentIndex;
+                }
+            }
+
+            EventArgs.Handled = true;
+        }
+
+        private bool IsCursorMoved(Vector2 RelativeCursor)
+        {
+            var DistanceVector = RelativeCursor - CurrentCursorPosition;
+
+            DistanceVector.X = Math.Abs(DistanceVector.X);
+            DistanceVector.Y = Math.Abs(DistanceVector.Y);
+
+            float Distance = DistanceVector.X + DistanceVector.Y;
+
+            bool Moved = Distance > 3;
+            return Moved;
+        }
+
+        public int GetIndexByPosition(Vector2 Position)
+        {
+            if (Foreground == null)
+                return -1;
+
+            var TextRelativePos = Position - Foreground.Position;
+
+            //Check if the click is over an glyph
+            var TargetGlyph = Foreground.GlyphsSpace
+                .Select((x,i) => new KeyValuePair<int, GlyphInfo>(i, x))
+                .Where(x => x.Value.Area.IsInBounds(TextRelativePos));
+
+            //If not get the nearest glyph of the given click offset
+            if (!TargetGlyph.Any())
+                TargetGlyph = Foreground.GlyphsSpace
+                .Select((x, i) => new KeyValuePair<int, GlyphInfo>(i, x))
+                .OrderBy(x => Math.Abs(GetGlyphCenterX(x.Value) - TextRelativePos.X));
+
+            if (!TargetGlyph.Any())
+                return -1;
+
+            //Check if the click is near of the left or right side of the glyph
+            var Glyph = TargetGlyph.First();
+            var HalfX = GetGlyphCenterX(Glyph.Value);
+            if (Position.X <= HalfX)
+            {
+                return Glyph.Key;
+            }
+
+            return Glyph.Key + 1;
+        }
+        float GetGlyphCenterX(GlyphInfo Glyph)
+        {
+            return (Glyph.Area.X + (Glyph.Area.Width / 2)) + TextMargin - CurrentTextXOffset;
         }
 
         private void TextBox_OnKeyDown(object Sender, KeyboardEventArgs Args)
         {
+            ButtonDown = false;
             if (TypeWriter is KeyboardTypewriter Keyboard)
             {
                 Keyboard.OnKeyDown(Args);
@@ -105,6 +240,7 @@ namespace OrbisGL.Controls
 
         private void TextBox_OnKeyUp(object Sender, KeyboardEventArgs Args)
         {
+            ButtonDown = false;
             if (TypeWriter is KeyboardTypewriter Keyboard)
             {
                 Keyboard.OnKeyUp(Args);
@@ -266,7 +402,6 @@ namespace OrbisGL.Controls
 
             Vector2 CaretPos = new Vector2(TextMargin, TextMargin);
 
-
             //Update the Caret and Display position
             CaretPos = RefreshCaretAndEnsureVisible(CaretPos);
 
@@ -280,7 +415,7 @@ namespace OrbisGL.Controls
         private Vector2 RefreshCaretAndEnsureVisible(Vector2 CaretPos)
         {
             var Glyphs = Foreground.GlyphsSpace;
-            int GlyphInCaret = SelectionStart;
+            int GlyphInCaret = ButtonDown ? CurrentClickIndex : SelectionStart;
             bool CaretOnEnd = false;
 
             GlyphInfo CurrentGlyph;

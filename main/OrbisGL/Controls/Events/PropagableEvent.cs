@@ -8,6 +8,9 @@ namespace OrbisGL.Controls.Events
 {
     public class PropagableEventArgs : EventArgs
     {
+        /// <summary>
+        /// When true, stops the event propagation to the parent controller
+        /// </summary>
         public bool Handled { get; set; }
     }
 }
