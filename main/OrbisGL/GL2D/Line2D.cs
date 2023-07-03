@@ -71,7 +71,7 @@ namespace OrbisGL.GL2D
             base.RefreshVertex();
         }
 
-        public override void SetVisibleRectangle(float X, float Y, int Width, int Height)
+        public override void SetVisibleRectangle(Rectangle Rectangle)
         {
             ClearBuffers();
 
@@ -80,14 +80,14 @@ namespace OrbisGL.GL2D
                 var vBegin = Line.Begin;
                 var vEnd = Line.End;
 
-                bool Intersected = Extend(new Rectangle(X, Y, Width, Height), ref vBegin, ref vEnd);
+                bool Intersected = Extend(Rectangle, ref vBegin, ref vEnd);
 
                 if (!Intersected) {
 
-                    if (vBegin.X < X || vBegin.X > X + Width || vBegin.Y < Y || vBegin.Y > Y + Height)
+                    if (Rectangle.IsInBounds(vBegin))
                         continue;
 
-                    if (vEnd.X < X || vEnd.X > X + Width || vEnd.Y < Y || vEnd.Y > Y + Height)
+                    if (Rectangle.IsInBounds(vEnd))
                         continue;
                 }
 
@@ -97,7 +97,7 @@ namespace OrbisGL.GL2D
                 AddArray(Begin, End);
             }
 
-            SetChildrenVisibleRectangle(X, Y, Width, Height);
+            SetChildrenVisibleRectangle(Rectangle);
         }
 
 

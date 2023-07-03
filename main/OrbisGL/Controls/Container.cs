@@ -1,4 +1,6 @@
-﻿namespace OrbisGL.Controls
+﻿using OrbisGL.GL;
+
+namespace OrbisGL.Controls
 {
     public class Container : Control
     {
@@ -70,7 +72,7 @@
                     continue;
                 }
 
-                Child.SetVisibleArea(VisibleX, VisibleY, VisibleWidth, VisibleHeight);
+                Child.SetVisibleArea(new Rectangle(VisibleX, VisibleY, VisibleWidth, VisibleHeight));
             }
 
             Invalidated = false;

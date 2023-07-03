@@ -65,7 +65,7 @@ namespace OrbisGL.GL2D
             base.RefreshVertex();
         }
 
-        public override void SetVisibleRectangle(float X, float Y, int Width, int Height)
+        public override void SetVisibleRectangle(Rectangle Rectangle)
         {
             ClearBuffers();
 
@@ -75,10 +75,10 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
-            AddArray(XToPoint(X), YToPoint(Y), -1);//0
-            AddArray(XToPoint(Width), YToPoint(Y), -1);//1
-            AddArray(XToPoint(X), YToPoint(Height), -1);//2
-            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
+            AddArray(XToPoint(Rectangle.X), YToPoint(Rectangle.Y), -1);//0
+            AddArray(XToPoint(Rectangle.Width), YToPoint(Rectangle.Y), -1);//1
+            AddArray(XToPoint(Rectangle.X), YToPoint(Rectangle.Height), -1);//2
+            AddArray(XToPoint(Rectangle.Width), YToPoint(Rectangle.Height), -1);//3
 
             if (FillMode)
             {
@@ -91,7 +91,7 @@ namespace OrbisGL.GL2D
                 RenderMode = (int)OrbisGL.RenderMode.ClosedLine;
             }
 
-            SetChildrenVisibleRectangle(X, Y, Width, Height);
+            SetChildrenVisibleRectangle(Rectangle);
         }
 
         public override void ClearVisibleRectangle()

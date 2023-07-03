@@ -41,9 +41,9 @@ namespace OrbisGL.Controls
             LastDrawTick = Tick;
         }
 
-        public void SetVisibleArea(float X, float Y, int Width, int Height)
+        public void SetVisibleArea(Rectangle Rectangle)
         {
-            GLObject.SetVisibleRectangle(X, Y, Width, Height);
+            GLObject.SetVisibleRectangle(Rectangle);
         }
 
         public void ClearVisibleArea()

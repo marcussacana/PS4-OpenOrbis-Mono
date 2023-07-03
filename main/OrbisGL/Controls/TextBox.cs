@@ -465,7 +465,7 @@ namespace OrbisGL.Controls
             X = Math.Min(Foreground.Width - ForegroundWidth, X);
             X = Math.Max(0, X);
 
-
+            Foreground.ClearVisibleRectangle();
             Foreground.SetVisibleRectangle(X, 0, ForegroundWidth, ForegroundHeight);
             Foreground.Position = new Vector2(-X + TextMargin, TextMargin);
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Serialization;
 
 namespace OrbisGL.GL2D
 {
@@ -40,6 +41,9 @@ namespace OrbisGL.GL2D
             }
         }
 
+        public Rectangle? _Rect;
+        public Rectangle Rectangle { get => _Rect ?? new Rectangle(Position.X, Position.Y, Width, Height); }
+
         protected Vector2 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
 
         int OffsetUniform = int.MinValue;
@@ -70,18 +74,18 @@ namespace OrbisGL.GL2D
 
         private Rectangle VisibleRect = Vector4.Zero;
 
-        //cut with uv not working, try with shader
-        public virtual void SetVisibleRectangle(float X, float Y, int Width, int Height)
+        public void SetVisibleRectangle(float X, float Y, int Width, int Height) => SetVisibleRectangle(new Rectangle(X, Y, Width, Height));
+        public virtual void SetVisibleRectangle(Rectangle Parent)
         {
-            float MinU = Coordinates2D.GetU(X, this.Width);
-            float MaxU = Coordinates2D.GetU(Width, this.Width);
+            float MinU = Coordinates2D.GetU(Parent.X, Width);
+            float MaxU = Coordinates2D.GetU(Parent.Width, Width);
 
-            float MinV = Coordinates2D.GetV(Y, this.Height);
-            float MaxV = Coordinates2D.GetV(Height, this.Height);
+            float MinV = Coordinates2D.GetV(Parent.Y, Height);
+            float MaxV = Coordinates2D.GetV(Parent.Height, Height);
 
             VisibleRect = new Vector4(MinU, MinV, MaxU, MaxV);
 
-            SetChildrenVisibleRectangle(X, Y, Width, Height);
+            SetChildrenVisibleRectangle(Parent);
         }
 
         public virtual void ClearVisibleRectangle()
@@ -91,34 +95,21 @@ namespace OrbisGL.GL2D
             ClearChildrenVisibleRectangle();
         }
 
-        protected void SetChildrenVisibleRectangle(float X, float Y, int Width, int Height)
+        protected void SetChildrenVisibleRectangle(Rectangle Parent)
         {
-            float RectangleLeft = X + Width;
-            float RectangleBottom = Y + Height;
+            _Rect = Parent;
 
             foreach (var Child in Childs)
             {
-                float ChildRectLeft = Child.Position.X + Child.Width;
-                float ChildRectBottom = Child.Position.Y + Child.Height;
-
-                float ChildX = Math.Max(0, X - Child.Position.X);
-                float ChildY = Math.Max(0, Y - Child.Position.Y);
-
-                float XOverflow = Math.Max(ChildRectLeft - RectangleLeft, 0);
-                float YOverflow = Math.Max(ChildRectBottom - RectangleBottom, 0);
-
-                int ChildLeft = Math.Min(Child.Width, (int)(Child.Width - XOverflow));
-                int ChildBottom = Math.Min(Child.Height, (int)(Child.Height - YOverflow));
-
-                int ChildWidth = ChildLeft - (int)ChildX;
-                int ChildHeight = ChildBottom - (int)ChildY;
-
-                Child.SetVisibleRectangle(ChildX, ChildY, ChildWidth, ChildHeight);
+                var ChildBounds = Parent.GetChildBounds(Child.Rectangle);
+                Child.SetVisibleRectangle(ChildBounds);
             }
         }
 
         protected void ClearChildrenVisibleRectangle()
         {
+            _Rect = null;
+
             foreach (var Child in Childs)
             {
                 Child.ClearVisibleRectangle();
