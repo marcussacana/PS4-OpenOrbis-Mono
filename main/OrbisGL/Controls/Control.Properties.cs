@@ -1,5 +1,6 @@
 ﻿using OrbisGL.GL;
 using OrbisGL.GL2D;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -135,6 +136,8 @@ namespace OrbisGL.Controls
                 _Position = value;
                 GLObject.Position = AbsolutePosition;
                 Invalidate();
+
+                OnControlMoved?.Invoke(this, new EventArgs());
             }
         }
 
@@ -171,7 +174,8 @@ namespace OrbisGL.Controls
 
         List<Control> Children = new List<Control>();
 
-
         protected bool Invalidated { get; set; } = true;
+
+        public event EventHandler OnControlMoved;
     }
 }

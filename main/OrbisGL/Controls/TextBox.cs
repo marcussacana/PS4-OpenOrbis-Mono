@@ -398,6 +398,7 @@ namespace OrbisGL.Controls
             SetDisplayOffset(CurrentTextXOffset);
 
             //Update TextBox Caret
+            Caret.ClearVisibleRectangle();
             Caret.Color = ForegroundColor;
 
             Vector2 CaretPos = new Vector2(TextMargin, TextMargin);
@@ -466,6 +467,7 @@ namespace OrbisGL.Controls
             X = Math.Max(0, X);
 
             Foreground.ClearVisibleRectangle();
+            //[WIP] Foreground.SetVisibleRectangle(GLObject.Rectangle);
             Foreground.SetVisibleRectangle(X, 0, ForegroundWidth, ForegroundHeight);
             Foreground.Position = new Vector2(-X + TextMargin, TextMargin);
 

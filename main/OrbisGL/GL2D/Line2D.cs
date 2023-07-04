@@ -100,6 +100,13 @@ namespace OrbisGL.GL2D
             SetChildrenVisibleRectangle(Rectangle);
         }
 
+        public override void ClearVisibleRectangle()
+        {
+            RefreshVertex();
+
+            base.ClearVisibleRectangle();
+        }
+
 
         // Stolen from: https://stackoverflow.com/a/7337243/4860216
         bool Intersection(Vector2 a1, Vector2 a2, Vector2 b1, PointF b2, ref Vector2 ans)
@@ -150,7 +157,7 @@ namespace OrbisGL.GL2D
             Vector2[] ans = ansFinal.Distinct().ToArray();
             if(ans.Length < 2)
             {
-                throw new Exception("Corner case *wink*");
+                return false;
             }
             start.X = ans[0].X; start.Y = ans[0].Y;
             end.X = ans[1].X; end.Y = ans[1].Y;

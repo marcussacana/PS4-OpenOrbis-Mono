@@ -4,18 +4,12 @@ using System;
 using System.Linq;
 using Orbis.Internals;
 using OrbisGL.Input;
+using System.Diagnostics.Contracts;
 
 namespace OrbisGL.Controls
 {
     public abstract partial class Control : IRenderable
     {
-        public void AddChild(Control Child)
-        {
-            Child.Parent = this;
-
-            if (!Children.Contains(Child))
-                Children.Add(Child);
-        }
 
         public virtual void Dispose()
         {
@@ -43,6 +37,11 @@ namespace OrbisGL.Controls
 
         public void SetVisibleArea(Rectangle Rectangle)
         {
+            foreach (var Child in Childs)
+            {
+                Child.SetVisibleArea(Rectangle);
+            }
+
             GLObject.SetVisibleRectangle(Rectangle);
         }
 
@@ -136,8 +135,15 @@ namespace OrbisGL.Controls
                 }
             }
         }
+        public virtual void AddChild(Control Child)
+        {
+            Child.Parent = this;
 
-        public void RemoveChild(Control Child)
+            if (!Children.Contains(Child))
+                Children.Add(Child);
+        }
+
+        public virtual void RemoveChild(Control Child)
         {
             if (Child == null || !Children.Contains(Child))
                 return;
@@ -146,7 +152,7 @@ namespace OrbisGL.Controls
             Children.Remove(Child);
         }
 
-        public void RemoveChildren()
+        public virtual void RemoveChildren()
         {
             foreach (var Child in Children) { 
                 Child.Parent = null;

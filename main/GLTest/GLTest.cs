@@ -375,13 +375,23 @@ void main(void) {
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
+            BG.OnMouseMove += (Sender, Args) => { 
+                BG.ScrollX = (int)Args.Position.X;
+                BG.ScrollY = (int)Args.Position.Y;
+            };
+
             var TB = new OrbisGL.Controls.TextBox(200, 18);
-            TB.Position = new Vector2(Rand.Next(0, GLControl.Width), Rand.Next(0, GLControl.Height));
+            TB.Position = new Vector2(10, 10);
+
+            var TB2 = new OrbisGL.Controls.TextBox(200, 18);
+            TB2.Position = new Vector2(10, 900);
+            TB2.Text = "Debug texbox test 2";
 
             TB.Text = "Debug texbox test";
             TB.SelectionStart = Rand.Next(0, TB.Text.Length);
 
             BG.AddChild(TB);
+            BG.AddChild(TB2);
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.Focus();
