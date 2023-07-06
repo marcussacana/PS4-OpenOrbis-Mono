@@ -42,6 +42,7 @@ namespace OrbisGL.GL
         }
 
         public void AddArray(params Vector3[] Points) => AddArray(Points.SelectMany(x => new[] { x.X, x.Y, x.Z }).ToArray());
+        public void AddArray(params Vector2[] Points) => AddArray(Points.SelectMany(x => new[] { x.X, x.Y }).ToArray());
 
         public unsafe void AddArray(params float[] Points)
         {
@@ -92,8 +93,6 @@ namespace OrbisGL.GL
             IndexBuffer.Clear();
             BufferInvalidated = true;
         }
-
-
         
         public unsafe void BuildBuffers()
         {

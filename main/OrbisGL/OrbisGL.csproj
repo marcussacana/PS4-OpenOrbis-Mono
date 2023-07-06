@@ -159,6 +159,7 @@
     <EmbeddedResource Include="Shaders\FragmentColorElipseContour.glsl" />
     <EmbeddedResource Include="Shaders\FragmentColorElipsePartial.glsl" />
     <EmbeddedResource Include="Shaders\FragmentFont.glsl" />
+    <EmbeddedResource Include="Shaders\FragmentColorUV.glsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

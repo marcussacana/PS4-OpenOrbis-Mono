@@ -1,9 +1,12 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -32,10 +35,11 @@ namespace OrbisGL.GL2D
 
         public Line2D(bool CloseLines)
         {
-            var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffset"), ResLoader.GetResource("FragmentColor"));
+            var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentColorUV"));
             Program = new GLProgram(hProgram);
 
             Program.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
+            Program.AddBufferAttribute("uv", AttributeType.Float, AttributeSize.Vector2);
 
             RenderMode = (int) (CloseLines ? OrbisGL.RenderMode.SingleLine : OrbisGL.RenderMode.MultipleLines);
 
@@ -58,111 +62,88 @@ namespace OrbisGL.GL2D
 
         public override void RefreshVertex()
         {
+            /*
+            if (_Rect != null && Rectangle.IsEmpty())
+            {
+                SetVisibleRectangle(Rectangle);
+                return;
+            }
+            */
+
             ClearBuffers();
+
+            if (!Lines.Any())
+            {
+                base.RefreshVertex();
+                return;
+            }
+
+            var Rectangles = Lines.Select(x => GetLineRectangle(x.Begin, x.End));
+            var MaxRectangle = GetMaxRectangle(Rectangles);
 
             foreach (var Line in Lines)
             {
+                var Rectangle = GetLineRectangle(Line.Begin, Line.End);
+
+                GetLineUV(MaxRectangle, Line.Begin, Line.End, out Vector2 UV1, out Vector2 UV2);
+
                 var Begin = new Vector3(XToPoint(Line.Begin.X), YToPoint(Line.Begin.Y), -1);
                 var End = new Vector3(XToPoint(Line.End.X), YToPoint(Line.End.Y), -1);
 
-                AddArray(Begin, End);
+                AddArray(Begin);
+                AddArray(UV1);
+                AddArray(End);
+                AddArray(UV2);
             }
+
+            Width = (int)MaxRectangle.Width;
+            Height = (int)MaxRectangle.Height;
 
             base.RefreshVertex();
         }
 
-        public override void SetVisibleRectangle(Rectangle Rectangle)
+        private static Rectangle GetMaxRectangle(IEnumerable<Rectangle> Rectangles)
         {
-            ClearBuffers();
+            float MinX = Rectangles.Min(x => x.X);
+            float MinY = Rectangles.Min(x => x.Y);
+            float MaxX = Rectangles.Max(x => x.Left);
+            float MaxY = Rectangles.Max(x => x.Bottom);
 
-            foreach (var Line in Lines)
-            {
-                var vBegin = Line.Begin;
-                var vEnd = Line.End;
+            float MaxWidth = Math.Max(MaxX - MinX, 1);
+            float MaxHeight = Math.Max(MaxY - MinY, 1);
 
-                bool Intersected = Extend(Rectangle, ref vBegin, ref vEnd);
-
-                if (!Intersected) {
-
-                    if (Rectangle.IsInBounds(vBegin))
-                        continue;
-
-                    if (Rectangle.IsInBounds(vEnd))
-                        continue;
-                }
-
-                var Begin = new Vector3(XToPoint(vBegin.X), YToPoint(vBegin.Y), -1);
-                var End = new Vector3(XToPoint(vEnd.X), YToPoint(vEnd.Y), -1);
-
-                AddArray(Begin, End);
-            }
-
-            SetChildrenVisibleRectangle(Rectangle);
+            return new Rectangle(MinX, MinY, MaxWidth, MaxHeight);
         }
 
-        public override void ClearVisibleRectangle()
+        private void GetLineUV(Rectangle Area, Vector2 XY1, Vector2 XY2, out Vector2 UV1, out Vector2 UV2)
         {
-            RefreshVertex();
+            UV1 = new Vector2(0, 0);
+            UV2 = new Vector2(0, 0);
 
-            base.ClearVisibleRectangle();
+            /*
+            UV1.X = XY1.X < XY2.X ? 0 : 1;
+            UV2.X = XY1.X < XY2.X ? 1 : 0;
+            UV1.Y = XY1.Y < XY2.Y ? 0 : 1;
+            UV2.Y = XY1.Y < XY2.Y ? 1 : 0;
+            */
+
+            UV1.X = GetU(XY1.X, (int)Area.Width);
+            UV2.X = GetU(XY2.X, (int)Area.Width);
+            UV1.Y = GetV(XY1.Y, (int)Area.Height);
+            UV2.Y = GetV(XY2.Y, (int)Area.Height);
         }
 
-
-        // Stolen from: https://stackoverflow.com/a/7337243/4860216
-        bool Intersection(Vector2 a1, Vector2 a2, Vector2 b1, PointF b2, ref Vector2 ans)
+        private Rectangle GetLineRectangle(Vector2 XY1, Vector2 XY2)
         {
-            float x = ((a1.X * a2.Y - a1.Y * a2.X) * (b1.X - b2.X) - (a1.X - a2.X) * (b1.X * b2.Y - b1.Y * b2.X)) / ((a1.X - a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X - b2.X));
-            float y = ((a1.X * a2.Y - a1.Y * a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X * b2.Y - b1.Y * b2.X)) / ((a1.X - a2.X) * (b1.Y - b2.Y) - (a1.Y - a2.Y) * (b1.X - b2.X));
+            float MinX = Math.Min(XY1.X, XY2.X);
+            float MinY = Math.Min(XY1.Y, XY2.Y);
+            float MaxX = Math.Max(XY1.X, XY2.X);
+            float MaxY = Math.Max(XY1.Y, XY2.Y);
 
-            if (x == float.NaN || x == float.PositiveInfinity || x == float.NegativeInfinity || y == float.NaN || y == float.PositiveInfinity || y == float.NegativeInfinity)
-            { 
-                // the lines are equal or never intersect
-                return false;
-            }
-            ans.X = x;
-            ans.Y = y;
-            return true;
-        }
+            float Width = MaxX - MinX;
+            float Height = MaxY - MinY;
 
-        bool Extend(Rectangle bounds, ref Vector2 start, ref Vector2 end)
-        {
-
-            List<Vector2> ansFinal = new List<Vector2>();
-            var ansLeft = new Vector2();
-            bool hitLeft = Intersection(start, end, new Vector2(bounds.X, bounds.Y), new Vector2(bounds.X, bounds.Y + bounds.Height), ref ansLeft);
-            if (hitLeft && (ansLeft.Y < bounds.Y || ansLeft.Y > bounds.Y + bounds.Height)) hitLeft = false;
-            if (hitLeft) ansFinal.Add(ansLeft);
-
-            var ansTop = new Vector2();
-            bool hitTop = Intersection(start, end, new Vector2(bounds.X, bounds.Y), new Vector2(bounds.X + bounds.Width, bounds.Y), ref ansTop);
-            if (hitTop && (ansTop.X < bounds.X || ansTop.X > bounds.X + bounds.Width)) hitTop = false;
-            if (hitTop) ansFinal.Add(ansTop);
-
-            var ansRight = new Vector2();
-            bool hitRight = Intersection(start, end, new Vector2(bounds.X + bounds.Width, bounds.Y), new Vector2(bounds.X + bounds.Width, bounds.Y + bounds.Height), ref ansRight);
-            if (hitRight && (ansRight.Y < bounds.Y || ansRight.Y > bounds.Y + bounds.Height)) hitRight = false;
-            if (hitRight) ansFinal.Add(ansRight);
-
-            var ansBottom = new Vector2();
-            bool hitBottom = Intersection(start, end, new Vector2(bounds.X, bounds.Y + bounds.Height), new Vector2(bounds.X + bounds.Height, bounds.Y + bounds.Height), ref ansBottom);
-            if (hitBottom && (ansBottom.X < bounds.X || ansBottom.X > bounds.X + bounds.Width)) hitBottom = false;
-            if (hitBottom) ansFinal.Add(ansBottom);
-
-            if (!hitLeft && !hitTop && !hitRight && !hitBottom)
-            {
-                return false;
-            }
-
-
-            Vector2[] ans = ansFinal.Distinct().ToArray();
-            if(ans.Length < 2)
-            {
-                return false;
-            }
-            start.X = ans[0].X; start.Y = ans[0].Y;
-            end.X = ans[1].X; end.Y = ans[1].Y;
-
-            return true;
+            return new Rectangle(MinX, MinY, Width, Height);
         }
 
         public override void Draw(long Tick)
