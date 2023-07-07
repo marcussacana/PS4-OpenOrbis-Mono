@@ -13,9 +13,11 @@ namespace OrbisGL.Controls
             if (!Focused)
                 return;
 
+            
+
             if (Children.Any(x => x.Focused))
             {
-                Children.Single(x => x.Focused).PropagateUp((Ctrl, e) =>
+                FocusedControl.PropagateUp((Ctrl, e) =>
                 {
                     Ctrl.OnKeyDown?.Invoke(this, (KeyboardEventArgs)e);
                 }, Args);
@@ -32,7 +34,7 @@ namespace OrbisGL.Controls
 
             if (Children.Any(x => x.Focused))
             {
-                Children.Single(x => x.Focused).PropagateUp((Ctrl, e) =>
+                FocusedControl.PropagateUp((Ctrl, e) =>
                 {
                     Ctrl.OnKeyUp?.Invoke(this, (KeyboardEventArgs)e);
                 }, Args);
