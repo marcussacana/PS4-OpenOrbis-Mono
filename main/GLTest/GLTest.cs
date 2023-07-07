@@ -375,23 +375,50 @@ void main(void) {
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
-            BG.OnMouseMove += (Sender, Args) => { 
-                BG.ScrollX = (int)Args.Position.X;
-                BG.ScrollY = (int)Args.Position.Y;
+            var TB = new OrbisGL.Controls.TextBox(200, 18);
+            TB.Position = new Vector2(10, 10);
+
+            TB.Text = "Debug texbox test";
+            TB.SelectionStart = Rand.Next(0, TB.Text.Length);
+
+            BG.AddChild(TB);
+
+            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.Focus();
+#endif
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+
+            var BG = new OrbisGL.Controls.Panel();
+            BG.BackgroundColor = RGBColor.Red;
+            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+
+            var BG2 = new OrbisGL.Controls.Panel();
+            BG2.BackgroundColor = RGBColor.ReallyLightBlue;
+            BG2.Size = new Vector2(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
+            BG2.Position = new Vector2(100, 100);
+
+            BG.OnMouseMove += (Sender, Args) => {
+                BG2.ScrollX = (int)Args.Position.X;
+                BG2.ScrollY = (int)Args.Position.Y;
             };
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
 
             var TB2 = new OrbisGL.Controls.TextBox(200, 18);
-            TB2.Position = new Vector2(10, 900);
+            TB2.Position = new Vector2(10, 500);
             TB2.Text = "Debug texbox test 2";
 
             TB.Text = "Debug texbox test";
-            TB.SelectionStart = Rand.Next(0, TB.Text.Length);
 
-            BG.AddChild(TB);
-            BG.AddChild(TB2);
+            BG2.AddChild(TB);
+            BG2.AddChild(TB2);
+
+            BG.AddChild(BG2);
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.Focus();

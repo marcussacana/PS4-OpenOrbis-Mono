@@ -203,7 +203,7 @@ namespace OrbisGL.GL
                     {
                         if (Child is Control Ctrl)
                         {
-                            if (Ctrl.Rectangle.IsInBounds(CurrentPosition))
+                            if (Ctrl.AbsoluteRectangle.IsInBounds(CurrentPosition))
                             {
                                 Ctrl.ProcessMouseMove(CurrentPosition);
                                 break;
@@ -224,7 +224,7 @@ namespace OrbisGL.GL
                     {
                         if (Child is Control Ctrl)
                         {
-                            if (Ctrl.Rectangle.IsInBounds(CurrentPosition))
+                            if (Ctrl.AbsoluteRectangle.IsInBounds(CurrentPosition))
                             {
                                 Ctrl.ProcessMouseButtons(OldButtons, CurrentButtons);
                                 break;

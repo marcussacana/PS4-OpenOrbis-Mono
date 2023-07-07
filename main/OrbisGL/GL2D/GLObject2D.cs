@@ -2,6 +2,7 @@
 using SharpGLES;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 using System.Xml.Serialization;
@@ -41,10 +42,13 @@ namespace OrbisGL.GL2D
             }
         }
 
-        public Rectangle? _Rect;
-        public Rectangle Rectangle { get => _Rect ?? new Rectangle(Position.X, Position.Y, Width, Height); }
+        public Rectangle? VisibleRectangle { get; protected set; }
+        public Rectangle Rectangle => new Rectangle(Position.X, Position.Y, Width, Height);
 
         protected Vector2 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
+
+        protected Vector2 AbsolutePosition => Parent?.AbsolutePosition + Position ?? Position;
+
 
         int OffsetUniform = int.MinValue;
         int VisibleUniform = int.MinValue;
@@ -63,52 +67,64 @@ namespace OrbisGL.GL2D
 
             if (VisibleUniform >= 0)
             {
-                Program.SetUniform(VisibleUniform, VisibleRect);
+                Program.SetUniform(VisibleUniform, VisibleRectUV);
             }
             else if (VisibleUniform == int.MinValue)
             {
                 VisibleUniform = GLES20.GetUniformLocation(Program.Handler, "VisibleRect");
-                Program.SetUniform(VisibleUniform, VisibleRect);
+                Program.SetUniform(VisibleUniform, VisibleRectUV);
             }
         }
 
-        private Rectangle VisibleRect = Vector4.Zero;
+        private bool InvisibleRect = false;
+        private Rectangle VisibleRectUV = Vector4.Zero;
 
         public void SetVisibleRectangle(float X, float Y, int Width, int Height) => SetVisibleRectangle(new Rectangle(X, Y, Width, Height));
         public virtual void SetVisibleRectangle(Rectangle Parent)
         {
+            if (Parent.IsEmpty())
+            { 
+                InvisibleRect = true;
+                return;
+            }
+
             float MinU = Coordinates2D.GetU(Parent.X, Width);
             float MaxU = Coordinates2D.GetU(Parent.Width, Width);
 
             float MinV = Coordinates2D.GetV(Parent.Y, Height);
             float MaxV = Coordinates2D.GetV(Parent.Height, Height);
 
-            VisibleRect = new Vector4(MinU, MinV, MaxU, MaxV);
+            VisibleRectUV = new Vector4(MinU, MinV, MaxU, MaxV);
 
             SetChildrenVisibleRectangle(Parent);
         }
 
         public virtual void ClearVisibleRectangle()
         {
-            VisibleRect = Vector4.Zero;
+            VisibleRectUV = Vector4.Zero;
 
             ClearChildrenVisibleRectangle();
         }
 
-        protected void SetChildrenVisibleRectangle(Rectangle Parent)
+        protected void SetChildrenVisibleRectangle(Rectangle Area)
         {
-            _Rect = Parent;
+            VisibleRectangle = Area;
+
+            var AbsArea = new Rectangle(Area.X + AbsolutePosition.X, Area.Y + AbsolutePosition.Y, Area.Width, Area.Height);
 
             foreach (var Child in Childs)
-            {
-                var ChildBounds = Parent.GetChildBounds(Child.Rectangle);
-                Child.SetVisibleRectangle(ChildBounds);
+            { 
+                var AbsChildArea = new Rectangle(Child.AbsolutePosition.X, Child.AbsolutePosition.Y, Child.Width, Child.Height);
+                var Bounds = Rectangle.GetChildBounds(AbsArea, AbsChildArea);
+
+                Child.SetVisibleRectangle(Bounds);
             }
         }
 
         protected void ClearChildrenVisibleRectangle()
         {
-            _Rect = null;
+            VisibleRectangle = null;
+            InvisibleRect = false;
 
             foreach (var Child in Childs)
             {
@@ -124,7 +140,7 @@ namespace OrbisGL.GL2D
 
         public override void Draw(long Tick)
         {
-            if (!Visible)
+            if (!Visible || InvisibleRect)
                 return;
 
             if (Program != null)

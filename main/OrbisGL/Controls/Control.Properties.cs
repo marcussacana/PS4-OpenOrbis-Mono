@@ -99,10 +99,12 @@ namespace OrbisGL.Controls
         bool _Focused;
         public bool Focused { get => _Focused | Children.Any(x => x.Focused); }
 
+        bool _RectInvisible = false;
+
         bool _Visible = true;
         public bool Visible
         {
-            get => _Visible && (Parent == null || Parent.Visible); 
+            get => _Visible && (Parent == null || Parent.Visible) && !_RectInvisible; 
             set
             {
                 _Visible = value;
@@ -166,7 +168,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        public Rectangle Rectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
+        public Rectangle AbsoluteRectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
 
         protected readonly Blank2D GLObject = new Blank2D();
 

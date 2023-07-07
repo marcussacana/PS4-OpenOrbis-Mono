@@ -50,7 +50,7 @@ namespace OrbisGL.Controls
             bool Handled = false;
             foreach (var Child in Children)
             {
-                if (Child.Visible && Child.Rectangle.IsInBounds(XY))
+                if (Child.Visible && Child.AbsoluteRectangle.IsInBounds(XY))
                 {
                     Child.ProcessMouseMove(XY);
                     Handled = true;
@@ -58,7 +58,7 @@ namespace OrbisGL.Controls
                 }
             }
 
-            if (!Visible || !Enabled || !Rectangle.IsInBounds(XY) || Handled)
+            if (!Visible || !Enabled || !AbsoluteRectangle.IsInBounds(XY) || Handled)
                 return;
 
             var Coordinates = new MouseEventArgs(XY);

@@ -79,7 +79,7 @@ namespace OrbisGL.Controls
                     Child.Position = ChildPos - new Vector2(ScrollX, ScrollY);
 
                     Child.ClearVisibleArea();
-                    Child.SetVisibleArea(Rectangle);
+                    Child.SetAbsoluteVisibleArea(AbsoluteRectangle);
                 }
             }
             finally 

@@ -256,6 +256,7 @@ namespace OrbisGL.Input
                 NormalizeAccumulatorAndFlush();
                 ClearAccumulator();
 
+                OnTextChanged?.Invoke(this, new EventArgs());
                 OnCaretMove?.Invoke(this, new EventArgs());
                 return;
             }

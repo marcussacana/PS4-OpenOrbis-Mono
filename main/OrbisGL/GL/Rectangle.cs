@@ -1,10 +1,15 @@
-﻿using System;
+﻿using SixLabors.ImageSharp;
+using System;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace OrbisGL.GL
 {
+    [DebuggerDisplay("X: {X}; Y: {Y}; W: {Width}; H: {Height};")]
     public struct Rectangle
     {
+        public static Rectangle Empty => new Rectangle(0, 0, 0, 0);
+
         public Vector4 Vector;
 
         public Rectangle(float X, float Y, float Width, float Height)
@@ -43,43 +48,58 @@ namespace OrbisGL.GL
             return X >= Right && Y >= Top && X <= Left && Y <= Bottom;
         }
 
-        /// <summary>
-        /// Apply to this rectangle instance the bounds of an parent rectangle
-        /// </summary>
-        /// <param name="Parent">The parent rectangle bounds</param>
-        public void ApplyParentBounds(Rectangle Parent)
+        public Rectangle Intersect(Rectangle B)
         {
-            var Bounds = Parent.GetChildBounds(this);
+            var A = this;
+            return Intersect(A, B);
+        }
 
-            X = Bounds.X;
-            Y = Bounds.Y;
-            Width = Bounds.Width;
-            Height = Bounds.Height;
+        public static Rectangle Intersect(Rectangle A, Rectangle B)
+        {
+            float X = Math.Max(A.X, B.X);
+            float Left = Math.Min(A.X + A.Width, B.X + B.Width);
+            float Y = Math.Max(A.Y, B.Y);
+            float Bottom = Math.Min(A.Y + A.Height, B.Y + B.Height);
+            if (Left >= X && Bottom >= Y)
+                return new Rectangle(X, Y, Left - X, Bottom - Y);
+            else
+                return Empty;
         }
 
         /// <summary>
-        /// Compute a child rectangle preventing a overflow from <see cref="this"/> rectangle
+        /// Get an rectangle relative to the <paramref name="InnerRect"/> with bounds limited by <paramref name="OutterRect"/>
         /// </summary>
-        /// <param name="Child">The child rectangle</param>
-        /// <returns></returns>
-        public Rectangle GetChildBounds(Rectangle Child)
+        /// <param name="OutterRect">An Absolute Rectangle representing the bounds to be applied</param>
+        /// <param name="InnerRect">An Absolute Rectangle representing the inner rectangle be limited</param>
+        public static Rectangle GetChildBounds(Rectangle OutterRect, Rectangle InnerRect)
         {
-            float ChildRectLeft = Child.Left;
-            float ChildRectBottom = Child.Bottom;
 
-            float ChildX = Math.Max(0, X - Child.X);
-            float ChildY = Math.Max(0, Y - Child.Y);
+            var Position = new Vector2(InnerRect.X, InnerRect.Y);
+            var Size = new Vector2(InnerRect.Width, InnerRect.Height);
 
-            float XOverflow = Math.Max(ChildRectLeft - Left, 0);
-            float YOverflow = Math.Max(ChildRectBottom - Bottom, 0);
+            if (InnerRect.X < OutterRect.X)
+                InnerRect.X = OutterRect.X;
 
-            float ChildLeft = Math.Min(Child.Width, (Child.Width - XOverflow));
-            float ChildBottom = Math.Min(Child.Height, (Child.Height - YOverflow));
+            if (InnerRect.Left > OutterRect.Left)
+                InnerRect.Left = OutterRect.Left;
 
-            float ChildWidth = ChildLeft - (int)ChildX;
-            float ChildHeight = ChildBottom - (int)ChildY;
+            if (InnerRect.Y < OutterRect.Y)
+                InnerRect.Y = OutterRect.Y;
 
-            return new Rectangle(ChildX, ChildY, ChildWidth, ChildHeight);
+            if (InnerRect.Bottom > OutterRect.Bottom)
+                InnerRect.Bottom = OutterRect.Bottom;
+
+            InnerRect.X -= Position.X;
+            InnerRect.Y -= Position.Y;
+            InnerRect.Width = Math.Min(InnerRect.Width, Size.X);
+            InnerRect.Height = Math.Min(InnerRect.Height, Size.Y);
+
+            return InnerRect;
+        }
+
+        internal bool IsEmpty()
+        {
+            return Width * Height <= 0;
         }
 
         public float X { get => Vector.X; set => Vector.X = value; }

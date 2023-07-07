@@ -5,6 +5,7 @@ using System.Linq;
 using Orbis.Internals;
 using OrbisGL.Input;
 using System.Diagnostics.Contracts;
+using System.Numerics;
 
 namespace OrbisGL.Controls
 {
@@ -35,14 +36,35 @@ namespace OrbisGL.Controls
             LastDrawTick = Tick;
         }
 
-        public void SetVisibleArea(Rectangle Rectangle)
+        /// <summary>
+        /// Set the visible area rectangle relative with his screen position
+        /// </summary>
+        public void SetAbsoluteVisibleArea(Rectangle Rectangle)
         {
-            foreach (var Child in Childs)
+            SetVisibleArea(Rectangle.GetChildBounds(Rectangle, AbsoluteRectangle));
+        }
+
+        /// <summary>
+        /// Set the visible area rectangle relative to the controller begin
+        /// </summary>
+        /// <param name="Area"></param>
+        public void SetVisibleArea(Rectangle Area)
+        {
+            if (Area.Width == 0 || Area.Height == 0)
             {
-                Child.SetVisibleArea(Rectangle);
+                _RectInvisible = true;
+                return;
             }
 
-            GLObject.SetVisibleRectangle(Rectangle);
+            _RectInvisible = false;
+
+            var AbsArea = new Rectangle(Area.X + AbsolutePosition.X, Area.Y + AbsolutePosition.Y, Area.Width, Area.Height);
+            foreach (var Child in Childs)
+            {
+                Child.SetVisibleArea(Rectangle.GetChildBounds(AbsArea, Child.AbsoluteRectangle));
+            }
+
+            GLObject.SetVisibleRectangle(Area);
         }
 
         public void ClearVisibleArea()

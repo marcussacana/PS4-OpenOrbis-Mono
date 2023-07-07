@@ -70,6 +70,15 @@ namespace OrbisGL.Controls
             FocusIndicator.LineWidth = 0.2f;
             FocusIndicator.Transparency = 150;
 
+            FocusIndicator.SetLines(new Line[] {
+                new Line()
+                {
+                    Begin = new Vector2(0, 0),
+                    End = new Vector2(Size.X-10, 0)
+                }
+            });
+            FocusIndicator.Position = new Vector2(5, Size.Y - 1);
+
             Caret = new Line2D(false);
             Caret.LineWidth = 0.5f;
             Caret.SetLines(new Line[] { 
@@ -111,7 +120,7 @@ namespace OrbisGL.Controls
             if (EventArgs.Type != MouseButtons.Left)
                 return;
 
-            if (!Rectangle.IsInBounds(EventArgs.Position))
+            if (!AbsoluteRectangle.IsInBounds(EventArgs.Position))
                 return;
 
             var RelativeClick = ToRelativeCoordinates(EventArgs.Position);
@@ -383,16 +392,8 @@ namespace OrbisGL.Controls
             Background.Color = Desaturate && !Focused ? BackgroundColor.Desaturate(240) : BackgroundColor;
             BackgroundContour.Color = ForegroundColor;
 
-            FocusIndicator.Transparency = Focused ? (byte)255 : (byte)60;
+            FocusIndicator.Transparency = Focused ? (byte)255 : (byte)160;
             FocusIndicator.Color = Focused ? PrimaryBackgroundColor : ForegroundColor;
-
-            FocusIndicator.SetLines(new Line[] {
-                new Line()
-                {
-                    Begin = new Vector2(5, Size.Y - 1),
-                    End = new Vector2(Size.X - 5, Size.Y - 1)
-                }
-            });
 
             //Update Text Visible Range
             SetDisplayOffset(CurrentTextXOffset);
@@ -466,9 +467,18 @@ namespace OrbisGL.Controls
             X = Math.Min(Foreground.Width - ForegroundWidth, X);
             X = Math.Max(0, X);
 
-            Foreground.ClearVisibleRectangle();
-            //[WIP] Foreground.SetVisibleRectangle(GLObject.Rectangle);
-            Foreground.SetVisibleRectangle(X, 0, ForegroundWidth, ForegroundHeight);
+            //If the control is half visible, the foreground visible area must
+            //keep the visible range already set, we do that here by copying
+            //the textbox background visible rectangle and computing the text bounds
+            var BGRect = Background.VisibleRectangle ?? Background.Rectangle;
+            var FGRect = new Rectangle(X, TextMargin, ForegroundWidth, ForegroundHeight);
+            BGRect.X += X;
+
+            var BoundsRect = Rectangle.GetChildBounds(BGRect, FGRect);
+
+            BoundsRect.X += X;
+
+            Foreground.SetVisibleRectangle(BoundsRect);
             Foreground.Position = new Vector2(-X + TextMargin, TextMargin);
 
             CurrentTextXOffset = X;
