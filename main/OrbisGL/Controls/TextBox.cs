@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrbisGL.Controls
 {
@@ -406,10 +404,7 @@ namespace OrbisGL.Controls
 
             //Update the Caret and Display position
             CaretPos = RefreshCaretAndEnsureVisible(CaretPos);
-
             Caret.Position = CaretPos;
-
-
 
             Invalidated = false;
         }
@@ -443,6 +438,13 @@ namespace OrbisGL.Controls
 
             //Update Caret Position
             CaretPos.X = Foreground.Position.X + (CaretOnEnd ? GlyphMaxX : GlyphX);
+
+            var BGRect = Background.VisibleRectangle ?? Background.Rectangle;
+            var CaretRect = new Rectangle(TextMargin, TextMargin, 1, Caret.Height);
+
+            var BoundsRect = Rectangle.GetChildBounds(BGRect, CaretRect);
+
+            Caret.SetVisibleRectangle(BoundsRect);
 
             return CaretPos;
         }

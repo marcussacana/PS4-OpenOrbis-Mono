@@ -88,6 +88,8 @@ namespace OrbisGL.GL2D
                 return;
             }
 
+            InvisibleRect = false;
+
             float MinU = Coordinates2D.GetU(Parent.X, Width);
             float MaxU = Coordinates2D.GetU(Parent.Width, Width);
 

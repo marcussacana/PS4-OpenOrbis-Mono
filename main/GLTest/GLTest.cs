@@ -403,14 +403,14 @@ void main(void) {
 
             BG.OnMouseMove += (Sender, Args) => {
                 BG2.ScrollX = (int)Args.Position.X;
-                BG2.ScrollY = (int)Args.Position.Y;
+                BG2.ScrollY = (int)Args.Position.Y - 100;
             };
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
 
             var TB2 = new OrbisGL.Controls.TextBox(200, 18);
-            TB2.Position = new Vector2(10, 500);
+            TB2.Position = new Vector2(10, 400);
             TB2.Text = "Debug texbox test 2";
 
             TB.Text = "Debug texbox test";
