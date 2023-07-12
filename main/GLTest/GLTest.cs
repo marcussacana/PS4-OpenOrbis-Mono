@@ -1,10 +1,12 @@
 ﻿using OrbisGL;
+using OrbisGL.Controls;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Permissions;
 using System.Windows.Forms;
 using static OrbisGL.GL2D.Coordinates2D;
 
@@ -391,7 +393,6 @@ void main(void) {
         private void button15_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-
             var BG = new OrbisGL.Controls.Panel();
             BG.BackgroundColor = RGBColor.Red;
             BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
@@ -400,11 +401,6 @@ void main(void) {
             BG2.BackgroundColor = RGBColor.ReallyLightBlue;
             BG2.Size = new Vector2(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.Position = new Vector2(100, 100);
-
-            BG.OnMouseMove += (Sender, Args) => {
-                BG2.ScrollX = (int)Args.Position.X;
-                BG2.ScrollY = (int)Args.Position.Y - 100;
-            };
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
@@ -418,10 +414,58 @@ void main(void) {
             BG2.AddChild(TB);
             BG2.AddChild(TB2);
 
+            var VTScrollBar = new VerticalScrollBar((int)BG2.Size.Y, BG2.MaxScrollY + (int)BG2.Size.Y, 15);
+            VTScrollBar.Position = new Vector2(5, 0);
+
+            BG2.AddChild(VTScrollBar);
+
             BG.AddChild(BG2);
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.Focus();
+#endif
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Rect = new Triangle2D(200, 200);
+            Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
+            Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
+            Rect.RoundLevel = (float)Rand.NextDouble() * 0.3f;
+
+            switch (Rand.Next(0, 8))
+            {
+                case 0:
+                    Rect.Rotation = Triangle2D.Degrees.Degree0;
+                    break;
+                case 1:
+                    Rect.Rotation = Triangle2D.Degrees.Degree45; 
+                    break;
+                case 2:
+                    Rect.Rotation = Triangle2D.Degrees.Degree90;
+                    break;
+                case 3:
+                    Rect.Rotation = Triangle2D.Degrees.Degree135;
+                    break;
+                case 4:
+                    Rect.Rotation = Triangle2D.Degrees.Degree180;
+                    break;
+                case 5:
+                    Rect.Rotation = Triangle2D.Degrees.Degree225;
+                    break;
+                case 6:
+                    Rect.Rotation = Triangle2D.Degrees.Degree270;
+                    break;
+                case 7:
+                    Rect.Rotation = Triangle2D.Degrees.Degree315;
+                    break;
+            }
+
+
+            //Rect.Transparency = (byte)Rand.Next(10, 255);
+
+            GLControl.GLApplication.Objects.Add(Rect);
 #endif
         }
     }

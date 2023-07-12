@@ -65,11 +65,27 @@ namespace OrbisGL.Controls
 
             if (LastCursorControl != this)
             {
-                LastCursorControl?.PropagateUp((x, y) => x?.OnMouseLeave?.Invoke(x, (MouseEventArgs)y), Coordinates);
+                LastCursorControl?.PropagateUp((x, y) =>
+                {
+                    if (x == null)
+                        return;
+
+                    x.OnMouseLeave?.Invoke(x, (MouseEventArgs)y);
+                    x.IsMouseHover = false;
+                }, Coordinates);
+
                 Coordinates.Handled = false;
 
                 LastCursorControl = this;
-                LastCursorControl?.PropagateUp((x, y) => x?.OnMouseEnter?.Invoke(x, (MouseEventArgs)y), Coordinates);
+                LastCursorControl?.PropagateUp((x, y) =>
+                {
+                    if (x == null)
+                        return;
+                    
+                    x?.OnMouseEnter?.Invoke(x, (MouseEventArgs)y);
+                    x.IsMouseHover = true;
+                }, Coordinates);
+
                 Coordinates.Handled = false;
 
                 ClickBegin = -1;

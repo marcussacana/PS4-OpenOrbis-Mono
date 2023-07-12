@@ -37,8 +37,11 @@ namespace OrbisGL.Controls
         public int ScrollY { get => _ScrollY; set { _ScrollY = value; Invalidate(); } }
 
         public int MaxScrollX { 
-            get 
+            get
             {
+                if (!PositionMap.Any())
+                    return 0;
+
                 var MaxX = PositionMap.Max(x => x.Value.X + x.Key.Size.X) - Size.X;
                 MaxX = Math.Max(MaxX, 0);
 
@@ -50,6 +53,9 @@ namespace OrbisGL.Controls
         {
             get
             {
+                if (!PositionMap.Any())
+                    return 0;
+
                 var MaxY = PositionMap.Max(x => x.Value.Y + x.Key.Size.Y) - Size.Y;
                 MaxY = Math.Max(MaxY, 0);
 

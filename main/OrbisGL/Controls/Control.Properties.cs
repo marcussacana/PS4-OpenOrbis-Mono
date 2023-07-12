@@ -89,12 +89,14 @@ namespace OrbisGL.Controls
             }
         }
 
+        public bool IsMouseHover { get; private set; }
+
         public long LastDrawTick { get; private set; }
 
         public abstract bool Focusable { get; }
 
         public abstract string Name { get; }
-        public abstract string Text { get; set; }
+        public virtual string Text { get; set; }
 
         bool _Focused;
         public bool Focused { get => _Focused | Children.Any(x => x.Focused); }

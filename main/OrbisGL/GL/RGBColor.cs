@@ -110,6 +110,17 @@ namespace OrbisGL.GL
             return Blend(White, Alpha);
         }
 
+        public RGBColor Highlight(byte Alpha)
+        {
+            if (R + G + B / 3 > 255 / 2)
+            {
+                return Desaturate(Alpha);
+            }
+
+            return Saturate(Alpha);
+        }
+
+
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }
         public int G { get => (int)(255 * GreenF); set => GreenF = value / 255f; }
         public int B { get => (int)(255 * BlueF); set => BlueF = value / 255f; }

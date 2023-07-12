@@ -131,7 +131,7 @@ namespace OrbisGL.Controls
         }
         private void MouseMoved(object Sender, MouseEventArgs EventArgs)
         {
-            if (!ButtonDown)
+            if (!ButtonDown || TypeWriter == null)
                 return;
 
             var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
@@ -161,7 +161,7 @@ namespace OrbisGL.Controls
 
         private void MouseButtonUp(object Sender, ClickEventArgs EventArgs)
         {
-            if (EventArgs.Type != MouseButtons.Left)
+            if (EventArgs.Type != MouseButtons.Left || TypeWriter == null)
                 return;
 
             var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
@@ -310,7 +310,7 @@ namespace OrbisGL.Controls
 
                 if (InSelection && !SelectionStarted && SelectionLength > 0)
                 {
-                    RichText += $"<backcolor={Highlight(PrimaryBackgroundColor, 200).AsHex()}><color={PrimaryForegroundColor.AsHex()}>";
+                    RichText += $"<backcolor={PrimaryBackgroundColor.Highlight(200).AsHex()}><color={PrimaryForegroundColor.AsHex()}>";
                     SelectionStarted = true;
                 }
 
@@ -323,7 +323,7 @@ namespace OrbisGL.Controls
                 //The current text is in accumulator
                 if (i == SelectionStart && TypeWriter.CurrentAccumulator != string.Empty)
                 {
-                    RichText += $"<color={Highlight(ForegroundColor, 200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
+                    RichText += $"<color={ForegroundColor.Highlight(200).AsHex()}>{TypeWriter.CurrentAccumulator.Replace("<", "<<")}</color>";
                 }
 
 
@@ -349,16 +349,6 @@ namespace OrbisGL.Controls
             }
 
             Foreground.SetRichText(RichText);
-        }
-
-        public RGBColor Highlight(RGBColor Color, byte Alpha)
-        {
-            if (Color.R + Color.G + Color.B / 3 > 255 / 2)
-            {
-                return Color.Desaturate(Alpha);
-            }
-
-            return Color.Saturate(Alpha);
         }
 
         bool Desaturate = false;
