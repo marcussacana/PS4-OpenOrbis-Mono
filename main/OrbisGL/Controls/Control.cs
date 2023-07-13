@@ -74,7 +74,7 @@ namespace OrbisGL.Controls
 
         public void Focus()
         {
-            if (_Focused)
+            if (_Focused || !Focusable)
                 return;
 
             OnFocus(this, new EventArgs());

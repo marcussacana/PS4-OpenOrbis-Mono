@@ -416,6 +416,7 @@ void main(void) {
 
             var VTScrollBar = new VerticalScrollBar((int)BG2.Size.Y, BG2.MaxScrollY + (int)BG2.Size.Y, 15);
             VTScrollBar.Position = new Vector2(5, 0);
+            VTScrollBar.ScrollChanged += (s, a) => { BG2.ScrollY = (int)VTScrollBar.CurrentScroll; };
 
             BG2.AddChild(VTScrollBar);
 

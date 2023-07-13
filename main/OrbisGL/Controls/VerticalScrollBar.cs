@@ -1,14 +1,14 @@
 ﻿using OrbisGL.Controls.Events;
 using OrbisGL.GL2D;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System;
-using System.ComponentModel;
 using System.Numerics;
 
 namespace OrbisGL.Controls
 {
     public class VerticalScrollBar : Control
     {
+        public event EventHandler ScrollChanged;
+
         public override bool Focusable => false;
 
         public override string Name => "VerticalScrollBar";
@@ -22,14 +22,6 @@ namespace OrbisGL.Controls
             get 
             {
                 return TotalHeight - Size.Y;
-            }
-        }
-
-        private float BarY 
-        {
-            get 
-            {
-                return SlimBar.Position.Y;
             }
         }
 
@@ -107,7 +99,6 @@ namespace OrbisGL.Controls
 
         private void ScrollBar_OnMouseLeave(object Sender, MouseEventArgs EventArgs)
         {
-            ButtonDown = false;
             SetFatBarVisible(false);
             EventArgs.Handled = true;
         }
@@ -122,6 +113,9 @@ namespace OrbisGL.Controls
         float ButtonDownClickY;
         private void ScrollBar_OnMouseButtonDown(object Sender, ClickEventArgs EventArgs)
         {
+            if (!IsMouseHover)
+                return;
+
             ButtonDown = true;
             ButtonDownClickY = EventArgs.Position.Y;
             ButtonDownBarY = SlimBar.Position.Y;
@@ -129,13 +123,16 @@ namespace OrbisGL.Controls
         }
         private void ScrollBar_OnMouseButtonUp(object Sender, ClickEventArgs EventArgs)
         {
+            if (!ButtonDown)
+                return;
+
             ButtonDown = false;
             EventArgs.Handled = true;
         }
 
         private void ScrollBar_OnMouseMove(object Sender, MouseEventArgs EventArgs)
         {
-            if (!IsMouseHover || !ButtonDown)
+            if (!ButtonDown)
                 return;
 
             var DeltaY = EventArgs.Position.Y - ButtonDownClickY;
@@ -187,7 +184,16 @@ namespace OrbisGL.Controls
             FatBarForeground.Position = new Vector2(FatBarForeground.Position.X, Value);
 
             var BarOffset = Value / BarMaxY;
-            CurrentScroll = BarOffset * MaxScroll;
+            var NewScroll = BarOffset * MaxScroll;
+
+            bool ScrollChanged = NewScroll != CurrentScroll;
+
+            CurrentScroll = NewScroll;
+
+            if (ScrollChanged)
+            {
+                this.ScrollChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         private void SetFatBarVisible(bool Visible)

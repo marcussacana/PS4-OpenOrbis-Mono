@@ -2,6 +2,7 @@
 using OrbisGL.GL2D;
 using System.Numerics;
 using OrbisGL.Controls.Events;
+using System.Collections.Generic;
 
 namespace OrbisGL.Controls
 {
@@ -47,23 +48,11 @@ namespace OrbisGL.Controls
         {
             Cursor.Position = XY;
 
-            bool Handled = false;
-            foreach (var Child in Children)
-            {
-                if (Child.Visible && Child.AbsoluteRectangle.IsInBounds(XY))
-                {
-                    Child.ProcessMouseMove(XY);
-                    Handled = true;
-                    break;
-                }
-            }
-
-            if (!Visible || !Enabled || !AbsoluteRectangle.IsInBounds(XY) || Handled)
-                return;
-
             var Coordinates = new MouseEventArgs(XY);
 
-            if (LastCursorControl != this)
+            var CursorControl = GetControlAt(XY);
+ 
+            if (LastCursorControl != CursorControl)
             {
                 LastCursorControl?.PropagateUp((x, y) =>
                 {
@@ -76,7 +65,7 @@ namespace OrbisGL.Controls
 
                 Coordinates.Handled = false;
 
-                LastCursorControl = this;
+                LastCursorControl = CursorControl;
                 LastCursorControl?.PropagateUp((x, y) =>
                 {
                     if (x == null)
@@ -92,7 +81,7 @@ namespace OrbisGL.Controls
             }
 
             CurrentPosition = XY;
-            LastCursorControl?.PropagateUp((x, y) => x?.OnMouseMove?.Invoke(x, (MouseEventArgs)y), Coordinates);
+            PropagateAll((x, y) => x?.OnMouseMove?.Invoke(x, (MouseEventArgs)y), Coordinates);
         }
         internal void ProcessMouseButtons(MouseButtons PressedBefore, MouseButtons PressedNow)
         {
@@ -108,13 +97,13 @@ namespace OrbisGL.Controls
                 LastCursorControl.Focus();
 
                 var PressedEvent = new ClickEventArgs(CurrentPosition, NewPressed, false);
-                LastCursorControl.PropagateUp((x, y) => x?.OnMouseButtonDown?.Invoke(x, (ClickEventArgs)y), PressedEvent);
+                PropagateAll((x, y) => x?.OnMouseButtonDown?.Invoke(x, (ClickEventArgs)y), PressedEvent);
             }
 
             if (NewReleased != 0)
             {
                 var ReleasedEvent = new ClickEventArgs(CurrentPosition, NewReleased, false);
-                LastCursorControl.PropagateUp((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
+                PropagateAll((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
 
                 ReleasedEvent.Handled = false;
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
@@ -153,13 +142,40 @@ namespace OrbisGL.Controls
         Vector2 LeftClickPos;
         Vector2 RightClickPos;
 
+
+        /// <summary>
+        /// An event propagated to all controls when the mouse move
+        /// </summary>
         public event MouseEvent OnMouseMove;
+
+        /// <summary>
+        /// An event propagated to a control when the mouse enter
+        /// </summary>
         public event MouseEvent OnMouseEnter;
+
+        /// <summary>
+        /// An event propagated to a control when the mouse leave
+        /// </summary>
         public event MouseEvent OnMouseLeave;
 
+        /// <summary>
+        /// An event propagated to all controls when a mouse button is pressed
+        /// </summary>
         public event ClickEvent OnMouseButtonDown;
+        /// <summary>
+        /// An event propagated to all controls when a mouse button is released
+        /// </summary>
         public event ClickEvent OnMouseButtonUp;
+
+        /// <summary>
+        /// An event propagated to a control when the mouse is clicked
+        /// </summary>
         public event ClickEvent OnMouseClick;
+
+        /// <summary>
+        /// An late event propagated to a control when the mouse is double clicked,
+        /// The click <see cref="OnMouseClick"/> is triggered before this event
+        /// </summary>
         public event ClickEvent OnMouseDoubleClick;
 
     }

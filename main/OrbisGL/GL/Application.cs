@@ -143,26 +143,18 @@ namespace OrbisGL.GL
                 {
                     if (Child is Control Ctrl)
                     {
-                        if (Ctrl.Focused)
-                        {
-                            Ctrl.ProcessKeyDown(sender, args);
-                            break;
-                        }
+                        Ctrl.ProcessKeyDown(sender, args);
                     }
                 }
             };
-            
+
             KeyboardDriver.OnKeyUp += (sender, args) =>
             {
                 foreach (var Child in Objects)
                 {
                     if (Child is Control Ctrl)
                     {
-                        if (Ctrl.Focused)
-                        {
-                            Ctrl.ProcessKeyUp(sender, args);
-                            break;
-                        }
+                        Ctrl.ProcessKeyUp(sender, args);
                     }
                 }
             };
@@ -227,7 +219,6 @@ namespace OrbisGL.GL
                             if (Ctrl.AbsoluteRectangle.IsInBounds(CurrentPosition))
                             {
                                 Ctrl.ProcessMouseButtons(OldButtons, CurrentButtons);
-                                break;
                             }
                         }
                     }

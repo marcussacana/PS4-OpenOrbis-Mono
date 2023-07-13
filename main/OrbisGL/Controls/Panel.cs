@@ -81,6 +81,12 @@ namespace OrbisGL.Controls
                 Moving = true;
                 foreach (var Child in Childs)
                 {
+                    if (Child is VerticalScrollBar) 
+                    {
+                        Child.Position = PositionMap[Child];
+                        continue;
+                    }
+
                     var ChildPos = PositionMap[Child];
                     Child.Position = ChildPos - new Vector2(ScrollX, ScrollY);
 

@@ -106,9 +106,8 @@ namespace OrbisGL.Controls
             OnMouseMove += MouseMoved;
         }
 
-
-        bool ButtonDown = false;
-        Vector2 ClickBeginCursorPosition;
+        bool IsKeyboardButtonDown = false;
+        bool IsMouseButtonDown = false;
         Vector2 CurrentCursorPosition;
         int ClickBeginIndex = -1;
         int CurrentClickIndex = -1;
@@ -123,15 +122,15 @@ namespace OrbisGL.Controls
 
             var RelativeClick = ToRelativeCoordinates(EventArgs.Position);
 
-            ButtonDown = true;
-            CurrentCursorPosition = ClickBeginCursorPosition = RelativeClick;
+            IsMouseButtonDown = true;
+            CurrentCursorPosition = RelativeClick;
             ClickBeginIndex = CurrentClickIndex = GetIndexByPosition(RelativeClick);
 
             EventArgs.Handled = true;
         }
         private void MouseMoved(object Sender, MouseEventArgs EventArgs)
         {
-            if (!ButtonDown || TypeWriter == null)
+            if (!IsMouseButtonDown || TypeWriter == null)
                 return;
 
             var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
@@ -161,14 +160,13 @@ namespace OrbisGL.Controls
 
         private void MouseButtonUp(object Sender, ClickEventArgs EventArgs)
         {
-            if (EventArgs.Type != MouseButtons.Left || TypeWriter == null)
+            if (EventArgs.Type != MouseButtons.Left || TypeWriter == null || !IsMouseButtonDown)
                 return;
 
             var RelativeCursor = ToRelativeCoordinates(EventArgs.Position);
             bool Moved = IsCursorMoved(RelativeCursor);
 
-            ButtonDown = false;
-
+            IsMouseButtonDown = false;
             if (!Moved)
             {
                 var CurrentIndex = GetIndexByPosition(RelativeCursor);
@@ -238,20 +236,30 @@ namespace OrbisGL.Controls
 
         private void TextBox_OnKeyDown(object Sender, KeyboardEventArgs Args)
         {
-            ButtonDown = false;
+            if (!Focused)
+                return;
+
+            IsKeyboardButtonDown = true;
+            IsMouseButtonDown = false;
             if (TypeWriter is KeyboardTypewriter Keyboard)
             {
                 Keyboard.OnKeyDown(Args);
             }
+            Args.Handled = true;
         }
 
         private void TextBox_OnKeyUp(object Sender, KeyboardEventArgs Args)
         {
-            ButtonDown = false;
+            if (!IsKeyboardButtonDown)
+                return;
+
+            IsKeyboardButtonDown = false;
+            IsMouseButtonDown = false;
             if (TypeWriter is KeyboardTypewriter Keyboard)
             {
                 Keyboard.OnKeyUp(Args);
             }
+            Args.Handled = true;
         }
 
         protected override void OnFocus(object Sender, EventArgs Args)
@@ -402,7 +410,7 @@ namespace OrbisGL.Controls
         private Vector2 RefreshCaretAndEnsureVisible(Vector2 CaretPos)
         {
             var Glyphs = Foreground.GlyphsSpace;
-            int GlyphInCaret = ButtonDown ? CurrentClickIndex : SelectionStart;
+            int GlyphInCaret = IsMouseButtonDown ? CurrentClickIndex : SelectionStart;
             bool CaretOnEnd = false;
 
             GlyphInfo CurrentGlyph;

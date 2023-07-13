@@ -7,41 +7,21 @@ namespace OrbisGL.Controls
     {
         public event KeyboardEventDelegate OnKeyDown;
         public event KeyboardEventDelegate OnKeyUp;
-        
+
         internal void ProcessKeyDown(object Sender, KeyboardEventArgs Args)
         {
-            if (!Focused)
-                return;
-
-            
-
-            if (Children.Any(x => x.Focused))
+            PropagateAll((Ctrl, e) =>
             {
-                FocusedControl.PropagateUp((Ctrl, e) =>
-                {
-                    Ctrl.OnKeyDown?.Invoke(this, (KeyboardEventArgs)e);
-                }, Args);
-                return;
-            }
-
-            OnKeyDown?.Invoke(this, Args);
+                Ctrl.OnKeyDown?.Invoke(this, (KeyboardEventArgs)e);
+            }, Args);
+            return;
         }
-        
         internal void ProcessKeyUp(object Sender, KeyboardEventArgs Args)
         {
-            if (!Focused)
-                return;
-
-            if (Children.Any(x => x.Focused))
+            PropagateAll((Ctrl, e) =>
             {
-                FocusedControl.PropagateUp((Ctrl, e) =>
-                {
-                    Ctrl.OnKeyUp?.Invoke(this, (KeyboardEventArgs)e);
-                }, Args);
-                return;
-            }
-
-            OnKeyUp?.Invoke(this, Args);
+                Ctrl.OnKeyUp?.Invoke(this, (KeyboardEventArgs)e);
+            }, Args);
         }
     }
 }
