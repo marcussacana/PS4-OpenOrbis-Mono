@@ -2,10 +2,6 @@
 using OrbisGL.GL;
 using System;
 using System.Linq;
-using Orbis.Internals;
-using OrbisGL.Input;
-using System.Diagnostics.Contracts;
-using System.Numerics;
 
 namespace OrbisGL.Controls
 {
@@ -14,8 +10,13 @@ namespace OrbisGL.Controls
 
         public virtual void Dispose()
         {
-            foreach (var Child in Children)
+            foreach (var Child in Children.ToArray())
                 Child.Dispose();
+
+            GLObject.Dispose();
+
+            RemoveChildren();
+            Parent?.RemoveChild(this);
         }
 
         public virtual void Draw(long Tick)

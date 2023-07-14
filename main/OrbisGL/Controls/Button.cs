@@ -79,14 +79,13 @@ namespace OrbisGL.Controls
                 if (!Enabled)
                     return;
 
-                Hover = true;
                 e.Handled = true;
                 CurrentState = ButtonState.Hover;
                 Invalidate();
             };
 
             OnMouseButtonDown += (sender, e) => {
-                if (!Enabled)
+                if (!Enabled || !IsMouseHover)
                     return;
 
                 e.Handled = true;
@@ -99,7 +98,7 @@ namespace OrbisGL.Controls
                     return;
 
                 e.Handled = true;
-                CurrentState = Hover ? ButtonState.Hover : ButtonState.Normal;
+                CurrentState = IsMouseHover ? ButtonState.Hover : ButtonState.Normal;
                 Invalidate();
             };
 
@@ -107,14 +106,11 @@ namespace OrbisGL.Controls
                 if (!Enabled)
                     return;
 
-                Hover = false;
                 e.Handled = true;
                 CurrentState = ButtonState.Normal;
                 Invalidate();
             };
         }
-
-        bool Hover = false;
 
         public void Refresh()
         {

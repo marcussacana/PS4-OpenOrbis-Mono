@@ -401,6 +401,7 @@ void main(void) {
             BG2.BackgroundColor = RGBColor.ReallyLightBlue;
             BG2.Size = new Vector2(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.Position = new Vector2(100, 100);
+            BG2.AllowScroll = true;
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
@@ -413,12 +414,6 @@ void main(void) {
 
             BG2.AddChild(TB);
             BG2.AddChild(TB2);
-
-            var VTScrollBar = new VerticalScrollBar((int)BG2.Size.Y, BG2.MaxScrollY + (int)BG2.Size.Y, 15);
-            VTScrollBar.Position = new Vector2(5, 0);
-            VTScrollBar.ScrollChanged += (s, a) => { BG2.ScrollY = (int)VTScrollBar.CurrentScroll; };
-
-            BG2.AddChild(VTScrollBar);
 
             BG.AddChild(BG2);
 

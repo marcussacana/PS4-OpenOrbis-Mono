@@ -1,5 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Numerics;
 

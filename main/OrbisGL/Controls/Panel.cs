@@ -12,6 +12,7 @@ namespace OrbisGL.Controls
 {
     public class Panel : Control
     {
+        VerticalScrollBar ScrollBar;
         public Panel()
         {
             Background = new Rectangle2D((int)Size.X, (int)Size.Y, true);
@@ -19,6 +20,9 @@ namespace OrbisGL.Controls
 
             GLObject.AddChild(Background);
         }
+
+        public bool AllowScroll { get; set; }
+        public byte ScrollBarWidth { get; set; } = 15;
 
         public byte BackgroundTransparency { get => Background.Transparency; set => Background.Transparency = value; }
 
@@ -65,6 +69,26 @@ namespace OrbisGL.Controls
 
         void Refresh()
         {
+            if (ScrollBar == null && AllowScroll)
+            {
+                if (Childs.Any(x => x is VerticalScrollBar))
+                {
+                    foreach (var OldScrollBar in Childs.Where(x => x is VerticalScrollBar).ToArray())
+                    {
+                        OldScrollBar.Dispose();
+                    }
+                }
+
+                ScrollBar = new VerticalScrollBar((int)Size.Y, MaxScrollY + (int)Size.Y, ScrollBarWidth);
+                ScrollBar.Position = new Vector2(Size.X - ScrollBarWidth - (int)(ScrollBarWidth*0.3), 0);
+                ScrollBar.CurrentScroll = ScrollY;
+                ScrollBar.Refresh();
+                ScrollBar.ScrollChanged += (s, e) => {
+                    ScrollY = (int)((VerticalScrollBar)s).CurrentScroll;
+                };
+
+                AddChild(ScrollBar);
+            }
 
             Background.Width = (int)Size.X;
             Background.Height = (int)Size.Y;
