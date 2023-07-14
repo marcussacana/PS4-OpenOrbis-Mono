@@ -83,13 +83,17 @@ namespace OrbisGL.GL2D
 
             foreach (var Line in Lines)
             {
-                var Rectangle = GetLineRectangle(Line.Begin, Line.End);
+                var BeginPos = Line.Begin - MaxRectangle.Position;
+                var EndPos = Line.End - MaxRectangle.Position;
 
-                GetLineUV(MaxRectangle, Line.Begin, Line.End, out Vector2 UV1, out Vector2 UV2);
+                //var Rectangle = GetLineRectangle(Line.Begin, Line.End);
 
-                var Begin = new Vector3(XToPoint(Line.Begin.X), YToPoint(Line.Begin.Y), -1);
-                var End = new Vector3(XToPoint(Line.End.X), YToPoint(Line.End.Y), -1);
+                GetLineUV(MaxRectangle, BeginPos, EndPos, out Vector2 UV1, out Vector2 UV2);
 
+                var Begin = new Vector3(XToPoint(BeginPos.X), YToPoint(BeginPos.Y), -1);
+                var End = new Vector3(XToPoint(EndPos.X), YToPoint(EndPos.Y), -1);
+
+                
                 AddArray(Begin);
                 AddArray(UV1);
                 AddArray(End);
@@ -106,7 +110,7 @@ namespace OrbisGL.GL2D
         {
             float MinX = Rectangles.Min(x => x.X);
             float MinY = Rectangles.Min(x => x.Y);
-            float MaxX = Rectangles.Max(x => x.Left);
+            float MaxX = Rectangles.Max(x => x.Right);
             float MaxY = Rectangles.Max(x => x.Bottom);
 
             float MaxWidth = Math.Max(MaxX - MinX, 1);

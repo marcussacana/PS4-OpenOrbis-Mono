@@ -47,12 +47,13 @@ namespace GLTest
             this.button14 = new System.Windows.Forms.Button();
             this.button15 = new System.Windows.Forms.Button();
             this.button16 = new System.Windows.Forms.Button();
+            this.button17 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(12, 721);
+            this.button1.Location = new System.Drawing.Point(12, 730);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(85, 23);
             this.button1.TabIndex = 0;
@@ -63,7 +64,7 @@ namespace GLTest
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(1165, 721);
+            this.button2.Location = new System.Drawing.Point(1165, 764);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(85, 23);
             this.button2.TabIndex = 1;
@@ -74,7 +75,7 @@ namespace GLTest
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button3.Location = new System.Drawing.Point(103, 721);
+            this.button3.Location = new System.Drawing.Point(103, 730);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(122, 23);
             this.button3.TabIndex = 2;
@@ -85,7 +86,7 @@ namespace GLTest
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button4.Location = new System.Drawing.Point(231, 721);
+            this.button4.Location = new System.Drawing.Point(231, 730);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(69, 23);
             this.button4.TabIndex = 3;
@@ -96,7 +97,7 @@ namespace GLTest
             // button5
             // 
             this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button5.Location = new System.Drawing.Point(306, 721);
+            this.button5.Location = new System.Drawing.Point(12, 759);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(35, 23);
             this.button5.TabIndex = 4;
@@ -107,7 +108,7 @@ namespace GLTest
             // button6
             // 
             this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button6.Location = new System.Drawing.Point(347, 721);
+            this.button6.Location = new System.Drawing.Point(53, 759);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(69, 23);
             this.button6.TabIndex = 5;
@@ -118,7 +119,7 @@ namespace GLTest
             // button7
             // 
             this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button7.Location = new System.Drawing.Point(473, 721);
+            this.button7.Location = new System.Drawing.Point(357, 730);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(49, 23);
             this.button7.TabIndex = 6;
@@ -129,7 +130,7 @@ namespace GLTest
             // button8
             // 
             this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button8.Location = new System.Drawing.Point(597, 721);
+            this.button8.Location = new System.Drawing.Point(481, 730);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(76, 23);
             this.button8.TabIndex = 7;
@@ -140,7 +141,7 @@ namespace GLTest
             // button9
             // 
             this.button9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button9.Location = new System.Drawing.Point(679, 721);
+            this.button9.Location = new System.Drawing.Point(128, 759);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(62, 23);
             this.button9.TabIndex = 8;
@@ -151,7 +152,7 @@ namespace GLTest
             // button10
             // 
             this.button10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button10.Location = new System.Drawing.Point(747, 721);
+            this.button10.Location = new System.Drawing.Point(196, 759);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(61, 23);
             this.button10.TabIndex = 9;
@@ -162,7 +163,7 @@ namespace GLTest
             // button11
             // 
             this.button11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button11.Location = new System.Drawing.Point(814, 721);
+            this.button11.Location = new System.Drawing.Point(263, 759);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(45, 23);
             this.button11.TabIndex = 10;
@@ -173,7 +174,7 @@ namespace GLTest
             // button12
             // 
             this.button12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button12.Location = new System.Drawing.Point(865, 721);
+            this.button12.Location = new System.Drawing.Point(314, 759);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(45, 23);
             this.button12.TabIndex = 11;
@@ -184,7 +185,7 @@ namespace GLTest
             // button13
             // 
             this.button13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button13.Location = new System.Drawing.Point(422, 721);
+            this.button13.Location = new System.Drawing.Point(306, 730);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(45, 23);
             this.button13.TabIndex = 12;
@@ -195,7 +196,7 @@ namespace GLTest
             // button14
             // 
             this.button14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button14.Location = new System.Drawing.Point(916, 721);
+            this.button14.Location = new System.Drawing.Point(361, 759);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(45, 23);
             this.button14.TabIndex = 13;
@@ -205,7 +206,8 @@ namespace GLTest
             // 
             // button15
             // 
-            this.button15.Location = new System.Drawing.Point(967, 721);
+            this.button15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button15.Location = new System.Drawing.Point(412, 759);
             this.button15.Name = "button15";
             this.button15.Size = new System.Drawing.Size(54, 23);
             this.button15.TabIndex = 14;
@@ -216,7 +218,7 @@ namespace GLTest
             // button16
             // 
             this.button16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button16.Location = new System.Drawing.Point(528, 721);
+            this.button16.Location = new System.Drawing.Point(412, 730);
             this.button16.Name = "button16";
             this.button16.Size = new System.Drawing.Size(63, 23);
             this.button16.TabIndex = 15;
@@ -224,11 +226,23 @@ namespace GLTest
             this.button16.UseVisualStyleBackColor = true;
             this.button16.Click += new System.EventHandler(this.button16_Click);
             // 
+            // button17
+            // 
+            this.button17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button17.Location = new System.Drawing.Point(472, 759);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(77, 23);
+            this.button17.TabIndex = 16;
+            this.button17.Text = "Checkbox";
+            this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
+            // 
             // GLTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1262, 756);
+            this.ClientSize = new System.Drawing.Size(1262, 799);
+            this.Controls.Add(this.button17);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.button15);
             this.Controls.Add(this.button14);
@@ -270,5 +284,6 @@ namespace GLTest
         private System.Windows.Forms.Button button14;
         private System.Windows.Forms.Button button15;
         private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.Button button17;
     }
 }

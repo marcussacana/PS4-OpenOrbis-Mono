@@ -34,7 +34,7 @@ namespace OrbisGL.GL
         /// <param name="XY">The XY Coordinates Vector</param>
         public bool IsInBounds(Vector2 XY)
         {
-            return XY.X >= Right && XY.Y >= Top && XY.X <= Left && XY.Y <= Bottom;
+            return XY.X >= Left && XY.Y >= Top && XY.X <= Right && XY.Y <= Bottom;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace OrbisGL.GL
         /// <param name="Y">The Y Coordinate</param>
         public bool IsInBounds(int X, int Y)
         {
-            return X >= Right && Y >= Top && X <= Left && Y <= Bottom;
+            return X >= Left && Y >= Top && X <= Right && Y <= Bottom;
         }
 
         public Rectangle Intersect(Rectangle B)
@@ -79,8 +79,8 @@ namespace OrbisGL.GL
             if (InnerRect.X < OutterRect.X)
                 InnerRect.X = OutterRect.X;
 
-            if (InnerRect.Left > OutterRect.Left)
-                InnerRect.Left = OutterRect.Left;
+            if (InnerRect.Right > OutterRect.Right)
+                InnerRect.Right = OutterRect.Right;
 
             if (InnerRect.Y < OutterRect.Y)
                 InnerRect.Y = OutterRect.Y;
@@ -108,8 +108,11 @@ namespace OrbisGL.GL
 
 
         public float Top { get => Vector.Y; set => Vector.Y = value; }
-        public float Right { get => Vector.X; set => Vector.X = value; }
-        public float Left { get => Vector.X + Vector.Z; set => Vector.Z = value - Vector.X; }
+        public float Left { get => Vector.X; set => Vector.X = value; }
+        public float Right { get => Vector.X + Vector.Z; set => Vector.Z = value - Vector.X; }
         public float Bottom { get => Vector.Y + Vector.W; set => Vector.W = value - Vector.Y; }
+
+        public Vector2 Position => new Vector2(X, Y);
+        public Vector2 Size => new Vector2(Width, Height);
     }
 }

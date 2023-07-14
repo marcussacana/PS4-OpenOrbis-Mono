@@ -2,7 +2,7 @@
 
 precision highp float;
 
-varying lowp vec2 UV;
+varying highp vec2 UV;
 
 uniform lowp vec4 Color;
 uniform lowp vec4 BackColor;

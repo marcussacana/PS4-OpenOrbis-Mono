@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\Checkbox.cs" />
     <Compile Include="Controls\Control.Keyboard.cs" />
     <Compile Include="Controls\Control.Mouse.cs" />
     <Compile Include="Controls\Control.Extensions.cs" />

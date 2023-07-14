@@ -13,8 +13,12 @@ namespace OrbisGL.Controls
     public class Panel : Control
     {
         VerticalScrollBar ScrollBar;
-        public Panel()
+
+        public Panel(int Width, int Height) : this(new Vector2(Width, Height)) { }
+        public Panel(Vector2 Size)
         {
+            this.Size = Size;
+
             Background = new Rectangle2D((int)Size.X, (int)Size.Y, true);
             Background.Position = new Vector2(0, 0);
 

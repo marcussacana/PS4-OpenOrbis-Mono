@@ -291,8 +291,7 @@ void main(void) {
         private void button11_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel();
-            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
 
 
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
@@ -310,8 +309,7 @@ void main(void) {
         private void button12_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel();
-            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
 
@@ -373,9 +371,8 @@ void main(void) {
 
 #if !ORBIS
 
-            var BG = new OrbisGL.Controls.Panel();
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
-            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
@@ -393,13 +390,11 @@ void main(void) {
         private void button15_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel();
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.Red;
-            BG.Size = new Vector2(GLControl.Size.Width, GLControl.Size.Height);
 
-            var BG2 = new OrbisGL.Controls.Panel();
+            var BG2 = new OrbisGL.Controls.Panel(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.BackgroundColor = RGBColor.ReallyLightBlue;
-            BG2.Size = new Vector2(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.Position = new Vector2(100, 100);
             BG2.AllowScroll = true;
 
@@ -463,6 +458,24 @@ void main(void) {
 
             GLControl.GLApplication.Objects.Add(Rect);
 #endif
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            BG.BackgroundColor = RGBColor.White;
+
+
+            var CK = new Checkbox(20);
+            CK.Text = "Hello World";
+            CK.Position = new Vector2(10, 10);
+
+            BG.AddChild(CK);
+
+            GLControl.GLApplication.Objects.Add(BG);
+#endif
+
         }
     }
 }

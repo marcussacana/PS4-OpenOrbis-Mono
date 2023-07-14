@@ -2,7 +2,7 @@
 
 uniform lowp vec4 Color;
 
-varying lowp vec2 UV;
+varying highp vec2 UV;
 
 uniform highp vec4 VisibleRect;
 
