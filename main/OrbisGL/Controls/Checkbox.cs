@@ -1,15 +1,18 @@
 ﻿using OrbisGL.FreeTypeLib;
 using OrbisGL.GL2D;
+using System;
 using System.Numerics;
-using System.Runtime.Remoting.Messaging;
 
 namespace OrbisGL.Controls
 {
     public class Checkbox : Control
     {
+        public event EventHandler OnCheckedChanged;
+
         Text2D Label;
-        RoundedRectangle2D Background;
-        RoundedRectangle2D BGContour;
+
+        GLObject2D BGContour;
+        GLObject2D Background;
         Line2D CheckIcon;
         public override bool Focusable => true;
 
@@ -21,8 +24,13 @@ namespace OrbisGL.Controls
         public bool Checked { get => _Checked; 
             set 
             {
+                if (_Checked == value)
+                    return;
+
                 _Checked = value;
                 Invalidate();
+
+                OnCheckedChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -35,24 +43,16 @@ namespace OrbisGL.Controls
 
             int Size = Height + (TextMargin * 2);
 
-            Background = new RoundedRectangle2D(Size, Size, true);
-            Background.Color = BackgroundColor;
-            Background.ContourWidth = 1.8f;
-            Background.Margin = new Vector2(2, 2);
+            Background = new RoundedRectangle2D(Size, Size, true)
+            {
+                ContourWidth = 1.8f,
+                Margin = new Vector2(2, 2)
+            };
 
-            BGContour = new RoundedRectangle2D(Size, Size, false);
-            BGContour.Color = ForegroundColor.Highlight(160);
-            BGContour.ContourWidth = 1.8f;
-
-
-                int SymbolLeft = (int)(Size * 0.3);
-                int SymbolRight = Size - (int)(Size * 0.3);
-                int SymbolWidth = SymbolRight - SymbolLeft;
-                int SymbolLeftY = (int)(Size * 0.48);
-                int SymbolRightY = (int)(Size * 0.4);
-                int SymbolBottom = (int)(Size * 0.435);
-                int SymbolCenterX = (int)(Size * 0.267);
-
+            BGContour = new RoundedRectangle2D(Size, Size, false)
+            {
+                ContourWidth = 1.8f
+            };
 
             CheckIcon = new Line2D(new GL.Line[] {
                 new GL.Line()
@@ -67,14 +67,11 @@ namespace OrbisGL.Controls
                 }
             }, false);
 
-
-            CheckIcon.Color = BackgroundColor;
             CheckIcon.LineWidth = 2f;
             CheckIcon.Position = new Vector2((int)(Size*0.25), (int)(Size * 0.25));
             CheckIcon.Visible = false;
 
             Label = new Text2D(Font, FontSize);
-            Label.Color = ForegroundColor;
             Label.Position = new Vector2(Size + TextMargin, TextMargin);
 
             this.Size = new Vector2(Size);
@@ -84,8 +81,12 @@ namespace OrbisGL.Controls
             GLObject.AddChild(CheckIcon);
             GLObject.AddChild(Label);
 
+            OnMouseEnter += (s, e) => Invalidate();
+            OnMouseLeave += (s, e) => Invalidate();
+
             OnMouseClick += Checkbox_OnMouseClick;
         }
+
 
         private void Checkbox_OnMouseClick(object Sender, Events.ClickEventArgs EventArgs)
         {
@@ -100,15 +101,25 @@ namespace OrbisGL.Controls
             base.Draw(Tick);
         }
 
-        private void Refresh()
+        protected virtual void Refresh()
         {
-            Label.SetText(Text);
+            Label.Color = ForegroundColor;
+            CheckIcon.Color = BackgroundColor;
 
+            Label.SetText(Text);
 
             Size = new Vector2(Label.Position.X + Label.Width, Size.Y);
 
+            Background.Color = BackgroundColor;
+            BGContour.Color = ForegroundColor.Highlight(160);
+
+
             CheckIcon.Visible = Checked;
-            Background.Color = Checked ? ForegroundColor.Highlight(160) : BackgroundColor;
+
+            Background.Color = IsMouseHover ? BackgroundColor.Highlight(220) : BackgroundColor;
+
+            if (Checked)
+                Background.Color = BackgroundColor.Highlight(160);
 
             Invalidated = false;
         }
