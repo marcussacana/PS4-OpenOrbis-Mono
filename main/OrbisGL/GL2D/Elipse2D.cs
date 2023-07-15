@@ -7,11 +7,7 @@ namespace OrbisGL.GL2D
     public class Elipse2D : GLObject2D
     {
         readonly int AntiAliasingUniformLocation;
-        readonly int ColorUniformLocation;
         readonly int ContourWidthUniformLocation;
-        public byte Transparency { get; set; } = 255;
-
-        public RGBColor Color { get; set; } = RGBColor.White;
 
         public float AntiAliasing { get; set; } = 6f;
         public float ContourWidth { get; set; } = 1.0f;
@@ -32,7 +28,6 @@ namespace OrbisGL.GL2D
             RenderMode = (int)OrbisGL.RenderMode.Triangle;
 
             AntiAliasingUniformLocation = GLES20.GetUniformLocation(Program.Handler, "AntiAliasing");
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
@@ -74,7 +69,6 @@ namespace OrbisGL.GL2D
             else
                 Program.SetUniform(ContourWidthUniformLocation, ContourWidth);
 
-            Program.SetUniform(ColorUniformLocation, Color, Transparency);
             base.Draw(Tick);
         }
     }

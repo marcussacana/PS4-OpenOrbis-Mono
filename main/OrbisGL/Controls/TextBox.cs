@@ -56,7 +56,7 @@ namespace OrbisGL.Controls
 
             BackgroundContour = new RoundedRectangle2D(Width, Height, false);
             BackgroundContour.Color = ForegroundColor;
-            BackgroundContour.Transparency = 60;
+            BackgroundContour.Opacity = 60;
             BackgroundContour.RoundLevel = 1.2f;
             BackgroundContour.ContourWidth = 0.8f;
             BackgroundContour.Margin = new Vector2(-0.2f, -0.2f);
@@ -66,7 +66,7 @@ namespace OrbisGL.Controls
             FocusIndicator = new Line2D(false);
             FocusIndicator.Color = ForegroundColor;
             FocusIndicator.LineWidth = 0.2f;
-            FocusIndicator.Transparency = 150;
+            FocusIndicator.Opacity = 150;
 
             FocusIndicator.SetLines(new Line[] {
                 new Line()
@@ -388,7 +388,7 @@ namespace OrbisGL.Controls
             Background.Color = Desaturate && !Focused ? BackgroundColor.Desaturate(240) : BackgroundColor;
             BackgroundContour.Color = ForegroundColor;
 
-            FocusIndicator.Transparency = Focused ? (byte)255 : (byte)160;
+            FocusIndicator.Opacity = Focused ? (byte)255 : (byte)160;
             FocusIndicator.Color = Focused ? PrimaryBackgroundColor : ForegroundColor;
 
             //Update Text Visible Range

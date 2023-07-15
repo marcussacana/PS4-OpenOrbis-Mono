@@ -21,6 +21,9 @@ namespace OrbisGL.Controls
             get => PrimaryBackColor;
             set
             {
+                if (PrimaryBackColor == value)
+                    return;
+
                 PrimaryBackColor = value;
                 Invalidate();
             }
@@ -32,6 +35,9 @@ namespace OrbisGL.Controls
             get => PrimaryForeColor;
             set
             {
+                if (PrimaryForeColor == value)
+                    return;
+
                 PrimaryForeColor = value;
                 Invalidate();
             }
@@ -43,6 +49,9 @@ namespace OrbisGL.Controls
             get => BackColor;
             set
             {
+                if (BackColor == value)
+                    return;
+
                 BackColor = value;
                 Invalidate();
             }
@@ -53,7 +62,10 @@ namespace OrbisGL.Controls
         { 
             get => ForeColor;
             set 
-            { 
+            {
+                if (ForeColor == value)
+                    return;
+
                 ForeColor = value;
                 Invalidate();
             }
@@ -109,6 +121,9 @@ namespace OrbisGL.Controls
             get => _Visible && (Parent == null || Parent.Visible) && !_RectInvisible; 
             set
             {
+                if (Visible == value)
+                    return;
+
                 _Visible = value;
                 Invalidate();
             }
@@ -120,6 +135,9 @@ namespace OrbisGL.Controls
             get => _Enabled && (Parent == null || Parent.Enabled); 
             set 
             {
+                if (_Enabled == value)
+                    return;
+
                 _Enabled = value;
                 Invalidate();
             }
@@ -165,6 +183,9 @@ namespace OrbisGL.Controls
             get => _Size; 
             set 
             {
+                if (value == _Size)
+                    return;
+
                 _Size = value;
                 Invalidate();
             }
@@ -175,6 +196,8 @@ namespace OrbisGL.Controls
         protected readonly Blank2D GLObject = new Blank2D();
 
         public IEnumerable<Control> Childs => Children;
+
+        public IEnumerable<Control> Siblings => Parent?.Children;
 
         List<Control> Children = new List<Control>();
 

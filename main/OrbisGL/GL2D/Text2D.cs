@@ -18,13 +18,9 @@ namespace OrbisGL.GL2D
         public FontFaceHandler Font { get; set; }
 
         int BackColorUniformLocation = -1;
-        int ColorUniformLocation = -1;
         int TextureUniformLocation = -1;
 
-        public RGBColor Color { get; set; } = RGBColor.White;
         public RGBColor BackgroundColor { get; set; } = null;
-
-        public byte Transparency = 255;
 
         public int FontSize { get; set; }
 
@@ -36,7 +32,6 @@ namespace OrbisGL.GL2D
             var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentFont"));
             Program = new GLProgram(hProgram);
 
-            ColorUniformLocation = GLES20.GetUniformLocation(hProgram, "Color");
             TextureUniformLocation = GLES20.GetUniformLocation(hProgram, "Texture");
             BackColorUniformLocation = GLES20.GetUniformLocation(hProgram, "BackColor");
 
@@ -170,11 +165,10 @@ namespace OrbisGL.GL2D
         {
             if (Text != null)
             {
-                Program.SetUniform(ColorUniformLocation, Color, Transparency);
                 Program.SetUniform(TextureUniformLocation, FontTexture.Active());
 
                 if (BackgroundColor != null)
-                    Program.SetUniform(BackColorUniformLocation, BackgroundColor, Transparency);
+                    Program.SetUniform(BackColorUniformLocation, BackgroundColor, Opacity);
                 else
                     Program.SetUniform(BackColorUniformLocation, Vector4.Zero);
             } 

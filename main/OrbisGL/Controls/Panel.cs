@@ -28,7 +28,7 @@ namespace OrbisGL.Controls
         public bool AllowScroll { get; set; }
         public byte ScrollBarWidth { get; set; } = 15;
 
-        public byte BackgroundTransparency { get => Background.Transparency; set => Background.Transparency = value; }
+        public byte BackgroundTransparency { get => Background.Opacity; set => Background.Opacity = value; }
 
         public override bool Focusable => false;
 
@@ -41,8 +41,8 @@ namespace OrbisGL.Controls
         int _ScrollX = 0;
         int _ScrollY = 0;
 
-        public int ScrollX { get => _ScrollX; set { _ScrollX = value; Invalidate(); } }
-        public int ScrollY { get => _ScrollY; set { _ScrollY = value; Invalidate(); } }
+        public int ScrollX { get => _ScrollX; set { if (value == _ScrollX) return;  _ScrollX = value; Invalidate(); } }
+        public int ScrollY { get => _ScrollY; set { if (value == _ScrollY) return;  _ScrollY = value; Invalidate(); } }
 
         public int MaxScrollX { 
             get

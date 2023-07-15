@@ -15,6 +15,9 @@ namespace OrbisGL.Controls
             get => _Primary; 
             set 
             {
+                if (_Primary == value)
+                    return;
+
                 _Primary = value;
                 Invalidate();
             } 
@@ -25,6 +28,9 @@ namespace OrbisGL.Controls
             get => _Text; 
             set 
             {
+                if (_Text == value)
+                    return;
+
                 _Text = value;
                 Invalidate();
             }
@@ -67,7 +73,7 @@ namespace OrbisGL.Controls
 
             BackgroundContour = new RoundedRectangle2D(Width, Height, false);
             BackgroundContour.Color = BackgroundColor;
-            BackgroundContour.Transparency = 100;
+            BackgroundContour.Opacity = 100;
             BackgroundContour.RoundLevel = 1.8f;
             BackgroundContour.ContourWidth = 0.5f;
             BackgroundContour.Margin = new Vector2(-0.25f, -0.25f);

@@ -54,13 +54,13 @@ namespace OrbisGL.Controls
             SlimBar = new RoundedRectangle2D(Width / 3, 1, true);
             SlimBar.Color = ForegroundColor;
             SlimBar.RoundLevel = 1.8f;
-            SlimBar.Transparency = 150;
+            SlimBar.Opacity = 150;
             SlimBar.Position = new Vector2(InnerBarMargin, 0);
 
             FatBarBackground = new RoundedRectangle2D(Width, VisibleHeight - (int)(InnerDistance * 2), true);
             FatBarBackground.Color = BackgroundColor.Highlight(200);
             FatBarBackground.RoundLevel = 1.8f;
-            FatBarBackground.Transparency = 200;
+            FatBarBackground.Opacity = 200;
             FatBarBackground.Position = new Vector2(0, InnerDistance);
 
             FatBarForeground = new RoundedRectangle2D((int)InnerDistance, 1, true);

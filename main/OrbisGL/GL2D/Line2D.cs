@@ -18,15 +18,9 @@ namespace OrbisGL.GL2D
 {
     public class Line2D : GLObject2D
     {
-        public RGBColor Color { get; set; } = RGBColor.Red;
-
         private readonly List<Line> Lines = new List<Line>();
 
-        public byte Transparency { get; set; } = 255;
-
         public float LineWidth { get; set; } = 1;
-
-        int ColorUniformLocation = -1;
 
         public Line2D(Line[] Lines, bool CloseLines) : this(CloseLines)
         {
@@ -42,8 +36,6 @@ namespace OrbisGL.GL2D
             Program.AddBufferAttribute("uv", AttributeType.Float, AttributeSize.Vector2);
 
             RenderMode = (int) (CloseLines ? OrbisGL.RenderMode.SingleLine : OrbisGL.RenderMode.MultipleLines);
-
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
 
             RefreshVertex();
         }
@@ -152,8 +144,6 @@ namespace OrbisGL.GL2D
 
         public override void Draw(long Tick)
         {
-            Program.SetUniform(ColorUniformLocation, Color, Transparency);
-
             GLES20.LineWidth(LineWidth);//Not supported in PC GLES, but supported in PS4
 
             base.Draw(Tick);

@@ -73,6 +73,7 @@
     <Compile Include="Controls\Events\ClickEvent.cs" />
     <Compile Include="Controls\Events\PropagableEvent.cs" />
     <Compile Include="Controls\Control.cs" />
+    <Compile Include="Controls\Radiobutton.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Controls\VerticalScrollBar.cs" />
     <Compile Include="Enums.cs" />

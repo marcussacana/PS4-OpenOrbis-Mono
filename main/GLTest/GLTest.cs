@@ -233,7 +233,7 @@ void main(void) {
             var Rect = new Elipse2D(200, 200, Rand.Next(0, 2) == 1);
             Rect.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
-            Rect.Transparency = (byte)Rand.Next(0, 255);
+            Rect.Opacity = (byte)Rand.Next(0, 255);
 
             GLControl.GLApplication.Objects.Add(Rect);
 #endif
@@ -476,6 +476,34 @@ void main(void) {
             GLControl.GLApplication.Objects.Add(BG);
 #endif
 
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+
+#if !ORBIS
+            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            BG.BackgroundColor = RGBColor.White;
+
+
+            var RB1 = new Radiobutton(20);
+            RB1.Text = "Hello World 1";
+            RB1.Position = new Vector2(10, 10);
+
+            var RB2 = new Radiobutton(20);
+            RB2.Text = "Hello World 2";
+            RB2.Position = new Vector2(10, 50);
+
+            var RB3 = new Radiobutton(20);
+            RB3.Text = "Hello World 3";
+            RB3.Position = new Vector2(10, 90);
+
+            BG.AddChild(RB1);
+            BG.AddChild(RB2);
+            BG.AddChild(RB3);
+
+            GLControl.GLApplication.Objects.Add(BG);
+#endif
         }
     }
 }

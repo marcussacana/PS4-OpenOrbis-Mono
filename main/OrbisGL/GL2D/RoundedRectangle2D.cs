@@ -9,12 +9,7 @@ namespace OrbisGL.GL2D
     {
         readonly int BorderUniformLocation;
         readonly int MarginUniformLocation;
-        readonly int ColorUniformLocation;
         readonly int ContourWidthUniformLocation;
-
-        public byte Transparency { get; set; } = 255;
-
-        public RGBColor Color { get; set; } = RGBColor.White;
 
         public float RoundLevel { get; set; } = 0.8f;
 
@@ -39,7 +34,6 @@ namespace OrbisGL.GL2D
             RenderMode = (int)OrbisGL.RenderMode.Triangle;
 
             BorderUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Border");
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
             MarginUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Margin");
 
@@ -79,7 +73,6 @@ namespace OrbisGL.GL2D
         {
             Program.SetUniform(BorderUniformLocation, RoundLevel);
             Program.SetUniform(MarginUniformLocation, Margin);
-            Program.SetUniform(ColorUniformLocation, Color, Transparency);
 
             if (!Fill)
                 Program.SetUniform(ContourWidthUniformLocation, ContourWidth);

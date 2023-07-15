@@ -10,11 +10,8 @@ namespace OrbisGL.GL2D
     {
         private readonly int RotateUniformLocation;
         private readonly int BorderUniformLocation;
-        private readonly int ColorUniformLocation;
 
         public float RoundLevel { get; set; } = 0.0f;
-        public RGBColor Color { get; set; } = RGBColor.White;
-        public byte Transparency { get; set; } = 255;
 
         public Degrees Rotation { get; set; } = 0;
 
@@ -48,7 +45,6 @@ namespace OrbisGL.GL2D
 
             BorderUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Border");
             RotateUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Rotate");
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
 
@@ -85,7 +81,6 @@ namespace OrbisGL.GL2D
         {
             Program.SetUniform(RotateUniformLocation, (float)Rotation / 10);
             Program.SetUniform(BorderUniformLocation, RoundLevel);
-            Program.SetUniform(ColorUniformLocation, Color, Transparency);
 
             base.Draw(Tick);
         }

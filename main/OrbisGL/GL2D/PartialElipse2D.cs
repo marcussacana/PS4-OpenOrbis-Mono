@@ -8,11 +8,6 @@ namespace OrbisGL.GL2D
     public class PartialElipse2D : GLObject2D
     {
         readonly int CircleConfigUniformLocation;
-        readonly int ColorUniformLocation;
-
-        public byte Transparency { get; set; } = 255;
-
-        public RGBColor Color { get; set; } = RGBColor.White;
 
         /// <summary>
         /// From 0.00 to 1.00, when 1 a pizza like geometry will be rendered
@@ -50,7 +45,6 @@ namespace OrbisGL.GL2D
             RenderMode = (int)OrbisGL.RenderMode.Triangle;
 
             CircleConfigUniformLocation = GLES20.GetUniformLocation(Program.Handler, "CircleConfig");//vec3(startAngle, endAngle, Thickness)
-            ColorUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Color");
 
             Program.SetUniform("Resolution", (float)Width, (float)Height);
 
@@ -91,7 +85,6 @@ namespace OrbisGL.GL2D
             else
                 Program.SetUniform(CircleConfigUniformLocation, StartAngle, EndAngle, Thickness);
 
-            Program.SetUniform(ColorUniformLocation, Color, Transparency);
             base.Draw(Tick);
         }
     }

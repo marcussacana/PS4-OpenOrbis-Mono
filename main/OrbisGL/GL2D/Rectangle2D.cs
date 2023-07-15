@@ -8,10 +8,6 @@ namespace OrbisGL.GL2D
     {
         bool FillMode;
 
-        public byte Transparency { get; set; } = 255;
-
-        public RGBColor Color { get; set; } = RGBColor.White;
-
         public Rectangle2D(Rectangle Rectangle, bool Fill) : this((int)Rectangle.Width, (int)Rectangle.Height, Fill)
         {
             Position = new Vector2(Rectangle.X, Rectangle.Y);
@@ -98,13 +94,6 @@ namespace OrbisGL.GL2D
         {
             RefreshVertex();
             ClearChildrenVisibleRectangle();
-        }
-
-        public override void Draw(long Tick)
-        {
-            Program.SetUniform("Color", Color, Transparency);
-
-            base.Draw(Tick);
         }
     }
 }

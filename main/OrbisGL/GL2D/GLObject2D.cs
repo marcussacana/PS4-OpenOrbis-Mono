@@ -1,11 +1,8 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Numerics;
-using System.Xml.Serialization;
 
 namespace OrbisGL.GL2D
 {
@@ -15,11 +12,27 @@ namespace OrbisGL.GL2D
 
         public int Width { get; set; }
         public int Height { get; set; }
-
-        protected GLObject2D Parent = null;
         public bool InRoot => Parent == null;
+        public RGBColor Color { get; set; } = RGBColor.White;
+        public byte Opacity { get; set; } = 255; 
 
         public IEnumerable<GLObject2D> Childs => Children;
+
+        public Vector2 Position
+        {
+            get => _Position;
+            set
+            {
+                _Position = value;
+                Offset = new Vector2(Coordinates2D.XOffset * value.X, Coordinates2D.YOffset * value.Y);
+            }
+        }
+
+        public Rectangle? VisibleRectangle { get; protected set; }
+        public Rectangle Rectangle => new Rectangle(Position.X, Position.Y, Width, Height);
+
+
+        protected GLObject2D Parent = null;
 
         private List<GLObject2D> Children = new List<GLObject2D>();
 
@@ -32,19 +45,6 @@ namespace OrbisGL.GL2D
 
         private Vector2 _Position;
 
-        public Vector2 Position
-        {
-            get => _Position; 
-            set
-            {
-                _Position = value;
-                Offset = new Vector2(Coordinates2D.XOffset * value.X, Coordinates2D.YOffset * value.Y);
-            }
-        }
-
-        public Rectangle? VisibleRectangle { get; protected set; }
-        public Rectangle Rectangle => new Rectangle(Position.X, Position.Y, Width, Height);
-
         protected Vector2 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
 
         protected Vector2 AbsolutePosition => Parent?.AbsolutePosition + Position ?? Position;
@@ -52,6 +52,7 @@ namespace OrbisGL.GL2D
 
         int OffsetUniform = int.MinValue;
         int VisibleUniform = int.MinValue;
+        int ColorUniform = int.MinValue;
 
         public void UpdateUniforms()
         {
@@ -73,6 +74,16 @@ namespace OrbisGL.GL2D
             {
                 VisibleUniform = GLES20.GetUniformLocation(Program.Handler, "VisibleRect");
                 Program.SetUniform(VisibleUniform, VisibleRectUV);
+            }
+
+            if (ColorUniform >= 0)
+            {
+                Program.SetUniform(ColorUniform, Color, Opacity);
+            }
+            else if (ColorUniform == int.MinValue)
+            {
+                ColorUniform = GLES20.GetUniformLocation(Program.Handler, "Color");
+                Program.SetUniform(ColorUniform, Color, Opacity);
             }
         }
 

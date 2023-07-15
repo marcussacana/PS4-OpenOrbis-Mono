@@ -9,7 +9,7 @@ namespace OrbisGL.GL2D
 {
     public class RichText2D : GLObject2D
     {
-        public RGBColor FontColor { get; set; } = RGBColor.White;
+        public RGBColor FontColor { get => Color; set => Color = value; }
         public RGBColor BackColor { get; set; } = null;
 
         public int FontSize { get; set; }
