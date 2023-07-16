@@ -34,6 +34,12 @@ namespace OrbisGL.GL2D
 
         public override void RefreshVertex()
         {
+            if (VisibleRectangle != null)
+            {
+                SetVisibleRectangle(VisibleRectangle.Value);
+                return;
+            }
+
             ClearBuffers();
 
             //   0 ---------- 1

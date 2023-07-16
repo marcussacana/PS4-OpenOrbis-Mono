@@ -104,6 +104,14 @@ namespace OrbisGL.Controls
             ScrollX = Math.Min(ScrollX, MaxScrollX);
             ScrollY = Math.Min(ScrollY, MaxScrollY);
 
+            var AreaRect = AbsoluteRectangle;
+
+            if (VisibleRectangle.HasValue)
+            {
+                AreaRect = VisibleRectangle.Value;
+                AreaRect.Position = AbsolutePosition;
+            }
+
             try
             {
                 Moving = true;
@@ -112,14 +120,16 @@ namespace OrbisGL.Controls
                     if (Child is VerticalScrollBar) 
                     {
                         Child.Position = PositionMap[Child];
+                        Child.SetVisibleArea(Rectangle.GetChildBounds(AreaRect, Child.AbsoluteRectangle));
                         continue;
                     }
 
                     var ChildPos = PositionMap[Child];
                     Child.Position = ChildPos - new Vector2(ScrollX, ScrollY);
+                       
 
                     Child.ClearVisibleArea();
-                    Child.SetAbsoluteVisibleArea(AbsoluteRectangle);
+                    Child.SetAbsoluteVisibleArea(AreaRect);
                 }
             }
             finally 

@@ -7,6 +7,34 @@ namespace OrbisGL.GL
     [DebuggerDisplay("X: {X}; Y: {Y}; W: {Width}; H: {Height};")]
     public struct Rectangle
     {
+        public override bool Equals(object obj)
+        {
+            if (obj is Rectangle Rect) 
+            {
+                return Position == Rect.Position && Size == Rect.Size;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return X.GetHashCode() ^ Y.GetHashCode() ^ Width.GetHashCode() ^ Height.GetHashCode();
+            }
+        }
+
+        public static bool operator ==(Rectangle A, Rectangle B)
+        {
+            return A.Equals(B);
+        }
+
+        public static bool operator !=(Rectangle A, Rectangle B)
+        {
+            return !A.Equals(B);
+        }
+
         public static Rectangle Empty => new Rectangle(0, 0, 0, 0);
 
         public Vector4 Vector;
@@ -112,7 +140,7 @@ namespace OrbisGL.GL
         public float Right { get => Vector.X + Vector.Z; set => Vector.Z = value - Vector.X; }
         public float Bottom { get => Vector.Y + Vector.W; set => Vector.W = value - Vector.Y; }
 
-        public Vector2 Position => new Vector2(X, Y);
-        public Vector2 Size => new Vector2(Width, Height);
+        public Vector2 Position { get => new Vector2(X, Y); set { X = value.X; Y = value.Y; } }
+        public Vector2 Size { get => new Vector2(Width, Height); set { Width = value.X; Height = value.Y; } }
     }
 }

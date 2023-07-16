@@ -395,8 +395,14 @@ void main(void) {
 
             var BG2 = new OrbisGL.Controls.Panel(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.BackgroundColor = RGBColor.ReallyLightBlue;
-            BG2.Position = new Vector2(100, 100);
+            BG2.Position = new Vector2(0, 10);
             BG2.AllowScroll = true;
+
+            var BG3 = new OrbisGL.Controls.Panel(GLControl.Size.Width - 100, GLControl.Size.Height / 3); BG2.BackgroundColor = RGBColor.ReallyLightBlue;
+            BG3.BackgroundColor = RGBColor.Yellowish;
+            BG3.Position = new Vector2(50, 100);
+            BG3.AllowScroll = true;
+
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
             TB.Position = new Vector2(10, 10);
@@ -410,7 +416,9 @@ void main(void) {
             BG2.AddChild(TB);
             BG2.AddChild(TB2);
 
-            BG.AddChild(BG2);
+            BG3.AddChild(BG2);
+
+            BG.AddChild(BG3);
 
             GLControl.GLApplication.Objects.Add(BG);
             GLControl.Focus();

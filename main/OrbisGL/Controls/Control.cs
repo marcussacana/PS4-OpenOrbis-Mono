@@ -7,7 +7,6 @@ namespace OrbisGL.Controls
 {
     public abstract partial class Control : IRenderable
     {
-
         public virtual void Dispose()
         {
             foreach (var Child in Children.ToArray())
@@ -57,6 +56,10 @@ namespace OrbisGL.Controls
                 return;
             }
 
+            if (!VisibleRectangle.HasValue || VisibleRectangle.Value != Area)
+                Invalidate();
+
+            VisibleRectangle = Area;
             _RectInvisible = false;
 
             var AbsArea = new Rectangle(Area.X + AbsolutePosition.X, Area.Y + AbsolutePosition.Y, Area.Width, Area.Height);
@@ -70,6 +73,7 @@ namespace OrbisGL.Controls
 
         public void ClearVisibleArea()
         {
+            VisibleRectangle = null;
             GLObject.ClearVisibleRectangle();
         }
 

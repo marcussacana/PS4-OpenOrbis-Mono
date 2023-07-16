@@ -1,4 +1,5 @@
 ﻿using OrbisGL.Controls.Events;
+using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
 using System.Numerics;
@@ -157,6 +158,8 @@ namespace OrbisGL.Controls
             FatBarForeground.RefreshVertex();
 
             SetScrollByScrollValue(CurrentScroll);
+
+            //[WIP] Copy set visible from parent (Fix scroll bar visible in recursive scroll)
 
             Invalidated = false;
         }

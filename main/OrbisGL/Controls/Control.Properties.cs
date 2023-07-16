@@ -153,8 +153,14 @@ namespace OrbisGL.Controls
         public Vector2 Position
         {
             get => _Position;
-            set 
+            set
             {
+                if (_Position == value && GLObject.Position == AbsolutePosition)
+                {
+                    OnControlMoved?.Invoke(this, new EventArgs());
+                    return;
+                }
+
                 _Position = value;
                 GLObject.Position = AbsolutePosition;
                 Invalidate();
@@ -191,12 +197,31 @@ namespace OrbisGL.Controls
             }
         }
 
+        /// <summary>
+        /// An rectangle relative with this control position
+        /// that represents the visible area of this control
+        /// </summary>
+        protected Rectangle? VisibleRectangle { get; private set; }
+
+        /// <summary>
+        /// An rectangle relative with his screen position
+        /// that represents this control rendering space
+        /// </summary>
         public Rectangle AbsoluteRectangle => new Vector4(AbsolutePosition, Size.X, Size.Y);
 
+        /// <summary>
+        /// An container for 2D objects that give form for the control
+        /// </summary>
         protected readonly Blank2D GLObject = new Blank2D();
 
+        /// <summary>
+        /// Get the childs of this control
+        /// </summary>
         public IEnumerable<Control> Childs => Children;
 
+        /// <summary>
+        /// Get the controls that shares the same parent of this one
+        /// </summary>
         public IEnumerable<Control> Siblings => Parent?.Children;
 
         List<Control> Children = new List<Control>();
