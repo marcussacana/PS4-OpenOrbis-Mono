@@ -493,22 +493,19 @@ void main(void) {
             var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.White;
 
+            var List = new RowView(300, 500);
+            List.Position = new Vector2(100, 100);
+            List.BackgroundColor = RGBColor.ReallyLightBlue;
 
-            var RB1 = new Radiobutton(20);
-            RB1.Text = "Hello World 1";
-            RB1.Position = new Vector2(10, 10);
+            for (int i = 0; i < 15; i++)
+            {
+                var RB = new Radiobutton(20);
 
-            var RB2 = new Radiobutton(20);
-            RB2.Text = "Hello World 2";
-            RB2.Position = new Vector2(10, 50);
+                RB.Text = "Hello World " + i;
+                List.AddChild(RB);
+            }
 
-            var RB3 = new Radiobutton(20);
-            RB3.Text = "Hello World 3";
-            RB3.Position = new Vector2(10, 90);
-
-            BG.AddChild(RB1);
-            BG.AddChild(RB2);
-            BG.AddChild(RB3);
+            BG.AddChild(List);
 
             GLControl.GLApplication.Objects.Add(BG);
 #endif

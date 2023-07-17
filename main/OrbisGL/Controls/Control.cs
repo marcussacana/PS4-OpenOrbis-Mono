@@ -164,6 +164,11 @@ namespace OrbisGL.Controls
         }
         public virtual void AddChild(Control Child)
         {
+            if (Child.IsAncestorOf(this))
+            {
+                throw new InvalidOperationException("Unable to add an ancestor as child");
+            }
+
             Child.Parent = this;
 
             if (!Children.Contains(Child))
