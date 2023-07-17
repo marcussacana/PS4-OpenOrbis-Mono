@@ -100,7 +100,6 @@ namespace OrbisGL.GL
         /// <param name="InnerRect">An Absolute Rectangle representing the inner rectangle be limited</param>
         public static Rectangle GetChildBounds(Rectangle OutterRect, Rectangle InnerRect)
         {
-
             var Position = new Vector2(InnerRect.X, InnerRect.Y);
             var Size = new Vector2(InnerRect.Width, InnerRect.Height);
 
@@ -135,8 +134,24 @@ namespace OrbisGL.GL
         public float Height { get => Vector.W; set => Vector.W = value; }
 
 
-        public float Top { get => Vector.Y; set => Vector.Y = value; }
-        public float Left { get => Vector.X; set => Vector.X = value; }
+        public float Top { get => Vector.Y; 
+            set
+            {
+                float DeltaY = value - Vector.Y;
+                Vector.Y = value;
+                Vector.W += DeltaY;
+            }
+        }
+
+        public float Left { get => Vector.X;
+            set
+            {
+                float DeltaX = value - Vector.X;
+                Vector.X = value;
+                Vector.Z += DeltaX;
+            }
+        }
+
         public float Right { get => Vector.X + Vector.Z; set => Vector.Z = value - Vector.X; }
         public float Bottom { get => Vector.Y + Vector.W; set => Vector.W = value - Vector.Y; }
 

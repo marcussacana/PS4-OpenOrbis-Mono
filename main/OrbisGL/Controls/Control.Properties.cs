@@ -178,7 +178,7 @@ namespace OrbisGL.Controls
             get
             {
                 if (Parent != null)
-                    return Parent.Position + Position;
+                    return Parent.AbsolutePosition + Position;
                 return Position;
             }
         }
@@ -190,10 +190,18 @@ namespace OrbisGL.Controls
             set 
             {
                 if (value == _Size)
+                {
+                    OnControlResized?.Invoke(this, new EventArgs());
                     return;
+                }
+
+                GLObject.Width = (int)Size.X;
+                GLObject.Height = (int)Size.Y;
 
                 _Size = value;
                 Invalidate();
+
+                OnControlResized?.Invoke(this, new EventArgs());
             }
         }
 
@@ -201,7 +209,7 @@ namespace OrbisGL.Controls
         /// An rectangle relative with this control position
         /// that represents the visible area of this control
         /// </summary>
-        protected Rectangle? VisibleRectangle { get; private set; }
+        public Rectangle? VisibleRectangle { get; private set; }
 
         /// <summary>
         /// An rectangle relative with his screen position
@@ -217,7 +225,7 @@ namespace OrbisGL.Controls
         /// <summary>
         /// Get the childs of this control
         /// </summary>
-        public IEnumerable<Control> Childs => Children;
+        public virtual IEnumerable<Control> Childs => Children;
 
         /// <summary>
         /// Get the controls that shares the same parent of this one
@@ -229,5 +237,6 @@ namespace OrbisGL.Controls
         protected bool Invalidated { get; set; } = true;
 
         public event EventHandler OnControlMoved;
+        public event EventHandler OnControlResized;
     }
 }

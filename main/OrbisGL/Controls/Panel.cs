@@ -2,11 +2,8 @@
 using OrbisGL.GL2D;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrbisGL.Controls
 {
@@ -21,6 +18,12 @@ namespace OrbisGL.Controls
 
             Background = new Rectangle2D((int)Size.X, (int)Size.Y, true);
             Background.Position = new Vector2(0, 0);
+
+            OnControlResized += (s, e) =>
+            {
+                Background.Width = (int)this.Size.X;
+                Background.Height = (int)this.Size.Y;
+            };
 
             GLObject.AddChild(Background);
         }
@@ -43,6 +46,8 @@ namespace OrbisGL.Controls
 
         public int ScrollX { get => _ScrollX; set { if (value == _ScrollX) return;  _ScrollX = value; Invalidate(); } }
         public int ScrollY { get => _ScrollY; set { if (value == _ScrollY) return;  _ScrollY = value; Invalidate(); } }
+
+        public override IEnumerable<Control> Childs => base.Childs.Where(x => x != ScrollBar);
 
         public int MaxScrollX { 
             get
@@ -84,7 +89,6 @@ namespace OrbisGL.Controls
                 }
 
                 ScrollBar = new VerticalScrollBar((int)Size.Y, MaxScrollY + (int)Size.Y, ScrollBarWidth);
-                ScrollBar.Position = new Vector2(Size.X - ScrollBarWidth - (int)(ScrollBarWidth*0.3), 0);
                 ScrollBar.CurrentScroll = ScrollY;
                 ScrollBar.Refresh();
                 ScrollBar.ScrollChanged += (s, e) => {
@@ -98,6 +102,7 @@ namespace OrbisGL.Controls
             Background.Height = (int)Size.Y;
             Background.Color = BackgroundColor;
 
+
             ScrollX = Math.Max(ScrollX, 0);
             ScrollY = Math.Max(ScrollY, 0);
 
@@ -109,7 +114,15 @@ namespace OrbisGL.Controls
             if (VisibleRectangle.HasValue)
             {
                 AreaRect = VisibleRectangle.Value;
-                AreaRect.Position = AbsolutePosition;
+                AreaRect.Position += AbsolutePosition;
+
+                if (Parent != null && Parent.VisibleRectangle.HasValue)
+                {
+                    var ParentVisibleArea = Parent.VisibleRectangle.Value;
+                    ParentVisibleArea.Position += Parent.AbsolutePosition;
+
+                    AreaRect = AreaRect.Intersect(ParentVisibleArea);
+                }
             }
 
             try
@@ -117,25 +130,30 @@ namespace OrbisGL.Controls
                 Moving = true;
                 foreach (var Child in Childs)
                 {
-                    if (Child is VerticalScrollBar) 
-                    {
-                        Child.Position = PositionMap[Child];
-                        Child.SetVisibleArea(Rectangle.GetChildBounds(AreaRect, Child.AbsoluteRectangle));
-                        continue;
-                    }
-
                     var ChildPos = PositionMap[Child];
                     Child.Position = ChildPos - new Vector2(ScrollX, ScrollY);
-                       
 
                     Child.ClearVisibleArea();
                     Child.SetAbsoluteVisibleArea(AreaRect);
+                }
+
+                if (ScrollBar != null)
+                {
+                    ScrollBar.Position = new Vector2(Size.X - ScrollBarWidth - (int)(ScrollBarWidth * 0.3), 0);
+                    ScrollBar.SetAbsoluteVisibleArea(AreaRect);
                 }
             }
             finally 
             {
                 Moving = false;
             }
+
+            Background.ClearVisibleRectangle();
+
+            var BGVisibleRect = Rectangle.GetChildBounds(AreaRect, AbsoluteRectangle);
+            Background.Position = BGVisibleRect.Position;
+            Background.Width = (int)BGVisibleRect.Width;
+            Background.Height = (int)BGVisibleRect.Height;
 
             GLObject.RefreshVertex();
 

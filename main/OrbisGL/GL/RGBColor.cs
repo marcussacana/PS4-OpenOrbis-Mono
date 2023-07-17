@@ -1,11 +1,13 @@
 ﻿using SixLabors.ImageSharp;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 
 namespace OrbisGL.GL
 {
-    public class RGBColor
+    [DebuggerDisplay("R: {R}; G: {G}; B: {B} {Name??\"Unknown\"}")]
+    public class RGBColor : IEqualityComparer<RGBColor>
     {
         internal float RedF;
         internal float GreenF;
@@ -20,6 +22,8 @@ namespace OrbisGL.GL
         }
 
         static Dictionary<string, RGBColor> NameMap = new Dictionary<string, RGBColor>();
+        static Dictionary<RGBColor, string> ColorMap = new Dictionary<RGBColor, string>();
+
         static RGBColor()
         {
             FieldInfo[] Colors = typeof(RGBColor).GetFields(BindingFlags.Static | BindingFlags.Public);
@@ -32,6 +36,7 @@ namespace OrbisGL.GL
                 if (!(ColorVal is RGBColor))
                     continue;
 
+                ColorMap[(RGBColor)ColorVal] = ColorName;
                 NameMap[ColorName.ToLowerInvariant()] = (RGBColor)ColorVal;
             }
         }
@@ -120,11 +125,28 @@ namespace OrbisGL.GL
             return Saturate(Alpha);
         }
 
+        public bool Equals(RGBColor x, RGBColor y)
+        {
+            return x.RedF == y.RedF && x.GreenF == y.GreenF && x.BlueF == y.BlueF;
+        }
+
+        public int GetHashCode(RGBColor obj)
+        {
+            return obj.RedF.GetHashCode() ^ obj.GreenF.GetHashCode() ^ obj.BlueF.GetHashCode();
+        }
 
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }
         public int G { get => (int)(255 * GreenF); set => GreenF = value / 255f; }
         public int B { get => (int)(255 * BlueF); set => BlueF = value / 255f; }
 
+        public string Name { 
+            get 
+            {
+                if (ColorMap.TryGetValue(this, out string Name))
+                    return Name;
+                return null;
+            }
+        }
 
         #region NamedColors
         //Colors from https://xkcd.com/color/rgb.txt

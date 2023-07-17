@@ -45,7 +45,7 @@ namespace OrbisGL.Controls
                 {
                     Result = Current;
 
-                    foreach (var child in Current.Childs)
+                    foreach (var child in Current.Children)
                     {
                         Controls.Push(child);
                     }
@@ -132,7 +132,7 @@ namespace OrbisGL.Controls
                 if (Args.Handled)
                     break;
 
-                foreach (var Child in Current.Childs)
+                foreach (var Child in Current.Children)
                 {
                     CtrlStack.Push(Child);
                 }
