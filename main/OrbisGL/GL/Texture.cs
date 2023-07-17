@@ -42,7 +42,7 @@ namespace OrbisGL.GL
 
         public unsafe void SetData(int Width, int Height, byte[] Data, PixelFormat Format)
         {
-            Active();
+            Bind(Active());
 
             fixed (byte* pData = Data)
             {
