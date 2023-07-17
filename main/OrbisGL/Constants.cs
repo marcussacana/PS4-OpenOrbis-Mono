@@ -12,8 +12,9 @@
         public const byte SCE_MOUSE_OPEN_PARAM_MERGED = 0x01;
         public const byte SCE_MOUSE_PORT_TYPE_STANDARD = 0;
         public const int  SCE_OK = 0;
-        
 
+        public const int ORBIS_PAD_MAX_TOUCH_NUM = 2;
+        public const int ORBIS_PAD_MAX_DATA_NUM = 0x40;
 
         public const int SCE_IME_KEYBOARD_MAX_NUMBER = 5;
 

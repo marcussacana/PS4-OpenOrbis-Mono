@@ -69,7 +69,7 @@ namespace OrbisGL
     }
 
     [Flags]
-    public enum OrbisPadButton
+    public enum OrbisPadButton : uint
     {
         L3 = 0x0002,
         R3 = 0x0004,
@@ -88,7 +88,6 @@ namespace OrbisGL
         Square = 0x8000,
         TouchPad = 0x100000
     }
-
 
     #region IME
 
