@@ -89,6 +89,13 @@ namespace OrbisGL
         TouchPad = 0x100000
     }
 
+    [Flags]
+    public enum Finger : byte
+    {
+        A = 1 << 0,
+        B = 1 << 1
+    }
+
     #region IME
 
     //Stolen from fpPS4 project: https://github.com/red-prig/fpPS4/blob/d0fd45eb63f775f52cefebff437bb010bb2ba747/src/ps4_libsceime.pas

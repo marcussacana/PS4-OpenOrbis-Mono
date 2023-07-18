@@ -68,6 +68,8 @@
     <Compile Include="Controls\Control.Properties.cs" />
     <Compile Include="Controls\Events\KeyboardEvent.cs" />
     <Compile Include="Controls\Events\MouseEvent.cs" />
+    <Compile Include="Controls\Events\MoveEvent.cs" />
+    <Compile Include="Controls\Events\TouchEvent.cs" />
     <Compile Include="Controls\RowView.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\Events\ButtonEvent.cs" />
@@ -119,8 +121,8 @@
     <Compile Include="GL\RGBColor.cs" />
     <Compile Include="GL\Texture.cs" />
     <Compile Include="GL\Application.cs" />
-    <Compile Include="Input\Dualshock\DS4Data.cs" />
     <Compile Include="Input\Dualshock\Gamepad.cs" />
+    <Compile Include="Input\Dualshock\GamepadListener.cs" />
     <Compile Include="Input\Dualshock\Structs.cs" />
     <Compile Include="Input\GenericMouse.cs" />
     <Compile Include="Input\GenericPad.cs" />

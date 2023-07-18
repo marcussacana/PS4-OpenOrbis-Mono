@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrbisGL.Controls.Events
+﻿namespace OrbisGL.Controls.Events
 {
+    public delegate void ButtonEventHandler(object Sender, ButtonEventArgs Args);
+
     public class ButtonEventArgs : PropagableEventArgs
     {
         public OrbisPadButton Button { get; }

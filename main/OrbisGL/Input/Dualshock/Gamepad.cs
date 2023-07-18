@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace OrbisGL.Input.Dualshock
 {
-    internal class Gamepad : GenericPad<DS4Info>
+    public class Gamepad : GenericPad<OrbisPadData>
     {
         int Handler;
 
@@ -22,9 +22,19 @@ namespace OrbisGL.Input.Dualshock
                 throw new Exception("Failed to open the gamepad");
         }
 
-        public override void Refresh()
+        public unsafe override void Refresh()
         {
-            throw new NotImplementedException();
+            if (Handler < 0)
+            {
+                throw new Exception("Gampad not open");
+            }
+
+            OrbisPadData PadData = new OrbisPadData();
+
+            if (scePadReadState(Handler, &PadData) != Constants.SCE_OK)
+                return;
+
+            CurrentData = PadData;
         }
         public override void Close()
         {

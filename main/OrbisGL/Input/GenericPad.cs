@@ -17,5 +17,10 @@ namespace OrbisGL.Input
         public abstract void Open(int UserID);
 
         public abstract void Refresh();
+
+        public virtual void Dispose()
+        {
+            Close();
+        }
     }
 }

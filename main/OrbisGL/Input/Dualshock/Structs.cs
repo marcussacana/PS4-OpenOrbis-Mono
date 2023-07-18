@@ -1,11 +1,18 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.Input.Dualshock
 {
     public struct Stick
     {
         public byte X, Y;
+
+        public static implicit operator Vector2(Stick Stick)
+        {
+            return new Vector2(XToPoint(Stick.X, 255), YToPoint(Stick.Y, 255));
+        }
     }
     public struct Analog
     {
@@ -20,6 +27,11 @@ namespace OrbisGL.Input.Dualshock
         public byte Finger;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         byte[] Pad;
+
+        public static implicit operator Vector2(OrbisPadTouch Touch)
+        {
+            return new Vector2(XToPoint(Touch.X, 1919), YToPoint(Touch.Y, 941));
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
