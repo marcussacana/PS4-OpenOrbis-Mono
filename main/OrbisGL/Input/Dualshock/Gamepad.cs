@@ -1,11 +1,12 @@
-﻿using System;
+﻿using OrbisGL.GL;
+using System;
 using System.Runtime.InteropServices;
 
 namespace OrbisGL.Input.Dualshock
 {
     public class Gamepad : GenericPad<OrbisPadData>
     {
-        int Handler;
+        int Handler = int.MinValue;
 
         static bool Initialized = false;
         public override void Open(int UserID)
@@ -21,28 +22,55 @@ namespace OrbisGL.Input.Dualshock
             if (Handler < 0)
                 throw new Exception("Failed to open the gamepad");
         }
-
-        public unsafe override void Refresh()
+        
+        OrbisPadData PadData = new OrbisPadData()
+        {
+            Touch = new OrbisPadTouchData()
+            {
+                Pad1 = new byte[3],
+                Touch = new OrbisPadTouch[Constants.ORBIS_PAD_MAX_TOUCH_NUM]
+            },
+            Extension = new byte[16],
+            Unknown = new byte[15]
+        };
+        public override void Refresh()
         {
             if (Handler < 0)
             {
                 throw new Exception("Gampad not open");
             }
 
-            OrbisPadData PadData = new OrbisPadData();
-
-            if (scePadReadState(Handler, &PadData) != Constants.SCE_OK)
+            if (scePadReadState(Handler, ref PadData) != Constants.SCE_OK)
                 return;
 
             CurrentData = PadData;
         }
         public override void Close()
         {
-            if (Handler >= 0)
+            if (Handler < 0)
+                return;
+
+            scePadClose(Handler);
+            Handler = int.MinValue;
+        }
+
+        public void SetTouchColor(RGBColor Color, byte Intensity = 255)
+        {
+            if (Handler < 0)
+                return;
+
+            if (Color == null)
             {
-                scePadClose(Handler);
-                Handler = 0;
+                scePadResetLightBar(Handler);
+                return;
             }
+
+            scePadSetLightBar(Handler, new OrbisPadColor() { 
+                    R = (byte)Color.R,
+                    G = (byte)Color.G,
+                    B = (byte)Color.B,
+                    A = Intensity
+            });
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -74,10 +102,10 @@ namespace OrbisGL.Input.Dualshock
         static extern int scePadClose(int handle);
 
         [DllImport("libScePad.sprx")]
-        static unsafe extern int scePadRead(int handle, OrbisPadData* Data, int Count);
+        static extern int scePadRead(int handle, ref OrbisPadData Data, int Count);
 
         [DllImport("libScePad.sprx")]
-        static unsafe extern int scePadReadState(int handle, OrbisPadData* Data);
+        static extern int scePadReadState(int handle, ref OrbisPadData Data);
 
         [DllImport("libScePad.sprx")]
         static extern int scePadResetLightBar(int handle);

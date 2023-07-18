@@ -5,15 +5,18 @@ using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.Input.Dualshock
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Stick
     {
         public byte X, Y;
 
-        public static implicit operator Vector2(Stick Stick)
+        public static explicit operator Vector2(Stick Stick)
         {
             return new Vector2(XToPoint(Stick.X, 255), YToPoint(Stick.Y, 255));
         }
     }
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Analog
     {
         public byte L2, R2;
@@ -28,7 +31,7 @@ namespace OrbisGL.Input.Dualshock
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         byte[] Pad;
 
-        public static implicit operator Vector2(OrbisPadTouch Touch)
+        public static explicit operator Vector2(OrbisPadTouch Touch)
         {
             return new Vector2(XToPoint(Touch.X, 1919), YToPoint(Touch.Y, 941));
         }
@@ -40,8 +43,8 @@ namespace OrbisGL.Input.Dualshock
         public byte Fingers;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-        byte[] Pad1;
-        uint Pad2;
+        public byte[] Pad1;
+        public uint Pad2;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.ORBIS_PAD_MAX_TOUCH_NUM)]
         public OrbisPadTouch[] Touch;

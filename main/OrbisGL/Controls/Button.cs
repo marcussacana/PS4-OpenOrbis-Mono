@@ -48,7 +48,7 @@ namespace OrbisGL.Controls
             GLObject.AddChild(Foreground);
         }
 
-        public unsafe Button(int Width, int Height, FontFaceHandler Font, int FontSize) : this(Width, Height)
+        public Button(int Width, int Height, FontFaceHandler Font, int FontSize) : this(Width, Height)
         {
             Foreground = new Text2D(Font, FontSize);
             GLObject.AddChild(Foreground);
@@ -126,27 +126,10 @@ namespace OrbisGL.Controls
             if (!Enabled)
                 CurrentState = ButtonState.Disabled;
 
-            Foreground.SetText(Name);
+            Foreground.SetText(Text);
 
             if (AutoSize && Size.X < Foreground.Width || Size.Y < Foreground.Height)
                 Size = new Vector2(Foreground.Width + 10, Foreground.Height + 10);
-
-            GLObject.Position = Position;
-            GLObject.Width = (int)Size.X;
-            GLObject.Height = (int)Size.Y;
-
-            Background.Width = (int)Size.X;
-            Background.Height = (int)Size.Y;
-            Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
-            Background.RefreshVertex();
-
-            BackgroundContour.Width = (int)Size.X;
-            BackgroundContour.Height = (int)Size.Y;
-            BackgroundContour.Color = ForegroundColor;
-            BackgroundContour.RefreshVertex();
-
-            Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
-            Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
 
             switch (CurrentState)
             {
@@ -161,6 +144,25 @@ namespace OrbisGL.Controls
                     Foreground.Color = ForegroundColor.Grayscale();
                     break;
             }
+
+            GLObject.Position = Position;
+            GLObject.Width = (int)Size.X;
+            GLObject.Height = (int)Size.Y;
+            GLObject.RefreshVertex();
+
+            Background.Width = (int)Size.X;
+            Background.Height = (int)Size.Y;
+            Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
+            Background.RefreshVertex();
+
+            BackgroundContour.Width = (int)Size.X;
+            BackgroundContour.Height = (int)Size.Y;
+            BackgroundContour.Color = ForegroundColor;
+            BackgroundContour.RefreshVertex();
+
+            Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
+            Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
+            Foreground.RefreshVertex();
 
             Invalidated = false;
         }

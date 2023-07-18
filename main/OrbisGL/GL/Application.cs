@@ -7,6 +7,7 @@ using System.Threading;
 using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL.Input;
+using OrbisGL.Input.Dualshock;
 using SharpGLES;
 
 namespace OrbisGL.GL
@@ -50,6 +51,8 @@ namespace OrbisGL.GL
             
 #if ORBIS
             GLDisplay = new EGLDisplay(IntPtr.Zero, Width, Height);
+            
+            Kernel.LoadStartModule("libSceMbus.sprx");//For Mouse and Dualshock Support
 #endif
 
             this.Width = Width;
@@ -63,7 +66,6 @@ namespace OrbisGL.GL
 #if !ORBIS
             GLDisplay = new EGLDisplay(Handler, Width, Height);
 #else
-            Kernel.LoadStartModule("libSceMbus.sprx");//For Mouse Support
             UserService.Initialize();
             UserService.HideSplashScreen();
 #endif
@@ -112,6 +114,25 @@ namespace OrbisGL.GL
                 GLDisplay.SwapBuffers();
 
             }
+        }
+        public GamepadListener Dualshock { get; private set; } = null;
+
+        private bool DualshockEnabled = false;
+        public void EnableDualshock()
+        {
+            if (DualshockEnabled)
+                return;
+
+#if ORBIS
+            if (UserID == -1)
+            {
+                UserService.Initialize();
+                UserService.GetInitialUser(out UserID);
+            }
+
+            Dualshock = new GamepadListener(UserID);
+            DualshockEnabled = true;
+#endif
         }
 
         public IKeyboard KeyboardDriver;
@@ -226,7 +247,8 @@ namespace OrbisGL.GL
             }
 
 #if ORBIS
-            Keyboard?.RefreshData();
+            KeyboardDriver?.RefreshData();
+            Dualshock?.RefreshData();
 #endif
         }
 

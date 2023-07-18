@@ -1,6 +1,7 @@
 ﻿using OrbisGL.Controls.Events;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -42,7 +43,7 @@ namespace OrbisGL.Input.Dualshock
 #endif
         }
 
-        public void Refresh()
+        public void RefreshData()
         {
             Dualshock.Refresh();
             ProcessButtons();
@@ -63,13 +64,14 @@ namespace OrbisGL.Input.Dualshock
 
             if (NewReleased != 0)
                 OnButtonUp?.Invoke(this, new ButtonEventArgs(NewReleased));
-
+            
+            PressedBefore = PressedNow;
         }
 
         private void ProcessSticks()
         {
-            Vector2 LStick = Dualshock.CurrentData.LeftStick;
-            Vector2 RStick = Dualshock.CurrentData.RightStick;
+            Vector2 LStick = (Vector2)Dualshock.CurrentData.LeftStick;
+            Vector2 RStick = (Vector2)Dualshock.CurrentData.RightStick;
 
             if (LStick != LeftStick)
             {
@@ -92,31 +94,33 @@ namespace OrbisGL.Input.Dualshock
             for (int i = 0; i < Dualshock.CurrentData.Touch.Fingers; i++)
             {
                 var CurrentFinger = Dualshock.CurrentData.Touch.Touch[i];
+                var CurrentPosition = (Vector2)CurrentFinger;
+                Debugger.Log(0, "INFO",$"{CurrentFinger.Finger}|{CurrentPosition}");
                 switch (CurrentFinger.Finger)
                 {
                     case 0:
                         ActiveFingers |= Finger.A;
-                        if (FingerA != null && FingerA != CurrentFinger)
+                        if (FingerA != null && FingerA != CurrentPosition)
                         {
-                            OnTouchMove?.Invoke(this, new TouchEventArgs(CurrentFinger, Finger.A));
+                            OnTouchMove?.Invoke(this, new TouchEventArgs(CurrentPosition, Finger.A));
                         }
                         if (FingerA == null)
                         {
-                            OnTouchStart?.Invoke(this, new TouchEventArgs(CurrentFinger, Finger.A));
+                            OnTouchStart?.Invoke(this, new TouchEventArgs(CurrentPosition, Finger.A));
                         }
-                        FingerA = CurrentFinger;
+                        FingerA = (Vector2)CurrentFinger;
                         break;
                     case 1:
                         ActiveFingers |= Finger.B;
-                        if (FingerB != null && FingerB != CurrentFinger)
+                        if (FingerB != null && FingerB != CurrentPosition)
                         {
-                            OnTouchMove?.Invoke(this, new TouchEventArgs(CurrentFinger, Finger.B));
+                            OnTouchMove?.Invoke(this, new TouchEventArgs(CurrentPosition, Finger.B));
                         }
                         if (FingerB == null)
                         {
-                            OnTouchStart?.Invoke(this, new TouchEventArgs(CurrentFinger, Finger.B));
+                            OnTouchStart?.Invoke(this, new TouchEventArgs(CurrentPosition, Finger.B));
                         }
-                        FingerB = CurrentFinger;
+                        FingerB = CurrentPosition;
                         break;
                 }
             }
