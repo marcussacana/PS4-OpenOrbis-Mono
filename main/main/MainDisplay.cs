@@ -26,7 +26,7 @@ namespace Orbis
 
             MouseDriver = new OrbisMouse();
 
-            var Button = new Button(150, 25, 18);
+            var Button = new Button(150, 25, 24);
             Button.Text = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
 

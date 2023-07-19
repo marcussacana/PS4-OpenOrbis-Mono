@@ -289,10 +289,9 @@ namespace OrbisGL.GL
                 GLReady = true;
             }
 
-            foreach (var Object in  Objects)
+            foreach (var Object in Objects)
             {
                 Object.Draw(Tick);
-                GLES20.Flush();
             }
         }
         

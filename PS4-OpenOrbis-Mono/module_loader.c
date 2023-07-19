@@ -97,9 +97,32 @@ char* extract_extension(char* path)
     return 0;
 }
 
+char* ApplyRemap(char* AssemblyName){
+    char* fname = extract_file_name(AssemblyName);
+	
+	const char* from[] = { 
+		"System.Globalization.dll",
+		"System.Globalization.exe",
+    };
+	const char* to[] = { 
+		"mscorlib.dll",
+		"mscorlib.dll",
+    };
+	
+	for (int i = 0; i < countof(from); i++) {
+		if (strcmp(from[i], fname) == 0){
+			LOGF("Remapping Assembly: \"%s\" to \"%s\"", from[i], to[i]);
+			return to[i];
+		}
+	}	
+	return AssemblyName;
+}
+
 void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBool, int RefOnly)
-{
+{	
     LOGF("Loading Assembly: %s", AssemblyName);
+	
+	AssemblyName = ApplyRemap(AssemblyName);
 
     char* finalPath = AssemblyName;
 
@@ -108,7 +131,13 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         LOG("Error opening file");
 
         char hintPath[0x300] = "\x0";
+        char fnameNoExt[0x300] = "\x0";
         char* fname = extract_file_name(AssemblyName);
+        char* extension = extract_extension(fname);
+        remove_extension(fname, fnameNoExt);
+		
+		//when the mono finds for the assembly as .exe this allow find as .dll as well
+		int ValidExt = extension != NULL && (strcmp(extension, ".exe") == 0 || strcmp(extension, ".dll") == 0);
 
         const char* hints[] = { 
             "%s/mono/4.5/%s",
@@ -119,6 +148,17 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
             "%s/mono/1.0/%s",
             "%s/mono/%s",
             "%s/%s"
+        };
+		
+        const char* hintsExt[] = { 
+            "%s/mono/4.5/%s.dll",
+            "%s/mono/4.0/%s.dll",
+            "%s/mono/3.5/%s.dll",
+            "%s/mono/3.0/%s.dll",
+            "%s/mono/2.0/%s.dll",
+            "%s/mono/1.0/%s.dll",
+            "%s/mono/%s.dll",
+            "%s/%s.dll"
         };
 
         for (int i = 0; i < countof(hints); i++) {
@@ -131,6 +171,18 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
             fp = fopen(hintPath, "r");
             if (fp != 0)
                 break;
+			
+			if (ValidExt){
+				sprintf(&hintPath, hintsExt[i], "/app0", fnameNoExt);
+				fp = fopen(hintPath, "r");
+				if (fp != 0)
+					break;
+
+				sprintf(&hintPath, hintsExt[i], baseDir, fnameNoExt);
+				fp = fopen(hintPath, "r");
+				if (fp != 0)
+					break;
+			}
         }
 
         if (fp == 0) {

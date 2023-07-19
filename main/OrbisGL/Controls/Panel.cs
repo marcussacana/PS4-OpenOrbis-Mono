@@ -76,7 +76,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        void Refresh()
+        public override void Refresh()
         {
             if (ScrollBar == null && AllowScroll)
             {
@@ -155,8 +155,6 @@ namespace OrbisGL.Controls
             Background.Height = (int)BGVisibleRect.Height;
 
             GLObject.RefreshVertex();
-
-            Invalidated = false;
         }
 
         Dictionary<Control, Vector2> PositionMap = new Dictionary<Control, Vector2>();
@@ -198,12 +196,5 @@ namespace OrbisGL.Controls
             base.RemoveChildren();
         }
 
-        public override void Draw(long Tick)
-        {
-            if (Invalidated)
-                Refresh();
-
-            base.Draw(Tick);
-        }
     }
 }

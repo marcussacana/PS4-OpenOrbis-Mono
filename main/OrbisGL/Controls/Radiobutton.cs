@@ -99,7 +99,7 @@ namespace OrbisGL.Controls
             }
         }
 
-        void Refresh()
+        public override void Refresh()
         {
             Label.Color = ForegroundColor;
             CircleIcon.Color = BackgroundColor;
@@ -116,9 +116,7 @@ namespace OrbisGL.Controls
             if (Checked)
                 Background.Color = BackgroundColor.Highlight(160);
 
-            Invalidated = false;
             CircleIcon.Visible = Checked;
-            Invalidated = false;
         }
 
         public override void Draw(long Tick)

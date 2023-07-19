@@ -234,7 +234,7 @@ namespace OrbisGL.Controls
 
         List<Control> Children = new List<Control>();
 
-        protected bool Invalidated { get; set; } = true;
+        protected bool Invalidated { get; private set; } = true;
 
         public event EventHandler OnControlMoved;
         public event EventHandler OnControlResized;

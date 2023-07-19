@@ -112,6 +112,8 @@ namespace OrbisGL.GL2D
 
         public void SetText(string Text)
         {
+            //[WIP] Create a reusable font glyph texture table instead use libFreetype to redraw everything
+            
             this.Text = Text;
 
             if (Text == null)
@@ -125,8 +127,8 @@ namespace OrbisGL.GL2D
 
             FreeType.MeasureText(Text, Font, out int Width, out int Height, out GlyphInfo[] Glyphs);
             
-            base.Width = Width;
-            base.Height = Height;
+            this.Width = Width;
+            this.Height = Height;
             GlyphsInfo = Glyphs;
 
 
@@ -135,6 +137,8 @@ namespace OrbisGL.GL2D
             FreeType.RenderText(Buffer, Width, Height, Text, Font, RGBColor.White);
 
             FontTexture.SetData(Width, Height, Buffer, PixelFormat.RGBA);
+
+            ClearVisibleRectangle();
 
 
             //   0 ---------- 1

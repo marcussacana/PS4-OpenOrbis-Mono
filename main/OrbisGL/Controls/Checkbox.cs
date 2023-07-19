@@ -101,7 +101,7 @@ namespace OrbisGL.Controls
             base.Draw(Tick);
         }
 
-        protected virtual void Refresh()
+        public override void Refresh()
         {
             Label.Color = ForegroundColor;
             CheckIcon.Color = BackgroundColor;
@@ -120,8 +120,6 @@ namespace OrbisGL.Controls
 
             if (Checked)
                 Background.Color = BackgroundColor.Highlight(160);
-
-            Invalidated = false;
         }
     }
 }

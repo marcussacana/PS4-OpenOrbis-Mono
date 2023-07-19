@@ -118,7 +118,7 @@ namespace OrbisGL.Controls
             };
         }
 
-        public void Refresh()
+        public override void Refresh()
         {
             if (Foreground == null || Background == null)
                 return;
@@ -145,34 +145,20 @@ namespace OrbisGL.Controls
                     break;
             }
 
-            GLObject.Position = Position;
-            GLObject.Width = (int)Size.X;
-            GLObject.Height = (int)Size.Y;
-            GLObject.RefreshVertex();
-
             Background.Width = (int)Size.X;
             Background.Height = (int)Size.Y;
             Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
-            Background.RefreshVertex();
 
             BackgroundContour.Width = (int)Size.X;
             BackgroundContour.Height = (int)Size.Y;
             BackgroundContour.Color = ForegroundColor;
-            BackgroundContour.RefreshVertex();
 
             Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
             Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
-            Foreground.RefreshVertex();
 
-            Invalidated = false;
-        }
-
-        public override void Draw(long Tick)
-        {
-            if (Invalidated)
-                Refresh();
-
-            base.Draw(Tick);
+            GLObject.Width = (int)Size.X;
+            GLObject.Height = (int)Size.Y;
+            GLObject.RefreshVertex();
         }
     }
 }

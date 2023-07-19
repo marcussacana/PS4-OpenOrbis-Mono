@@ -20,7 +20,7 @@ namespace OrbisGL.Controls
 
         private float MaxScroll
         {
-            get 
+            get
             {
                 return TotalHeight - Size.Y;
             }
@@ -29,7 +29,7 @@ namespace OrbisGL.Controls
         private float BarMaxY {
             get
             {
-                return Size.Y - SlimBar.Height - (BarMargin*2);
+                return Size.Y - SlimBar.Height - (BarMargin * 2);
             }
         }
 
@@ -42,7 +42,7 @@ namespace OrbisGL.Controls
         Triangle2D DownButton;
 
         int BarMargin;
-        public VerticalScrollBar(int VisibleHeight, int TotalHeight, int Width) 
+        public VerticalScrollBar(int VisibleHeight, int TotalHeight, int Width)
         {
             Size = new Vector2(Width, VisibleHeight);
             this.TotalHeight = TotalHeight;
@@ -82,7 +82,7 @@ namespace OrbisGL.Controls
 
             SetFatBarVisible(false);
 
-            BarMargin = (int)(InnerDistance * 2f + TriangleMargin) + UpButton.Height ;//Button Margin + Bar Margin
+            BarMargin = (int)(InnerDistance * 2f + TriangleMargin) + UpButton.Height;//Button Margin + Bar Margin
 
             OnMouseButtonDown += ScrollBar_OnMouseButtonDown;
             OnMouseButtonUp += ScrollBar_OnMouseButtonUp;
@@ -144,9 +144,10 @@ namespace OrbisGL.Controls
             EventArgs.Handled = true;
         }
 
-        public void Refresh()
+        public override void Refresh()
         {
             Visible = TotalHeight > Size.Y;
+
             if (!Visible)
                 return;
 
@@ -160,8 +161,6 @@ namespace OrbisGL.Controls
             SetScrollByScrollValue(CurrentScroll);
 
             //[WIP] Copy set visible from parent (Fix scroll bar visible in recursive scroll)
-
-            Invalidated = false;
         }
 
         private void SetScrollByScrollValue(float Value)
@@ -206,14 +205,6 @@ namespace OrbisGL.Controls
             FatBarForeground.Visible = Visible;
             UpButton.Visible = Visible;
             DownButton.Visible = Visible;
-        }
-
-        public override void Draw(long Tick)
-        {
-            if (Invalidated)
-                Refresh();
-
-            base.Draw(Tick);
         }
     }
 }

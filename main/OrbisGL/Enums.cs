@@ -71,6 +71,7 @@ namespace OrbisGL
     [Flags]
     public enum OrbisPadButton : uint
     {
+        Share = 0x0001,
         L3 = 0x0002,
         R3 = 0x0004,
         Options = 0x0008,
@@ -86,14 +87,17 @@ namespace OrbisGL
         Circle = 0x2000,
         Cross = 0x4000,
         Square = 0x8000,
-        TouchPad = 0x100000
+        Playstation = 0x10000,
+        TouchPad = 0x100000,
+        Invalid = 0x80000000
     }
 
     [Flags]
     public enum Finger : byte
     {
         A = 1 << 0,
-        B = 1 << 1
+        B = 1 << 1,
+        Both = A | B
     }
 
     #region IME

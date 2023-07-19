@@ -1,6 +1,8 @@
 ﻿using OrbisGL.Controls.Events;
 using OrbisGL.GL;
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 
 namespace OrbisGL.Controls
@@ -18,19 +20,55 @@ namespace OrbisGL.Controls
             Parent?.RemoveChild(this);
         }
 
+#if DEBUG
+        public System.Diagnostics.Stopwatch Timecritical = new System.Diagnostics.Stopwatch();
+#endif
+
         public virtual void Draw(long Tick)
         {
             if (!Visible)
                 return;
 
-            FlushMouseEvents(Tick);
+            bool RootControl = Parent == null;
 
+            if (RootControl)
+                FlushMouseEvents(Tick);
+
+            if (Invalidated)
+            {
+#if DEBUG
+                Timecritical.Restart();
+                Refresh();
+                Timecritical.Stop();
+
+                if (Timecritical.ElapsedMilliseconds > 1)
+                {
+                    Debugger.Log(0, "WARN", "Refresh too slow: " + GetType().Name + "\n");
+                }
+#else
+                Refresh();
+#endif
+
+                Invalidated = false;
+            }
+
+#if DEBUG
+            Timecritical.Restart();
             GLObject.Draw(Tick);
+            Timecritical.Stop();
+
+            if (Timecritical.ElapsedMilliseconds > 1)
+            {
+                Debugger.Log(0, "WARN", "Draw too slow: " + GetType().Name + "\n");
+            }
+#else
+            GLObject.Draw(Tick);
+#endif
 
             foreach (var Child in Children)
                 Child.Draw(Tick);
 
-            if (Parent == null)
+            if (RootControl)
                 Cursor.Draw(Tick);
 
             LastDrawTick = Tick;
@@ -85,11 +123,24 @@ namespace OrbisGL.Controls
             OnFocus(this, new EventArgs());
         }
 
-        public void Invalidate()
+        /// <summary>
+        /// Invalidate this controller
+        /// </summary>
+        public void Invalidate() => Invalidate(false);
+
+        /// <summary>
+        /// Invalidate this controller
+        /// </summary>
+        /// <param name="Recursive">If true, all parent tree will be invalidated</param>
+        public void Invalidate(bool Recursive)
         {
             Invalidated = true;
-            Parent?.Invalidate();
+
+            if (Recursive)
+                Parent?.Invalidate(Recursive);
         }
+
+        public abstract void Refresh();
 
         protected virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
         {

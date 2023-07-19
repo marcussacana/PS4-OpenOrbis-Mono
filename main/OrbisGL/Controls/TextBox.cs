@@ -382,7 +382,7 @@ namespace OrbisGL.Controls
         Line2D FocusIndicator;
         Line2D Caret;
 
-        public void Refresh()
+        public override void Refresh()
         {
             //Update TextBox Style
             Background.Color = Desaturate && !Focused ? BackgroundColor.Desaturate(240) : BackgroundColor;
@@ -403,8 +403,6 @@ namespace OrbisGL.Controls
             //Update the Caret and Display position
             CaretPos = RefreshCaretAndEnsureVisible(CaretPos);
             Caret.Position = CaretPos;
-
-            Invalidated = false;
         }
 
         private Vector2 RefreshCaretAndEnsureVisible(Vector2 CaretPos)
@@ -488,9 +486,6 @@ namespace OrbisGL.Controls
         const int HalfSecond = Constants.SCE_SECOND / 2;
         public override void Draw(long Tick)
         {
-            if (Invalidated)
-                Refresh();
-
             Caret.Visible = Focused && (Tick % Second > HalfSecond);
 
             base.Draw(Tick);

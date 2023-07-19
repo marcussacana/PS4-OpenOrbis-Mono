@@ -2,7 +2,6 @@
 using OrbisGL.GL2D;
 using System.Numerics;
 using OrbisGL.Controls.Events;
-using System.Collections.Generic;
 
 namespace OrbisGL.Controls
 {
@@ -42,7 +41,12 @@ namespace OrbisGL.Controls
 
         static Control LastCursorControl = null;
         static Vector2 CurrentPosition = Vector2.Zero;
-        static Elipse2D Cursor = new Elipse2D(5, 5, true) { Color = RGBColor.Black };
+
+        static GLObject2D Cursor = new Triangle2D(new Rectangle(0, 0, 10, 10)) 
+        { 
+            Color = RGBColor.OffWhite,
+            Rotation = Triangle2D.Degrees.Degree315
+        };
 
         internal void ProcessMouseMove(Vector2 XY)
         {
