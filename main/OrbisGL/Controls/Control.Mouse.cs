@@ -13,10 +13,11 @@ namespace OrbisGL.Controls
         {
             Cursor = new Cursor();
             Cursor.Height = 19;
+            Cursor.Visible = false;
             Cursor.RefreshVertex();
         }
 
-        private void FlushMouseEvents(long Tick)
+        internal void FlushMouseEvents(long Tick)
         {
             if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 500)
             {
@@ -48,13 +49,21 @@ namespace OrbisGL.Controls
             }
         }
 
-        static Control LastCursorControl = null;
-        static Vector2 CurrentPosition = Vector2.Zero;
+        internal static Control LastCursorControl = null;
+        internal static Vector2 CurrentPosition = Vector2.Zero;
 
-        static GLObject2D Cursor;
+        internal static bool MouseInteracted = false;
+
+        internal static GLObject2D Cursor;
 
         internal void ProcessMouseMove(Vector2 XY)
         {
+            if (!MouseInteracted && !Cursor.Visible)
+            {
+                Cursor.Visible = true;
+                MouseInteracted = true;
+            }
+
             Cursor.Position = XY;
 
             var Coordinates = new MouseEventArgs(XY);
@@ -115,6 +124,8 @@ namespace OrbisGL.Controls
                 PropagateAll((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
 
                 ReleasedEvent.Handled = false;
+
+                LastCursorControl.Focus();
                 LastCursorControl.PropagateUp((x, y) => x?.OnMouseClick?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
 
                 if (NewReleased.HasFlag(MouseButtons.Left))

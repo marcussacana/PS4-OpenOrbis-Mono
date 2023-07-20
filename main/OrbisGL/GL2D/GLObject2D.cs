@@ -29,7 +29,19 @@ namespace OrbisGL.GL2D
         }
 
         public Rectangle? VisibleRectangle { get; protected set; }
-        public Rectangle Rectangle => new Rectangle(Position.X, Position.Y, Width, Height);
+        public Rectangle Rectangle
+        {
+            get
+            {
+                return new Rectangle(Position.X, Position.Y, Width, Height);
+            }
+            set 
+            {
+                Position = value.Position;
+                Width = (int)value.Width;
+                Height = (int)value.Height;
+            }
+        }
 
 
         protected GLObject2D Parent = null;

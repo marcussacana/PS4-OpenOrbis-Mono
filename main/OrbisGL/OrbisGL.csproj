@@ -66,6 +66,7 @@
     <Compile Include="Controls\Control.Mouse.cs" />
     <Compile Include="Controls\Control.Extensions.cs" />
     <Compile Include="Controls\Control.Properties.cs" />
+    <Compile Include="Controls\Control.Selector.cs" />
     <Compile Include="Controls\Events\KeyboardEvent.cs" />
     <Compile Include="Controls\Events\MouseEvent.cs" />
     <Compile Include="Controls\Events\MoveEvent.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Input\Layouts\Latin.cs" />
     <Compile Include="Input\OrbisKeyboard.cs" />
     <Compile Include="Input\OrbisMouse.cs" />
+    <Compile Include="Input\Selector.cs" />
     <Compile Include="Internals\IO.cs" />
     <Compile Include="Internals\Kernel.cs" />
     <Compile Include="Internals\UserService.cs" />

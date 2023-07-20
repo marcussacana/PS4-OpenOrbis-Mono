@@ -6,6 +6,7 @@ using SharpGLES;
 using OrbisGL.GL;
 using OrbisGL.FreeTypeLib;
 using static OrbisGL.GL2D.Coordinates2D;
+using SixLabors.ImageSharp.Processing;
 
 namespace OrbisGL.GL2D
 {
@@ -112,6 +113,9 @@ namespace OrbisGL.GL2D
 
         public void SetText(string Text)
         {
+            if (Text == this.Text)
+                return;
+			
             //[WIP] Create a reusable font glyph texture table instead use libFreetype to redraw everything
             
             this.Text = Text;
@@ -126,7 +130,9 @@ namespace OrbisGL.GL2D
             FreeType.SetFontSize(Font, FontSize);
 
             FreeType.MeasureText(Text, Font, out int Width, out int Height, out GlyphInfo[] Glyphs);
-            
+
+            bool Resized = Width != this.Width || Height != this.Height;
+
             this.Width = Width;
             this.Height = Height;
             GlyphsInfo = Glyphs;
@@ -138,7 +144,8 @@ namespace OrbisGL.GL2D
 
             FontTexture.SetData(Width, Height, Buffer, PixelFormat.RGBA);
 
-            ClearVisibleRectangle();
+            if (Resized)
+                ClearVisibleRectangle();
 
 
             //   0 ---------- 1

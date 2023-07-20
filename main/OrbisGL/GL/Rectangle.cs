@@ -100,6 +100,9 @@ namespace OrbisGL.GL
         /// <param name="InnerRect">An Absolute Rectangle representing the inner rectangle be limited</param>
         public static Rectangle GetChildBounds(Rectangle OutterRect, Rectangle InnerRect)
         {
+            if (InnerRect.Intersect(OutterRect).IsEmpty())
+                return Rectangle.Empty;
+
             var Position = new Vector2(InnerRect.X, InnerRect.Y);
             var Size = new Vector2(InnerRect.Width, InnerRect.Height);
 

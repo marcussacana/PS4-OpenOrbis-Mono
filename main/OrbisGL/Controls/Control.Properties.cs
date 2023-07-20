@@ -113,7 +113,9 @@ namespace OrbisGL.Controls
         bool _Focused;
         public bool Focused { get => _Focused | Children.Any(x => x.Focused); }
 
-        bool _RectInvisible = false;
+        bool _RectInvisible { 
+            get; 
+            set; } = false;
 
         bool _Visible = true;
         public bool Visible
@@ -238,5 +240,6 @@ namespace OrbisGL.Controls
 
         public event EventHandler OnControlMoved;
         public event EventHandler OnControlResized;
+        public event EventHandler OnControlInvalidated;
     }
 }

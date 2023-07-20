@@ -29,11 +29,6 @@ namespace OrbisGL.Controls
             if (!Visible)
                 return;
 
-            bool RootControl = Parent == null;
-
-            if (RootControl)
-                FlushMouseEvents(Tick);
-
             if (Invalidated)
             {
 #if DEBUG
@@ -68,9 +63,6 @@ namespace OrbisGL.Controls
             foreach (var Child in Children)
                 Child.Draw(Tick);
 
-            if (RootControl)
-                Cursor.Draw(Tick);
-
             LastDrawTick = Tick;
         }
 
@@ -88,7 +80,7 @@ namespace OrbisGL.Controls
         /// <param name="Area"></param>
         public void SetVisibleArea(Rectangle Area)
         {
-            if (Area.Width == 0 || Area.Height == 0)
+            if (Area.IsEmpty())
             {
                 _RectInvisible = true;
                 return;
@@ -138,6 +130,8 @@ namespace OrbisGL.Controls
 
             if (Recursive)
                 Parent?.Invalidate(Recursive);
+
+            OnControlInvalidated?.Invoke(this, EventArgs.Empty);
         }
 
         public abstract void Refresh();
@@ -193,6 +187,7 @@ namespace OrbisGL.Controls
             if (Focusable)
             {
                 _Focused = true;
+                SetAsSelected();
                 Invalidate();
             } 
         }

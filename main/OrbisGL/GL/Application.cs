@@ -289,10 +289,18 @@ namespace OrbisGL.GL
                 GLReady = true;
             }
 
+
+
             foreach (var Object in Objects)
             {
+                if (Object is Control Controller)
+                    Controller.FlushMouseEvents(Tick);
+
                 Object.Draw(Tick);
             }
+
+            Control.Selector.Draw(Tick);
+            Control.Cursor.Draw(Tick);
         }
         
 #if !ORBIS
