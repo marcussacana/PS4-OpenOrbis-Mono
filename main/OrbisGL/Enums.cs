@@ -6,6 +6,8 @@ namespace OrbisGL
     public enum RenderMode : int
     {
         Triangle = GLES20.GL_TRIANGLES,
+        TriangleStrip = GLES20.GL_TRIANGLE_STRIP,
+        TriangleFan = GLES20.GL_TRIANGLE_FAN,
         MultipleLines = GLES20.GL_LINES,
         SingleLine = GLES20.GL_LINE_STRIP,
         ClosedLine = GLES20.GL_LINE_LOOP

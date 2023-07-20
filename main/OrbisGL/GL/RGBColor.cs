@@ -1,4 +1,5 @@
 ﻿using SixLabors.ImageSharp;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -123,6 +124,11 @@ namespace OrbisGL.GL
             }
 
             return Saturate(Alpha);
+        }
+
+        public RGBColor Negative()
+        {
+            return new RGBColor((byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
         }
 
         public bool Equals(RGBColor x, RGBColor y)

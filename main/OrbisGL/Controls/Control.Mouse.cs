@@ -2,11 +2,20 @@
 using OrbisGL.GL2D;
 using System.Numerics;
 using OrbisGL.Controls.Events;
+using System.Linq.Expressions;
+using OrbisGL.Input;
 
 namespace OrbisGL.Controls
 {
     public abstract partial class Control : IRenderable
     {
+        static Control()
+        {
+            Cursor = new Cursor();
+            Cursor.Height = 19;
+            Cursor.RefreshVertex();
+        }
+
         private void FlushMouseEvents(long Tick)
         {
             if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 500)
@@ -42,11 +51,7 @@ namespace OrbisGL.Controls
         static Control LastCursorControl = null;
         static Vector2 CurrentPosition = Vector2.Zero;
 
-        static GLObject2D Cursor = new Triangle2D(new Rectangle(0, 0, 10, 10)) 
-        { 
-            Color = RGBColor.OffWhite,
-            Rotation = Triangle2D.Degrees.Degree315
-        };
+        static GLObject2D Cursor;
 
         internal void ProcessMouseMove(Vector2 XY)
         {

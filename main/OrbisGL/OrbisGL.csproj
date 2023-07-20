@@ -121,6 +121,7 @@
     <Compile Include="GL\RGBColor.cs" />
     <Compile Include="GL\Texture.cs" />
     <Compile Include="GL\Application.cs" />
+    <Compile Include="Input\Cursor.cs" />
     <Compile Include="Input\Dualshock\Gamepad.cs" />
     <Compile Include="Input\Dualshock\GamepadListener.cs" />
     <Compile Include="Input\Dualshock\Structs.cs" />
