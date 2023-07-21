@@ -5,22 +5,28 @@ namespace OrbisGL.Controls
 {
     public partial class Control
     {
+        /// <summary>
+        /// An keyboard event propagated to all enabled controllers
+        /// </summary>
         public event KeyboardEventDelegate OnKeyDown;
+
+        /// <summary>
+        /// An keyboard event propagated to all enabled controllers
+        /// </summary>
         public event KeyboardEventDelegate OnKeyUp;
 
         internal void ProcessKeyDown(object Sender, KeyboardEventArgs Args)
         {
             PropagateAll((Ctrl, e) =>
             {
-                Ctrl.OnKeyDown?.Invoke(this, (KeyboardEventArgs)e);
+                Ctrl.OnKeyDown?.Invoke(Ctrl, (KeyboardEventArgs)e);
             }, Args);
-            return;
         }
         internal void ProcessKeyUp(object Sender, KeyboardEventArgs Args)
         {
             PropagateAll((Ctrl, e) =>
             {
-                Ctrl.OnKeyUp?.Invoke(this, (KeyboardEventArgs)e);
+                Ctrl.OnKeyUp?.Invoke(Ctrl, (KeyboardEventArgs)e);
             }, Args);
         }
     }

@@ -102,6 +102,13 @@ namespace OrbisGL
         Both = A | B
     }
 
+    public enum VirtualMouse
+    {
+        Disabled,
+        Touchpad,
+        //[WIP] RightAnalog
+    }
+
     #region IME
 
     //Stolen from fpPS4 project: https://github.com/red-prig/fpPS4/blob/d0fd45eb63f775f52cefebff437bb010bb2ba747/src/ps4_libsceime.pas

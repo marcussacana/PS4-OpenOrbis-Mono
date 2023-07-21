@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Checkbox.cs" />
+    <Compile Include="Controls\Control.Gamepad.cs" />
     <Compile Include="Controls\Control.Keyboard.cs" />
     <Compile Include="Controls\Control.Mouse.cs" />
     <Compile Include="Controls\Control.Extensions.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Input\OrbisKeyboard.cs" />
     <Compile Include="Input\OrbisMouse.cs" />
     <Compile Include="Input\Selector.cs" />
+    <Compile Include="Input\TouchpadMouse.cs" />
     <Compile Include="Internals\IO.cs" />
     <Compile Include="Internals\Kernel.cs" />
     <Compile Include="Internals\UserService.cs" />

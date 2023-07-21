@@ -136,44 +136,6 @@ namespace OrbisGL.Controls
 
         public abstract void Refresh();
 
-        protected virtual void OnButtonDown(object Sender, ButtonEventArgs Args)
-        {
-            if (!Focused)
-                return;
-
-            if (!_Focused)
-            {
-                Children.Single(x => x.Focused).OnButtonDown(Sender, Args);
-                return;
-            }
-
-        }
-
-        protected virtual void OnButtonPressed(object Sender, ButtonEventArgs Args)
-        {
-            if (!Focused)
-                return;
-
-            if (!_Focused)
-            {
-                Children.Single(x => x.Focused).OnButtonPressed(Sender, Args);
-                return;
-            }
-
-        }
-
-        protected virtual void OnButtonUp(object Sender, ButtonEventArgs Args)
-        {
-            if (!Focused)
-                return;
-
-            if (!_Focused)
-            {
-                Children.Single(x => x.Focused).OnButtonUp(Sender, Args);
-                return;
-            }
-        }
-
         protected virtual void OnFocus(object Sender, EventArgs Args)
         {
             if (Focused)

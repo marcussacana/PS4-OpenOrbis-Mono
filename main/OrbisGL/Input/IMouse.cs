@@ -7,7 +7,7 @@ namespace OrbisGL.Input
     {
         bool Initialize(int UserID = -1);
 
-        void RefreshData();
+        void RefreshData(long Tick);
 
         Vector2 GetPosition();
 

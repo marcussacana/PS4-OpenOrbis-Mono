@@ -33,7 +33,7 @@ namespace OrbisGL.Input.Dualshock
 
         public static explicit operator Vector2(OrbisPadTouch Touch)
         {
-            return new Vector2(XToPoint(Touch.X, 1919), YToPoint(Touch.Y, 941));
+            return new Vector2(XToPoint(Touch.X, Constants.MaxTouchX), YToPoint(Touch.Y, Constants.MaxTouchY));
         }
     }
 

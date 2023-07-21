@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Orbis.Internals;
 using OrbisGL.Controls;
+using OrbisGL.Controls.Events;
 using OrbisGL.Input;
 using OrbisGL.Input.Dualshock;
 using SharpGLES;
@@ -28,6 +30,7 @@ namespace OrbisGL.GL
         private EGLDisplay GLDisplay;
         public readonly int FrameDelay = 0;
 
+        public IEnumerable<Control> Controllers => Objects.Where(x => x is Control).Cast<Control>();
         public readonly IList<IRenderable> Objects = new List<IRenderable>();
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace OrbisGL.GL
 
                 LastDrawTick = CurrentTick;
 
-                ProcessEvents();
+                ProcessEvents(CurrentTick);
 
 #if ORBIS
                 Draw(CurrentTick);
@@ -117,8 +120,9 @@ namespace OrbisGL.GL
         }
         public GamepadListener Dualshock { get; private set; } = null;
 
+        private bool LeftAnalogCentered = true;
         private bool DualshockEnabled = false;
-        public void EnableDualshock()
+        public void EnableDualshock(DualshockSettings Settings)
         {
             if (DualshockEnabled)
                 return;
@@ -131,8 +135,104 @@ namespace OrbisGL.GL
             }
 
             Dualshock = new GamepadListener(UserID);
+
+            Dualshock.OnButtonDown += (sender, args) =>
+            {
+                foreach (var Child in Controllers)
+                {
+                    Child.ProcessButtonDown(sender, args);
+                }
+            };
+
+            Dualshock.OnButtonUp += (sender, args) =>
+            {
+                foreach (var Child in Controllers)
+                {
+                    Child.ProcessButtonUp(sender, args);
+                }
+            };
+
+            if (Settings.LeftAnalogAsPad)
+            {
+                Dualshock.OnLeftStickMove += (sender, args) =>
+                {
+                    var Offset = args.CurrentOffset;
+
+                    bool XCentered = Offset.X <= 0.2 && Offset.X >= -0.2;
+                    bool YCentered = Offset.Y <= 0.2 && Offset.Y >= -0.2;
+
+                    bool Centered = XCentered && YCentered;
+
+                    if (!LeftAnalogCentered && Centered)
+                    {
+                        LeftAnalogCentered = Centered;
+                        args.Handled = true;
+                        return;
+                    }
+
+                    if (!Centered && LeftAnalogCentered)
+                    {
+                        LeftAnalogCentered = Centered;
+                        args.Handled = true;
+
+                        EmulatePad(Offset, XCentered, YCentered);
+                        return;
+                    }
+                };
+            }
+
+            if (Settings.Mouse == VirtualMouse.Touchpad)
+            {
+                if (MouseDriver == null)
+                {
+                    MouseDriver = new TouchpadMouse(Dualshock);
+                }
+            }
+
             DualshockEnabled = true;
 #endif
+        }
+
+        private void EmulatePad(Vector2 Offset, bool XCentered, bool YCentered)
+        {
+            ButtonEventArgs EventDown = null, EventUp = null;
+
+            if (!XCentered && !YCentered)
+            {
+                if (Math.Abs(Offset.X) > Math.Abs(Offset.Y))
+                    YCentered = true;
+                else
+                    XCentered = true;
+            }
+
+            if (Offset.X <= -0.2 && YCentered)
+            {
+                EventDown = new ButtonEventArgs(OrbisPadButton.Left);
+                EventUp = new ButtonEventArgs(OrbisPadButton.Left);
+            }
+
+            if (Offset.X >= 0.2 && YCentered)
+            {
+                EventDown = new ButtonEventArgs(OrbisPadButton.Right);
+                EventUp = new ButtonEventArgs(OrbisPadButton.Right);
+            }
+
+            if (Offset.Y >= 0.2 && XCentered)
+            {
+                EventDown = new ButtonEventArgs(OrbisPadButton.Up);
+                EventUp = new ButtonEventArgs(OrbisPadButton.Up);
+            }
+            if (Offset.Y <= -0.2 && XCentered)
+            {
+                EventDown = new ButtonEventArgs(OrbisPadButton.Down);
+                EventUp = new ButtonEventArgs(OrbisPadButton.Down);
+            }
+
+            foreach (var Child in Controllers)
+            {
+                Child.ProcessButtonDown(Child, EventDown);
+                Child.ProcessButtonUp(Child, EventUp);
+            }
         }
 
         public IKeyboard KeyboardDriver;
@@ -160,23 +260,17 @@ namespace OrbisGL.GL
 
             KeyboardDriver.OnKeyDown += (sender, args) =>
             {
-                foreach (var Child in Objects)
+                foreach (var Child in Controllers)
                 {
-                    if (Child is Control Ctrl)
-                    {
-                        Ctrl.ProcessKeyDown(sender, args);
-                    }
+                    Child.ProcessKeyDown(sender, args);
                 }
             };
 
             KeyboardDriver.OnKeyUp += (sender, args) =>
             {
-                foreach (var Child in Objects)
+                foreach (var Child in Controllers)
                 {
-                    if (Child is Control Ctrl)
-                    {
-                        Ctrl.ProcessKeyUp(sender, args);
-                    }
+                    Child.ProcessKeyUp(sender, args);
                 }
             };
         }
@@ -186,7 +280,7 @@ namespace OrbisGL.GL
 
         IMouse InitializedMouse = null;
 
-        private void ProcessEvents()
+        private void ProcessEvents(long Tick)
         {
             if (MouseDriver != null)
             {
@@ -204,7 +298,7 @@ namespace OrbisGL.GL
                     MouseDriver.Initialize(UserID);
                 }
 
-                MouseDriver.RefreshData();
+                MouseDriver.RefreshData(Tick);
 
                 var CurrentPosition = MouseDriver.GetPosition();
                 bool Moved = CursorPosition != CurrentPosition;
@@ -212,15 +306,12 @@ namespace OrbisGL.GL
                 if (Moved)
                 {
                     CursorPosition = CurrentPosition;
-                    foreach (var Child in Objects)
+                    foreach (var Child in Controllers)
                     {
-                        if (Child is Control Ctrl)
+                        if (Child.AbsoluteRectangle.IsInBounds(CurrentPosition))
                         {
-                            if (Ctrl.AbsoluteRectangle.IsInBounds(CurrentPosition))
-                            {
-                                Ctrl.ProcessMouseMove(CurrentPosition);
-                                break;
-                            }
+                            Child.ProcessMouseMove(CurrentPosition);
+                            break;
                         }
                     }
                 }
@@ -233,14 +324,11 @@ namespace OrbisGL.GL
                     var OldButtons = MousePressedButtons;
                     MousePressedButtons = CurrentButtons;
 
-                    foreach (var Child in Objects)
+                    foreach (var Child in Controllers)
                     {
-                        if (Child is Control Ctrl)
+                        if (Child.AbsoluteRectangle.IsInBounds(CurrentPosition))
                         {
-                            if (Ctrl.AbsoluteRectangle.IsInBounds(CurrentPosition))
-                            {
-                                Ctrl.ProcessMouseButtons(OldButtons, CurrentButtons);
-                            }
+                            Child.ProcessMouseButtons(OldButtons, CurrentButtons);
                         }
                     }
                 }

@@ -1,4 +1,5 @@
 ﻿using OrbisGL.GL;
+using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -61,6 +62,17 @@ namespace OrbisGL.GL2D
         public static float YToPoint(float Y, int MaxHeight)
         {
             return -(((Y / MaxHeight) * 2) - 1f);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float PointToX(float X, int MaxWidth)
+        {
+            return ((X + 1f) / 2) * MaxWidth;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float PointToY(float Y, int MaxHeight)
+        {
+            return (((-Y) + 1f) / 2) * MaxHeight;
         }
 
 

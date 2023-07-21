@@ -3,6 +3,7 @@ using System;
 using System.Numerics;
 using OrbisGL.Input;
 using OrbisGL.Controls;
+using OrbisGL;
 
 namespace Orbis
 {
@@ -12,7 +13,12 @@ namespace Orbis
         {
 #if ORBIS
             EnableKeyboard();
-            EnableDualshock();
+
+            EnableDualshock(new DualshockSettings() 
+            {
+                LeftAnalogAsPad = true, 
+                Mouse = VirtualMouse.Touchpad
+            });
 #endif
             InitializeComponents();
         }

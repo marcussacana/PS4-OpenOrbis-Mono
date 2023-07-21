@@ -59,7 +59,6 @@ namespace OrbisGL.Controls
         /// Check if this controller is a child of the controller defined at <paramref name="Parent"/>
         /// </summary>
         /// <param name="Parent">The Possible Parent Controller to Verify</param>
-        /// <returns></returns>
         public bool IsDescendantOf(Control Parent)
         {
             Control current = this.Parent;
@@ -79,7 +78,6 @@ namespace OrbisGL.Controls
         /// Check if this controller is a parent of the controller defined at <paramref name="Child"/>
         /// </summary>
         /// <param name="Child">The Possible Parent Controller to Verify</param>
-        /// <returns></returns>
         public bool IsAncestorOf(Control Child)
         {
             Control current = Child;
@@ -96,7 +94,7 @@ namespace OrbisGL.Controls
         }
 
         /// <summary>
-        /// Propagate a action to all parent controls and itself
+        /// Propagate a action to all enabled parent controls and itself
         /// </summary>
         /// <param name="Action">The action to execute in each node</param>
         /// <param name="Args">A Shared Argument to be passed</param>
@@ -105,7 +103,8 @@ namespace OrbisGL.Controls
             var Current = this;
             do
             {
-                Action(Current, Args);
+                if (Current.Enabled)
+                    Action(Current, Args);
 
                 if (Args != null && Args.Handled)
                     break;
@@ -115,7 +114,7 @@ namespace OrbisGL.Controls
         }
 
         /// <summary>
-        /// Propagate a action to all children controls and itself
+        /// Propagate a action to all enabled children controls and itself
         /// </summary>
         /// <param name="Action">The action to execute in each node</param>
         /// <param name="Args">A Shared Argument to be passed</param>
@@ -127,6 +126,10 @@ namespace OrbisGL.Controls
             while (CtrlStack.Count > 0)
             {
                 var Current = CtrlStack.Pop();
+                
+                if (!Current.Enabled)
+                    continue;
+
                 Action(Current, Args);
 
                 if (Args.Handled)
