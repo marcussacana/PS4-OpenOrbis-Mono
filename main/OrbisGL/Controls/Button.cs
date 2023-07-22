@@ -76,7 +76,7 @@ namespace OrbisGL.Controls
             BackgroundContour.Opacity = 100;
             BackgroundContour.RoundLevel = 1.8f;
             BackgroundContour.ContourWidth = 0.5f;
-            BackgroundContour.Margin = new Vector2(-0.25f, -0.25f);
+            BackgroundContour.Margin = new Vector2(-0.3f, -0.3f);
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BackgroundContour);
@@ -103,7 +103,7 @@ namespace OrbisGL.Controls
                 if (!Enabled)
                     return;
 
-                e.Handled = true;
+                e.Handled = CurrentState == ButtonState.Pressed;
                 CurrentState = IsMouseHover ? ButtonState.Hover : ButtonState.Normal;
                 Invalidate();
             };
@@ -131,20 +131,6 @@ namespace OrbisGL.Controls
             if (AutoSize && Size.X < Foreground.Width || Size.Y < Foreground.Height)
                 Size = new Vector2(Foreground.Width + 10, Foreground.Height + 10);
 
-            switch (CurrentState)
-            {
-                case ButtonState.Pressed:
-                    Background.Color = Background.Color.Desaturate(180);
-                    break;
-                case ButtonState.Hover:
-                    Background.Color = Background.Color.Desaturate(215);
-                    break;
-                case ButtonState.Disabled:
-                    Background.Color = BackgroundColor.Grayscale();
-                    Foreground.Color = ForegroundColor.Grayscale();
-                    break;
-            }
-
             Background.Width = (int)Size.X;
             Background.Height = (int)Size.Y;
             Background.Color = Primary ? PrimaryBackgroundColor : BackgroundColor;
@@ -155,6 +141,20 @@ namespace OrbisGL.Controls
 
             Foreground.Color = Primary ? PrimaryForegroundColor : ForegroundColor;
             Foreground.Position = Size.GetMiddle(Foreground.Width, Foreground.Height);
+
+            switch (CurrentState)
+            {
+                case ButtonState.Pressed:
+                    Background.Color = Background.Color.Desaturate(180);
+                    break;
+                case ButtonState.Hover:
+                    Background.Color = Background.Color.Desaturate(210);
+                    break;
+                case ButtonState.Disabled:
+                    Background.Color = BackgroundColor.Grayscale();
+                    Foreground.Color = ForegroundColor.Grayscale();
+                    break;
+            }
 
             GLObject.Width = (int)Size.X;
             GLObject.Height = (int)Size.Y;

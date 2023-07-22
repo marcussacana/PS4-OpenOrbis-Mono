@@ -35,6 +35,13 @@ namespace OrbisGL.Controls
         bool Typing;
         float CurrentTextXOffset = 0;
 
+        RoundedRectangle2D Background;
+        RoundedRectangle2D BackgroundContour;
+        RichText2D Foreground;
+
+        Line2D FocusIndicator;
+        Line2D Caret;
+
         public TextBox(int Width, int FontSize)
         {
             var Face = Text2D.GetFont(FreeType.DefaultFace, FontSize, out bool OK);
@@ -56,10 +63,10 @@ namespace OrbisGL.Controls
 
             BackgroundContour = new RoundedRectangle2D(Width, Height, false);
             BackgroundContour.Color = ForegroundColor;
-            BackgroundContour.Opacity = 60;
+            BackgroundContour.Opacity = 100;
             BackgroundContour.RoundLevel = 1.2f;
-            BackgroundContour.ContourWidth = 0.8f;
-            BackgroundContour.Margin = new Vector2(-0.2f, -0.2f);
+            BackgroundContour.ContourWidth = 1.5f;
+            BackgroundContour.Margin = new Vector2(-0.3f, -0.3f);
 
             Foreground = new RichText2D(Face, FontSize, ForegroundColor);
 
@@ -374,13 +381,6 @@ namespace OrbisGL.Controls
             Desaturate = false;
             Invalidate();
         }
-
-        RoundedRectangle2D Background;
-        RoundedRectangle2D BackgroundContour;
-        RichText2D Foreground;
-
-        Line2D FocusIndicator;
-        Line2D Caret;
 
         public override void Refresh()
         {
