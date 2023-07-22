@@ -43,7 +43,7 @@ namespace OrbisGL.Input
         long LastRefreshTick;
 
 
-        private const int PressDelay = 500;
+        private const int PressDelay = 300;
         
         public TouchpadMouse(GamepadListener Gamepad)
         {
@@ -106,7 +106,7 @@ namespace OrbisGL.Input
 
                 var DeltaPos = Vector2.Abs(EndPos - InitialPos);
 
-                var DeadDistance = TouchMax * 0.2f;
+                var DeadDistance = TouchMax * 0.02f;
 
                 if (DeltaPos.X < DeadDistance.X && DeltaPos.Y < DeadDistance.Y)
                 {

@@ -8,6 +8,7 @@ using System.Threading;
 using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL.Controls.Events;
+using OrbisGL.GL2D;
 using OrbisGL.Input;
 using OrbisGL.Input.Dualshock;
 using SharpGLES;
@@ -283,16 +284,7 @@ namespace OrbisGL.GL
             {
                 if (InitializedMouse != MouseDriver)
                 {
-#if ORBIS
-                    if (UserID == -1)
-                    {
-                        UserService.Initialize();
-                        UserService.GetInitialUser(out UserID);
-                    }
-#endif
-
-                    InitializedMouse = MouseDriver;
-                    MouseDriver.Initialize(UserID);
+                    EnableMouse();
                 }
 
                 MouseDriver.RefreshData(Tick);
@@ -335,6 +327,29 @@ namespace OrbisGL.GL
             KeyboardDriver?.RefreshData();
             Dualshock?.RefreshData();
 #endif
+        }
+
+        public void EnableMouse()
+        {
+#if ORBIS
+            if (UserID == -1)
+            {
+                UserService.Initialize();
+                UserService.GetInitialUser(out UserID);
+            }
+#endif
+
+            InitializedMouse = MouseDriver;
+            MouseDriver.Initialize(UserID);
+            
+            Control.Cursor = new Cursor()
+            {
+                ContourWidth = Coordinates2D.Height / 720f,
+                Height = (int)((Coordinates2D.Height / 720f) * 19),
+                Visible = false
+            };
+            
+            Control.Cursor.RefreshVertex();
         }
 
 #if ORBIS

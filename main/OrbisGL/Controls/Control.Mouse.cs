@@ -9,14 +9,6 @@ namespace OrbisGL.Controls
 {
     public abstract partial class Control : IRenderable
     {
-        static Control()
-        {
-            Cursor = new Cursor();
-            Cursor.Height = 19;
-            Cursor.Visible = false;
-            Cursor.RefreshVertex();
-        }
-
         internal void FlushMouseEvents(long Tick)
         {
             if (ClickBegin > 0 && (Tick - ClickBegin) > Constants.SCE_MILISECOND * 500)

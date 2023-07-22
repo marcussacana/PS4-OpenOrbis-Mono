@@ -12,6 +12,8 @@ namespace OrbisGL.Input
     {
         private bool IsContour;
 
+        public float ContourWidth { get; set; } = 1.0f;
+        
         private Cursor Contour;
         public Cursor() : this(false)
         {
@@ -83,9 +85,14 @@ namespace OrbisGL.Input
         public override void Draw(long Tick)
         {
             if (!IsContour)
+            {
                 Contour.Color = Color.Negative();
+                Contour.ContourWidth = ContourWidth;
+            }
             else
-                GLES20.LineWidth(0.5f);
+            {
+                GLES20.LineWidth(ContourWidth);
+            }
 
             base.Draw(Tick);
         }
