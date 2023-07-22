@@ -1,12 +1,6 @@
 ﻿using OrbisGL.Controls.Events;
-using OrbisGL.GL2D;
 using OrbisGL.Input.Dualshock;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.Input
@@ -108,12 +102,16 @@ namespace OrbisGL.Input
 
                 var DeadDistance = TouchMax * 0.02f;
 
+                //Too little pixels moved, trigger an click
                 if (DeltaPos.X < DeadDistance.X && DeltaPos.Y < DeadDistance.Y)
                 {
                     LeftState = 1;
                     LeftStateTick = LastRefreshTick;
                 }
-                
+
+                //Finish Drag
+                if (LeftState == 2)
+                    LeftState = 0;
             }
 
             FingerCount--;
@@ -134,6 +132,8 @@ namespace OrbisGL.Input
 
             CurrentPos = Vector2.Max(CurrentPos, Vector2.Zero);
             CurrentPos = Vector2.Min(CurrentPos, ScreenSize);
+            
+            //[WIP] Consider the finger move speed and make it increase the distance somehow
         }
 
         private Vector2 GetXY(Vector2 Offset)
