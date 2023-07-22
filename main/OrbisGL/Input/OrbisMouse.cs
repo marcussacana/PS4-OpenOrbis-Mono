@@ -18,7 +18,7 @@ namespace OrbisGL.Input
         SceMouseData* CurrentData = null;
         const int bulkMouseData = 8;
         
-        public void RefreshData()
+        public void RefreshData(long Tick)
         {
             int Count = sceMouseRead(MouseHandle, CurrentData, bulkMouseData);
             if (Count > Constants.SCE_OK)

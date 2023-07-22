@@ -17,7 +17,8 @@ namespace OrbisGL.Input
         Control SelectedControl = null;
         Rectangle2D Rectangle = new Rectangle2D(1, 1, false)
         {
-            Color = RGBColor.Black
+            Color = RGBColor.Black,
+            ContourWidth = 2f
         };
 
 

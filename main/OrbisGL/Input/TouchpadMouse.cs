@@ -16,20 +16,18 @@ namespace OrbisGL.Input
         public GamepadListener Gamepad;
 
 
-        float _Speed = 1.2f;
-        public float Speed
+        float _Sensitivity = 0.5f;
+        public float Sensitivity
         {
-            get => _Speed;
+            get => _Sensitivity;
             set
             {
-                _Speed = value;
-                TouchMaxX = Constants.MaxTouchX * value;
-                TouchMaxY = Constants.MaxTouchY * value;
+                _Sensitivity = value;
+                TouchMax = new Vector2(Constants.MaxTouchX * value, Constants.MaxTouchX * value);
             }
         }
 
-        float TouchMaxX = Constants.MaxTouchX * 1.2f;
-        float TouchMaxY = Constants.MaxTouchX * 1.2f;
+        private Vector2 TouchMax = new Vector2(Constants.MaxTouchX * 0.5f, Constants.MaxTouchX * 0.5f);
 
         int FingerCount;
 
@@ -38,13 +36,15 @@ namespace OrbisGL.Input
 
         long LeftStateTick = 0;
         int LeftState = 0;//0 = not pressed, 1 = clicked, 2 = hold
-
+        long ElapsedTouchMilesecond => (LastRefreshTick - LeftStateTick) / Constants.SCE_MILISECOND;
 
         bool RightPressed;
 
         long LastRefreshTick;
 
 
+        private const int PressDelay = 500;
+        
         public TouchpadMouse(GamepadListener Gamepad)
         {
             this.Gamepad = Gamepad;
@@ -84,7 +84,7 @@ namespace OrbisGL.Input
                 FingerInitialPos = Args.Position;
                 InitialCursorPos = CurrentPos;
 
-                if (LeftState == 1)
+                if (LeftState == 1 && ElapsedTouchMilesecond < PressDelay)
                 {
                     LeftState++;
                 }
@@ -104,15 +104,16 @@ namespace OrbisGL.Input
                 var InitialPos = GetXY(FingerInitialPos);
                 var EndPos = GetXY(Args.Position);
 
-                var DeltaPos = EndPos - InitialPos;
+                var DeltaPos = Vector2.Abs(EndPos - InitialPos);
 
-                var DeadDistance = new Vector2(TouchMaxX * 0.05f, TouchMaxY * 0.05f);
+                var DeadDistance = TouchMax * 0.2f;
 
                 if (DeltaPos.X < DeadDistance.X && DeltaPos.Y < DeadDistance.Y)
                 {
                     LeftState = 1;
                     LeftStateTick = LastRefreshTick;
                 }
+                
             }
 
             FingerCount--;
@@ -130,14 +131,18 @@ namespace OrbisGL.Input
             var FingerDeltaPos = FingerEndPos - FingerInitialPos;
 
             CurrentPos = InitialCursorPos + FingerDeltaPos;
+
+            CurrentPos = Vector2.Max(CurrentPos, Vector2.Zero);
+            CurrentPos = Vector2.Min(CurrentPos, ScreenSize);
         }
 
         private Vector2 GetXY(Vector2 Offset)
         {
-            return new Vector2(PointToX(Offset.X, (int)TouchMaxX), PointToY(Offset.Y, (int)TouchMaxY));
+            return new Vector2(PointToX(Offset.X, (int)TouchMax.X), PointToY(Offset.Y, (int)TouchMax.Y));
         }
 
-        Vector2 CurrentPos = new Vector2(Width / 2, Height / 2);
+        Vector2 ScreenSize = new Vector2(Width, Height);
+        Vector2 CurrentPos = new Vector2(Width, Height) / 2;
 
         bool Disposed = false;
         public void Dispose()
@@ -159,16 +164,16 @@ namespace OrbisGL.Input
 
             if (LeftState == 1)
             {
-                long Elapsed = (LastRefreshTick - LeftStateTick) / Constants.SCE_MILISECOND;
-                if (Elapsed > 300)
+                long Elapsed = ElapsedTouchMilesecond;
+                if (Elapsed > PressDelay)
                 {
                     LeftState = 0;
                 }
             }
 
             if (LeftState > 0)
-            {
-                    Buttons |= MouseButtons.Left;
+            { 
+                Buttons |= MouseButtons.Left;
             }
 
             if (RightPressed)

@@ -183,10 +183,7 @@ namespace OrbisGL.GL
 
             if (Settings.Mouse == VirtualMouse.Touchpad)
             {
-                if (MouseDriver == null)
-                {
-                    MouseDriver = new TouchpadMouse(Dualshock);
-                }
+                MouseDriver = new TouchpadMouse(Dualshock);
             }
 
             DualshockEnabled = true;

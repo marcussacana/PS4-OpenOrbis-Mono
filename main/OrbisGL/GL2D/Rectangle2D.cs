@@ -1,5 +1,6 @@
 ﻿using OrbisGL.GL;
 using System.Numerics;
+using SharpGLES;
 using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
@@ -7,6 +8,8 @@ namespace OrbisGL.GL2D
     public class Rectangle2D : GLObject2D
     {
         bool FillMode;
+
+        public float ContourWidth { get; set; } = 1.0f;
 
         public Rectangle2D(Rectangle Rectangle, bool Fill) : this((int)Rectangle.Width, (int)Rectangle.Height, Fill)
         {
@@ -100,6 +103,14 @@ namespace OrbisGL.GL2D
         {
             RefreshVertex();
             ClearChildrenVisibleRectangle();
+        }
+
+        public override void Draw(long Tick)
+        {
+            if (!FillMode)
+                GLES20.LineWidth(ContourWidth);
+            
+            base.Draw(Tick);
         }
     }
 }

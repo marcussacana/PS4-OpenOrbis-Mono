@@ -15,7 +15,7 @@ namespace OrbisGL.Input
 
         public void Dispose() { }
 
-        public void RefreshData() { }
+        public void RefreshData(long Tick) { }
 
         public Vector2 GetPosition()
         {

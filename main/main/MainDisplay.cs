@@ -30,8 +30,6 @@ namespace Orbis
             var BG = new Panel(1920, 1080);
             BG.Size = new Vector2(Width, Height);
 
-            MouseDriver = new OrbisMouse();
-
             var Button = new Button(150, 25, 24);
             Button.Text = "Hello World";
             Button.Primary = Rand.Next(0, 2) == 1;
@@ -59,21 +57,7 @@ namespace Orbis
             {
                 Button.Text = $"{args.Button} Released";
             };
-
-            Dualshock.OnTouchStart += (sender, args) =>
-            {
-                Button.Text = $"{args.Finger} Start: {args.Position}";
-            };
-            Dualshock.OnTouchEnd += (sender, args) =>
-            {
-                Button.Text = $"{args.Finger} End: {args.Position}";
-            };
-
-            Dualshock.OnTouchMove += (sender, args) =>
-            {
-                Button.Text = $"{args.Finger} Move: {args.Position}";
-            };
-
+            
             Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
 
             var TB = new TextBox(300, 24);
