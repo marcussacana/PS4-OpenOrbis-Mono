@@ -48,7 +48,21 @@ namespace OrbisGL.Controls
             {
                 Args.Handled = false;
 
-                FocusedControl.PropagateUp((Ctrl, e) => 
+                if (EnableSelector)
+                {
+                    switch (Args.Button)
+                    {
+                        case OrbisPadButton.Up:
+                        case OrbisPadButton.Left:
+                        case OrbisPadButton.Right:
+                        case OrbisPadButton.Down:
+                            LastButtonController.ProcessSelection(Args.Button);
+                            Args.Handled = true;
+                            return;
+                    }
+                }
+
+                LastButtonController.PropagateUp((Ctrl, e) => 
                 {
                     Ctrl.OnButtonPressed?.Invoke(Ctrl, (ButtonEventArgs)e);
                 }, Args);

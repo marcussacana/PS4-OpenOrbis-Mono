@@ -17,6 +17,7 @@ namespace Orbis
             EnableDualshock(new DualshockSettings() 
             {
                 LeftAnalogAsPad = true, 
+                PadAsSelector = true,
                 Mouse = VirtualMouse.Touchpad
             });
 #endif
@@ -30,42 +31,40 @@ namespace Orbis
             var BG = new Panel(1920, 1080);
             BG.Size = new Vector2(Width, Height);
 
-            var Button = new Button(150, 25, 24);
-            Button.Text = "Hello World";
-            Button.Primary = Rand.Next(0, 2) == 1;
+            var View = new RowView(300, 600);
 
-            Button.OnKeyDown += (sender, args) =>
+            for (int i = 0; i < 30; i++)
             {
-                Button.Text = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Pressed";
+                View.AddChild(new Checkbox(28)
+                {
+                    Text = $"Checbox {i}"
+                });
+            }
+
+            var ButtonA = new Button(1, 1, 28)
+            {
+                Text = "Button A"
             };
 
-            Button.OnKeyUp += (sender, args) =>
+            var ButtonB = new Button(1, 1, 28)
             {
-                Button.Text = $"{args.KeyChar?.ToString() ?? args.Keycode.ToString()} Released";
+                Text = "Button B"
             };
+
+            ButtonA.Position = new Vector2(10, 10);
+            View.Position = new Vector2(10, 80);
+            ButtonB.Position = new Vector2(10, 80 + View.Size.Y + 60);
+
+            ButtonA.Links.Down = View;
+            ButtonB.Links.Up = View;
+
+            View.Links.Up = ButtonA;
+            View.Links.Down = ButtonB;
             
-            Button.OnMouseClick += (sender, args) =>
-            {
-                Button.Text = "Clicked!";
-            };
-
-            Dualshock.OnButtonDown += (sender, args) =>
-            {
-                Button.Text = $"{args.Button} Pressed";
-            };
-            Dualshock.OnButtonUp += (sender, args) =>
-            {
-                Button.Text = $"{args.Button} Released";
-            };
             
-            Button.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
-
-            var TB = new TextBox(300, 24);
-            TB.Text = "test";
-            TB.Position = new Vector2(Rand.Next(0, Width - 200), Rand.Next(Height - 200));
-
-            BG.AddChild(Button);
-            BG.AddChild(TB);
+            BG.AddChild(ButtonA);
+            BG.AddChild(View);
+            BG.AddChild(ButtonB);
 
             Objects.Add(BG);
         }

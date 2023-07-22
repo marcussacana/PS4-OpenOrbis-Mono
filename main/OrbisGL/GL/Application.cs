@@ -74,6 +74,15 @@ namespace OrbisGL.GL
             UserService.HideSplashScreen();
 #endif
 
+            if (Control.EnableSelector && !Controllers.Any(x => x.Focused))
+            {
+                foreach (var Control in Controllers)
+                {
+                    if (Control.Focus())
+                        break;
+                }
+            }
+
             GLES20.Viewport(0, 0, GLDisplay.Width, GLDisplay.Height);
 
             long LastDrawTick = 0;
@@ -186,6 +195,8 @@ namespace OrbisGL.GL
             {
                 MouseDriver = new TouchpadMouse(Dualshock);
             }
+
+            Control.EnableSelector = Settings.PadAsSelector;
 
             DualshockEnabled = true;
 #endif

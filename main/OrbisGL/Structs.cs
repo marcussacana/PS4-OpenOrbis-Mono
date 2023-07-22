@@ -35,7 +35,20 @@ namespace OrbisGL
         /// </summary>
         public bool LeftAnalogAsPad;
 
+        /// <summary>
+        /// When true, the PADs buttons will allow select the controller focus
+        /// </summary>
+        public bool PadAsSelector;
+
         //[WIP] Implement Deadzone and Sensitivity
         //https://stackoverflow.com/questions/43240440/c-sharp-joystick-sensitivity-formula/43245072#43245072
+    }
+
+    public struct ControlLink
+    {
+        public Controls.Control Up;
+        public Controls.Control Down;
+        public Controls.Control Left;
+        public Controls.Control Right;
     }
 }

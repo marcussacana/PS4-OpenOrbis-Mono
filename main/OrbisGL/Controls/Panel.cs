@@ -55,7 +55,10 @@ namespace OrbisGL.Controls
                 if (!PositionMap.Any())
                     return 0;
 
-                var MaxX = PositionMap.Max(x => x.Value.X + x.Key.Size.X) - Size.X;
+                var MaxX = PositionMap
+                    .Where(x => x.Key != ScrollBar)
+                    .Max(x => x.Value.X + x.Key.Size.X) - Size.X;
+                
                 MaxX = Math.Max(MaxX, 0);
 
                 return (int)MaxX;
@@ -69,12 +72,17 @@ namespace OrbisGL.Controls
                 if (!PositionMap.Any())
                     return 0;
 
-                var MaxY = PositionMap.Max(x => x.Value.Y + x.Key.Size.Y) - Size.Y;
+                var MaxY = PositionMap
+                    .Where(x => x.Key != ScrollBar)
+                    .Max(x => x.Value.Y + x.Key.Size.Y) - Size.Y;
                 MaxY = Math.Max(MaxY, 0);
 
                 return (int)MaxY;
             }
         }
+
+        private Rectangle _CurrentVisibleArea;
+        public Rectangle CurrentVisibleArea { get => _CurrentVisibleArea; private set => _CurrentVisibleArea = value; }
 
         public override void Refresh()
         {
@@ -102,12 +110,14 @@ namespace OrbisGL.Controls
             Background.Height = (int)Size.Y;
             Background.Color = BackgroundColor;
 
-
             ScrollX = Math.Max(ScrollX, 0);
             ScrollY = Math.Max(ScrollY, 0);
 
             ScrollX = Math.Min(ScrollX, MaxScrollX);
             ScrollY = Math.Min(ScrollY, MaxScrollY);
+
+            if (ScrollBar != null)
+                ScrollBar.CurrentScroll = ScrollY;
 
             var AreaRect = AbsoluteRectangle;
 
@@ -124,6 +134,9 @@ namespace OrbisGL.Controls
                     AreaRect = AreaRect.Intersect(ParentVisibleArea);
                 }
             }
+
+            _CurrentVisibleArea = AreaRect;
+            _CurrentVisibleArea.Position += new Vector2(ScrollX, ScrollY);
 
             try
             {
@@ -194,6 +207,14 @@ namespace OrbisGL.Controls
 
             PositionMap.Clear();
             base.RemoveChildren();
+        }
+
+        public Vector2 GetChildPosition(Control Child)
+        {
+            if (PositionMap.TryGetValue(Child, out Vector2 Result))
+                return Result;
+            
+            return Vector2.Zero;
         }
 
     }

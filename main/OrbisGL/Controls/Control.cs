@@ -107,12 +107,31 @@ namespace OrbisGL.Controls
             GLObject.ClearVisibleRectangle();
         }
 
-        public void Focus()
+        public bool Focus()
         {
-            if (_Focused || !Focusable)
-                return;
+            if (_Focused)
+                return true;
 
-            OnFocus(this, new EventArgs());
+            if (!Focusable)
+            {
+                if (LastChildFocus != null)
+                {
+                    return LastChildFocus.Focus();
+                }
+
+                foreach (var Child in Childs)
+                {
+                    if (Child.Focusable)
+                    {
+                        return Child.Focus();
+                    }
+                }
+                
+                return false;
+            }
+
+            OnFocus(this, EventArgs.Empty);
+            return true;
         }
 
         /// <summary>
@@ -138,20 +157,23 @@ namespace OrbisGL.Controls
 
         protected virtual void OnFocus(object Sender, EventArgs Args)
         {
-            if (Focused)
-                return;
-
-            if (!Visible || !Enabled)
-                return;
-
-            RootControl.FocusedControl?.OnLostFocus(this, Args);
-
-            if (Focusable)
+            if (!Focused && Visible && Enabled)
             {
-                _Focused = true;
-                SetAsSelected();
-                Invalidate();
-            } 
+                RootControl.FocusedControl?.OnLostFocus(this, Args);
+
+                if (Focusable)
+                {
+                    _Focused = true;
+
+                    if (Parent != null)
+                        Parent.LastChildFocus = this;
+
+                    SetAsSelected();
+                    Invalidate();
+                }
+            }
+
+            Parent?.OnFocus(Sender, Args);
         }
 
         protected virtual void OnLostFocus(object Sender, EventArgs Args)
