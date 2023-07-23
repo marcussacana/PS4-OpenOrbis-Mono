@@ -24,8 +24,6 @@ namespace Orbis
             InitializeComponents();
         }
 
-        Random Rand = new Random();
-
         private void InitializeComponents()
         {
             var BG = new Panel(1920, 1080);
@@ -37,19 +35,15 @@ namespace Orbis
             {
                 View.AddChild(new Checkbox(28)
                 {
-                    Text = $"Checbox {i}"
+                    Text = $"Checkbox {i}"
                 });
             }
 
-            var ButtonA = new Button(1, 1, 28)
-            {
-                Text = "Button A"
-            };
+            var ButtonA = new Button(1, 1, 28);
+            ButtonA.Text = "Button A";
 
-            var ButtonB = new Button(1, 1, 28)
-            {
-                Text = "Button B"
-            };
+            var ButtonB = new Button(1, 1, 28);
+            ButtonB.Text = "Button B";
 
             ButtonA.Position = new Vector2(10, 10);
             View.Position = new Vector2(10, 80);
@@ -60,8 +54,7 @@ namespace Orbis
 
             View.Links.Up = ButtonA;
             View.Links.Down = ButtonB;
-            
-            
+
             BG.AddChild(ButtonA);
             BG.AddChild(View);
             BG.AddChild(ButtonB);

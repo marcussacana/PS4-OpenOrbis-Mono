@@ -97,7 +97,7 @@ namespace OrbisGL.Controls
                 }
 
                 ScrollBar = new VerticalScrollBar((int)Size.Y, MaxScrollY + (int)Size.Y, ScrollBarWidth);
-                ScrollBar.CurrentScroll = ScrollY;
+                ScrollBar.SetScrollByScrollValue(ScrollY);
                 ScrollBar.Refresh();
                 ScrollBar.ScrollChanged += (s, e) => {
                     ScrollY = (int)((VerticalScrollBar)s).CurrentScroll;
@@ -117,7 +117,7 @@ namespace OrbisGL.Controls
             ScrollY = Math.Min(ScrollY, MaxScrollY);
 
             if (ScrollBar != null)
-                ScrollBar.CurrentScroll = ScrollY;
+                ScrollBar.SetScrollByScrollValue(ScrollY);
 
             var AreaRect = AbsoluteRectangle;
 
@@ -207,6 +207,40 @@ namespace OrbisGL.Controls
 
             PositionMap.Clear();
             base.RemoveChildren();
+        }
+
+        protected override void OnFocus(object Sender, EventArgs Args)
+        {
+            EnsureVisible((Control)Sender);
+            base.OnFocus(Sender, Args);
+        }
+
+        private void EnsureVisible(Control Target)
+        {
+            if (!Target.IsDescendantOf(this))
+                return;
+            
+            var tAbsRect = Target.AbsoluteRectangle;
+            var Absrect = AbsoluteRectangle;
+            
+            if (tAbsRect.Bottom >= Absrect.Bottom)
+            {
+                ScrollY = (int)GetChildPosition(Target).Y;
+            }
+
+            if (tAbsRect.Top <= Absrect.Top)
+            {
+                ScrollY = (int)(GetChildPosition(Target).Y - Size.Y + Target.Size.Y);
+            }
+            if (tAbsRect.Right >= Absrect.Right)
+            {
+                ScrollX = (int)(GetChildPosition(Target).X + Size.X);
+            }
+            
+            if (tAbsRect.Left <= Absrect.Left)
+            {
+                ScrollX = (int)(GetChildPosition(Target).X - Size.X + Target.Size.X);
+            }
         }
 
         public Vector2 GetChildPosition(Control Child)

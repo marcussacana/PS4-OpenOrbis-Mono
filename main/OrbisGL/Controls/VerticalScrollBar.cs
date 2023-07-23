@@ -16,7 +16,7 @@ namespace OrbisGL.Controls
 
         public int TotalHeight { get; set; }
 
-        public float CurrentScroll { get; set; }
+        public float CurrentScroll { get; private set; }
 
         private float MaxScroll
         {
@@ -163,7 +163,7 @@ namespace OrbisGL.Controls
             //[WIP] Copy set visible from parent (Fix scroll bar visible in recursive scroll)
         }
 
-        private void SetScrollByScrollValue(float Value)
+        public void SetScrollByScrollValue(float Value)
         {
             Value = Math.Min(MaxScroll, Value);
             Value = Math.Max(0, Value);

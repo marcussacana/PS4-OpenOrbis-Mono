@@ -3,6 +3,7 @@ using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
 using System.Numerics;
+using OrbisGL.Controls.Events;
 
 namespace OrbisGL.Controls
 {
@@ -86,10 +87,18 @@ namespace OrbisGL.Controls
             OnMouseLeave += (s, e) => Invalidate();
 
             OnMouseClick += Checkbox_OnMouseClick;
+            OnButtonPressed += Checkbox_OnButtonPressed;
         }
 
+        private void Checkbox_OnButtonPressed(object sender, ButtonEventArgs Args)
+        {
+            if (Args.Button != OrbisPadButton.Cross)
+                return;
+            
+            Checked = !Checked;
+        }
 
-        private void Checkbox_OnMouseClick(object Sender, Events.ClickEventArgs EventArgs)
+        private void Checkbox_OnMouseClick(object Sender, ClickEventArgs EventArgs)
         {
             Checked = !Checked;
         }

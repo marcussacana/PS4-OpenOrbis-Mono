@@ -2,6 +2,7 @@
 using OrbisGL.GL2D;
 using System;
 using System.Numerics;
+using OrbisGL.Controls.Events;
 
 namespace OrbisGL.Controls
 {
@@ -76,12 +77,22 @@ namespace OrbisGL.Controls
             OnMouseEnter += (s, e) => Invalidate();
             OnMouseLeave += (s, e) => Invalidate();
 
+            OnButtonPressed += Radiobutton_OnButtonPressed;
             OnMouseClick += Radiobutton_OnMouseClick;
             OnCheckedChanged += CheckHandler;
         }
 
+        private void Radiobutton_OnButtonPressed(object sender, ButtonEventArgs Args)
+        {
+            if (Args.Button != OrbisPadButton.Cross)
+                return;
 
-        private void Radiobutton_OnMouseClick(object Sender, Events.ClickEventArgs EventArgs)
+            Checked = true;
+            Args.Handled = true;
+        }
+
+
+        private void Radiobutton_OnMouseClick(object Sender, ClickEventArgs Args)
         {
             Checked = true;
         }

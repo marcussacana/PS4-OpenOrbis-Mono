@@ -116,6 +116,26 @@ namespace OrbisGL.Controls
                 CurrentState = ButtonState.Normal;
                 Invalidate();
             };
+
+            OnButtonDown += (sender, args) =>
+            {
+                if (!Focused || args.Button != OrbisPadButton.Cross)
+                    return;
+
+                args.Handled = true;
+                CurrentState = ButtonState.Pressed;
+                Invalidate();
+            };
+
+            OnButtonUp += (sender, args) =>
+            {
+                if (CurrentState != ButtonState.Pressed || args.Button != OrbisPadButton.Cross)
+                    return;
+                
+                args.Handled = true;
+                CurrentState = ButtonState.Normal;
+                Invalidate();
+            };
         }
 
         public override void Refresh()
