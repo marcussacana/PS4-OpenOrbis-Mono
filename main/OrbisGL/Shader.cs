@@ -17,10 +17,13 @@ namespace OrbisGL
 {
     public static class Shader
     {
-
-        public static bool ExportShaderCache = true;
+        public static bool ExportShaderCache;
 
         static List<ShaderInfo> ShaderCache = null;
+        
+#if ORBIS
+        static readonly string DefaultShaderCachePath = Path.Combine(IO.GetAppBaseDirectory(), "Shaders.bin");
+#endif
 
         public static int GetShader(int Type, string Source)
         {
@@ -93,13 +96,47 @@ namespace OrbisGL
             return hShader;
         }
 
+        /// <summary>
+        /// Compile all shaders embedded with the OrbisGL library
+        /// and export to Shaders.bin file in the app root directory (if in a remote debug)
+        /// or the /data/ directory
+        /// </summary>
+        /// <exception cref="Exception">The shader resource names didn't specify the shader type corretly</exception>
+        public static void PrecompileShaders()
+        {
+#if DEBUG
+            ExportShaderCache = true;
+#endif
+            
+            var Shaders = ResLoader.ResourcesList
+                .Where(x => x.EndsWith(".glsl", StringComparison.InvariantCultureIgnoreCase));
+            
+            var Fragments = Shaders.Where(x => x.ToLowerInvariant().Contains("frag"));
+            var Vertex = Shaders.Where(x => x.ToLowerInvariant().Contains("vert"));
+            
+            if (Fragments.Count() + Vertex.Count() != Shaders.Count())
+            {
+                throw new Exception("Unable to detect all shaders type");
+            }
+
+            foreach (var Resource in Vertex)
+            {
+                var Source = ResLoader.GetResource(Resource);
+                int hShader = GetShader(GLES20.GL_VERTEX_SHADER, Source);
+                GLES20.DeleteShader(hShader);
+            }
+            
+            foreach (var Resource in Fragments)
+            {
+                var Source = ResLoader.GetResource(Resource);
+                int hShader = GetShader(GLES20.GL_FRAGMENT_SHADER, Source);
+                GLES20.DeleteShader(hShader);
+            }
+        }
+
         public static byte[] GetShaderBinary(int hShader)
         {
-            var Data = GLES20.GetShaderBinary(hShader, out _);
-
-            GLES20.DeleteShader(hShader);
-
-            return Data;
+            return GLES20.GetShaderBinary(hShader, out _);
         }
 
         public static byte[] GetShaderBinary(int Type, string Source)
@@ -134,26 +171,17 @@ namespace OrbisGL
             if (ShaderCache == null)
             {
                 ShaderCache = new List<ShaderInfo>();
+
+                if (File.Exists(DefaultShaderCachePath))
+                {
+                    var CacheData = File.ReadAllBytes(DefaultShaderCachePath);
+                    LoadShaderCache(CacheData);
+                }
                 
                 if (ResLoader.FindResource("Shaders.bin") != null)
                 {
                     var CacheData = ResLoader.GetResourceData("Shaders.bin");
-                    using (MemoryStream Stream = new MemoryStream(CacheData))
-                    using (BinaryReader Reader = new BinaryReader(Stream))
-                    {
-                        var ShaderCount = Reader.ReadInt32();
-                        for (int i = 0; i < ShaderCount; i++)
-                        {
-                            ShaderInfo Shader = new ShaderInfo();
-
-                            Shader.Type = Reader.ReadInt32();
-                            Shader.Hash = Reader.ReadBytes(0x20);
-                            Shader.Data = new byte[Reader.ReadInt32()];
-                            Reader.Read(Shader.Data, 0, Shader.Data.Length);
-
-                            ShaderCache.Add(Shader);
-                        }
-                    }
+                    LoadShaderCache(CacheData);
                 }
             }
 
@@ -167,6 +195,7 @@ namespace OrbisGL
 
                 ShaderData = Shader.Data;
                 ShaderType = Shader.Type;
+                break;
             }
 
             if (ShaderData == null)
@@ -175,6 +204,27 @@ namespace OrbisGL
             hProgram = GetShader(ShaderType, ShaderData);
 
             return true;
+        }
+
+        private static void LoadShaderCache(byte[] CacheData)
+        {
+            using (MemoryStream Stream = new MemoryStream(CacheData))
+            using (BinaryReader Reader = new BinaryReader(Stream))
+            {
+                var ShaderCount = Reader.ReadInt32();
+                for (int i = 0; i < ShaderCount; i++)
+                {
+                    ShaderInfo Shader = new ShaderInfo();
+
+                    Shader.Type = Reader.ReadInt32();
+                    Shader.Hash = Reader.ReadBytes(0x20);
+                    Shader.Data = new byte[Reader.ReadInt32()];
+                    Reader.Read(Shader.Data, 0, Shader.Data.Length);
+
+                    if (!ShaderCache.Any(x => x.Hash.SequenceEqual(Shader.Hash)))
+                        ShaderCache.Add(Shader);
+                }
+            }
         }
 
         private static void AddShaderToCache(int Type, string Source, int hShader)
@@ -199,32 +249,36 @@ namespace OrbisGL
             if (ExportShaderCache)
             {
                 Stream Output = null;
-                string OutFile = Path.Combine(IO.GetAppBaseDirectory(), "Shaders.bin");
-
+                
                 try
                 {
-                    Output = File.Create(OutFile, 1024 * 1024);
-                }
-                catch
-                {
-                    Output = File.Create("/data/Shaders.bin");
-                }
-
-                using (BinaryWriter Writer = new BinaryWriter(Output))
-                {
-                    Writer.Write(ShaderCache.Count);
-
-                    foreach (var Shader in ShaderCache)
+                    try
                     {
-                        Writer.Write(Shader.Type);
-                        Writer.Write(Shader.Hash, 0, 0x20);
-                        Writer.Write(Shader.Data.Length);
-                        Writer.Write(Shader.Data, 0, Data.Length);
+                        Output = File.Create(DefaultShaderCachePath, 1024 * 1024);
+                    }
+                    catch
+                    {
+                        Output = File.Create("/data/Shaders.bin");
+                    }
+
+                    using (BinaryWriter Writer = new BinaryWriter(Output))
+                    {
+                        Writer.Write(ShaderCache.Count);
+
+                        foreach (var Shader in ShaderCache)
+                        {
+                            Writer.Write(Shader.Type);
+                            Writer.Write(Shader.Hash, 0, 0x20);
+                            Writer.Write(Shader.Data.Length);
+                            Writer.Write(Shader.Data, 0, Shader.Data.Length);
+                        }
                     }
                 }
-
-                Output?.Close();
-                Output?.Dispose();
+                finally
+                {
+                    Output?.Close();
+                    Output?.Dispose();
+                }
             }
         }
 

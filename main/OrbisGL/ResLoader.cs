@@ -10,7 +10,7 @@ namespace OrbisGL
     public static class ResLoader
     {
         static Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
-        static string[] CurrentResources = CurrentAssembly.GetManifestResourceNames();
+        public static readonly string[] ResourcesList = CurrentAssembly.GetManifestResourceNames();
 
         public static string GetResource(string Name)
         {
@@ -46,21 +46,30 @@ namespace OrbisGL
         public static string FindResource(string Name)
         {
             var NoExtName = Path.GetFileNameWithoutExtension(Name);
-            var Entries = CurrentResources.Where((x) =>
+            var Entries = ResourcesList.Where((x) =>
             {
-                int ExtIndex = x.LastIndexOf(".");
-                x = x.Substring(0, ExtIndex).Replace(".", "/") + x.Substring(ExtIndex);
-                bool Valid = x.Equals(Name, StringComparison.InvariantCultureIgnoreCase);
-                Valid |= NoExtName.Equals(Path.GetFileNameWithoutExtension(x), StringComparison.InvariantCultureIgnoreCase);
+                var ResName = GetResourceFileName(x);
+                bool Valid = ResName.Equals(Name, StringComparison.InvariantCultureIgnoreCase);
+                Valid |= NoExtName.Equals(Path.GetFileNameWithoutExtension(ResName), StringComparison.InvariantCultureIgnoreCase);
                 return Valid;
             });
+            
 
             if (!Entries.Any())
             {
+                if (ResourcesList.Contains(Name))
+                    return Name;
+                
                 return null;
             }
 
             return Entries.Single();
+        }
+
+        public static string GetResourceFileName(string ResourceFullName)
+        {
+            int ExtIndex = ResourceFullName.LastIndexOf(".");
+            return ResourceFullName.Substring(0, ExtIndex).Replace(".", "/") + ResourceFullName.Substring(ExtIndex);
         }
     }
 }

@@ -91,6 +91,10 @@ namespace OrbisGL.GL
             Kernel.LoadStartModule("libSceMbus.sprx");//For Mouse and Dualshock Support
 #endif
 
+#if DEBUG && ORBIS
+            if (GLES20.HasShaderCompiler)
+                Shader.PrecompileShaders();
+#endif
             this.Width = Width;
             this.Height = Height;
         }
