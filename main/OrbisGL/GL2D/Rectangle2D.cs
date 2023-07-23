@@ -9,6 +9,16 @@ namespace OrbisGL.GL2D
     {
         bool FillMode;
 
+        float _Rotate = 0f;
+        public float Rotate
+        {
+            get => _Rotate;
+            set {
+                _Rotate = value;
+                RefreshVertex();
+            }
+        }
+
         public float ContourWidth { get; set; } = 1.0f;
 
         public Rectangle2D(Rectangle Rectangle, bool Fill) : this((int)Rectangle.Width, (int)Rectangle.Height, Fill)
@@ -51,10 +61,23 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
-            AddArray(XToPoint(0), YToPoint(0), -1);//0
-            AddArray(XToPoint(Width), YToPoint(0), -1);//1
-            AddArray(XToPoint(0), YToPoint(Height), -1);//2
-            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
+
+            var PointA = new Vector2(0, 0);
+            var PointB = new Vector2(Width, 0);
+            var PointC = new Vector2(0, Height);
+            var PointD = new Vector2(Width, Height);
+
+            var Center = PointD / 2f;
+
+            PointA = RotatePoint(PointA, Center, Rotate);
+            PointB = RotatePoint(PointB, Center, Rotate);
+            PointC = RotatePoint(PointC, Center, Rotate);
+            PointD = RotatePoint(PointD, Center, Rotate);
+
+            AddArray(PointA.ToPoint(), -1);//0
+            AddArray(PointB.ToPoint(), -1);//1
+            AddArray(PointC.ToPoint(), -1);//2
+            AddArray(PointD.ToPoint(), -1);//3
 
             if (FillMode)
             {
@@ -80,10 +103,23 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
-            AddArray(XToPoint(Rectangle.X), YToPoint(Rectangle.Y), -1);//0
-            AddArray(XToPoint(Rectangle.Width), YToPoint(Rectangle.Y), -1);//1
-            AddArray(XToPoint(Rectangle.X), YToPoint(Rectangle.Height), -1);//2
-            AddArray(XToPoint(Rectangle.Width), YToPoint(Rectangle.Height), -1);//3
+
+            var PointA = new Vector2(Rectangle.X, Rectangle.Y);
+            var PointB = new Vector2(Rectangle.Width, Rectangle.Y);
+            var PointC = new Vector2(Rectangle.X, Rectangle.Height);
+            var PointD = new Vector2(Rectangle.Width, Rectangle.Height);
+
+            var Center = PointD / 2f;
+
+            PointA = RotatePoint(PointA, Center, Rotate);
+            PointB = RotatePoint(PointB, Center, Rotate);
+            PointC = RotatePoint(PointC, Center, Rotate);
+            PointD = RotatePoint(PointD, Center, Rotate);
+
+            AddArray(PointA.ToPoint(), -1);//0
+            AddArray(PointB.ToPoint(), -1);//1
+            AddArray(PointC.ToPoint(), -1);//2
+            AddArray(PointD.ToPoint(), -1);//3
 
             if (FillMode)
             {

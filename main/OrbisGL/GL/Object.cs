@@ -40,6 +40,7 @@ namespace OrbisGL.GL
             this.Program = Program;
             this.RenderMode = (int)Mode;
         }
+        public void AddArray(Vector2 XY, float Z) => AddArray(XY.X, XY.Y, Z);
 
         public void AddArray(params Vector3[] Points) => AddArray(Points.SelectMany(x => new[] { x.X, x.Y, x.Z }).ToArray());
         public void AddArray(params Vector2[] Points) => AddArray(Points.SelectMany(x => new[] { x.X, x.Y }).ToArray());

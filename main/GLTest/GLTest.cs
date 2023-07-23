@@ -222,6 +222,8 @@ void main(void) {
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             //Rect.Transparecy = (byte)Rand.Next(0, 255);
 
+            Rect.Rotate = Rand.Next(0, 3600) / 10f;
+
             Rect.RoundLevel = Rand.Next(0, 100) / 100f;
             GLControl.GLApplication.Objects.Add(Rect);
 #endif
@@ -260,7 +262,7 @@ void main(void) {
         {
 #if !ORBIS
             var Font = Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "*.ttf").First();
-            var Text = new Text2D(Font, 24);
+            var Text = new Text2D(24, Font);
             Text.SetText("Hello World");
             Text.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));

@@ -1,5 +1,4 @@
-﻿using OrbisGL.GL;
-using System.ComponentModel;
+﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -40,6 +39,7 @@ namespace OrbisGL.GL2D
         {
             return ((X / Width) * 2) - 1f;
         }
+
         /// <summary>
         /// Nomarlize the Vertex Y Coordinate
         /// </summary>
@@ -50,6 +50,17 @@ namespace OrbisGL.GL2D
         public static float YToPoint(float Y)
         {
             return -(((Y / Height) * 2) - 1f);
+        }
+
+        /// <summary>
+        /// Nomarlize the Vertex XY Coordinate
+        /// </summary>
+        /// <param name="XY">The XY coordinate in pixels</param>
+        /// <returns>The Vertex XY Coordinate</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 ToPoint(this Vector2 XY)
+        {
+            return new Vector2(XToPoint(XY.X), YToPoint(XY.Y));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -100,6 +111,25 @@ namespace OrbisGL.GL2D
             float ThisCenterY = Size.Y / 2;
 
             return new Vector2(ThisCenterX - CenterX, ThisCenterY - CenterY);
+        }
+
+        public static Vector2 RotatePoint(Vector2 Point, Vector2 Center, float AngleDegrees)
+        {
+            double Radians = AngleDegrees * (Math.PI / 180.0);
+
+            float cosTheta = (float)Math.Cos(Radians);
+            float sinTheta = (float)Math.Sin(Radians);
+
+            float translatedX = Point.X - Center.X;
+            float translatedY = Point.Y - Center.Y;
+
+            float rotatedX = translatedX * cosTheta - translatedY * sinTheta;
+            float rotatedY = translatedX * sinTheta + translatedY * cosTheta;
+
+            float finalX = rotatedX + Center.X;
+            float finalY = rotatedY + Center.Y;
+
+            return new Vector2(finalX, finalY);
         }
     }
 }

@@ -25,7 +25,18 @@ namespace OrbisGL.GL2D
 
         public int FontSize { get; set; }
 
-        public Text2D(string FontPath, int FontSize) : this(GetFont(FontPath, FontSize, out _), FontSize) { }
+        float _Rotate = 0f;
+        public float Rotate
+        {
+            get => _Rotate;
+            set
+            {
+                _Rotate = value;
+                RefreshVertex();
+            }
+        }
+
+        public Text2D(int FontSize, string FontPath) : this(GetFont(FontPath, FontSize, out _), FontSize) { }
         public Text2D(FontFaceHandler Font, int FontSize)
         {
             this.FontSize = FontSize;
@@ -156,18 +167,29 @@ namespace OrbisGL.GL2D
 
             ClearBuffers();
 
-            AddArray(XToPoint(0), YToPoint(0), -1);//0
+            var PointA = new Vector2(0, 0);
+            var PointB = new Vector2(Width, 0);
+            var PointC = new Vector2(0, Height);
+            var PointD = new Vector2(Width, Height);
+
+            var Center = PointD / 2f;
+
+            PointA = RotatePoint(PointA, Center, Rotate);
+            PointB = RotatePoint(PointB, Center, Rotate);
+            PointC = RotatePoint(PointC, Center, Rotate);
+            PointD = RotatePoint(PointD, Center, Rotate);
+
+            AddArray(PointA.ToPoint(), -1);//0
             AddArray(0, 0);
 
-            AddArray(XToPoint(Width), YToPoint(0), -1);//1
+            AddArray(PointB.ToPoint(), -1);//1
             AddArray(1, 0);
 
-            AddArray(XToPoint(0), YToPoint(Height), -1);//2
+            AddArray(PointC.ToPoint(), -1);//2
             AddArray(0, 1);
-            
-            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
-            AddArray(1, 1);
 
+            AddArray(PointD.ToPoint(), -1);//3
+            AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);
         }

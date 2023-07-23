@@ -47,7 +47,7 @@ namespace OrbisGL.Controls
 
         public Button(int Width, int Height, int FontSize) : this (Width, Height)
         {
-            Foreground = new Text2D(FreeType.DefaultFace, FontSize);
+            Foreground = new Text2D(FontSize, FreeType.DefaultFace);
             GLObject.AddChild(Foreground);
         }
 
