@@ -29,7 +29,7 @@ namespace OrbisGL.Controls
         }
 
         public bool AllowScroll { get; set; }
-        public byte ScrollBarWidth { get; set; } = 15;
+        public byte ScrollBarWidth { get; set; } = 20;
 
         public byte BackgroundTransparency { get => Background.Opacity; set => Background.Opacity = value; }
 
@@ -81,29 +81,38 @@ namespace OrbisGL.Controls
             }
         }
 
+        private int TotalHeight => MaxScrollY + (int)Size.Y;
+
         private Rectangle _CurrentVisibleArea;
         public Rectangle CurrentVisibleArea { get => _CurrentVisibleArea; private set => _CurrentVisibleArea = value; }
 
         public override void Refresh()
         {
-            if (ScrollBar == null && AllowScroll)
+            if (AllowScroll)
             {
-                if (Childs.Any(x => x is VerticalScrollBar))
+                if (ScrollBar != null && (ScrollBar.TotalHeight != TotalHeight || ScrollBarWidth != (int)ScrollBar.Size.X))
                 {
-                    foreach (var OldScrollBar in Childs.Where(x => x is VerticalScrollBar).ToArray())
-                    {
-                        OldScrollBar.Dispose();
-                    }
+                    ScrollBar.Dispose();
+                    ScrollBar = null;
                 }
 
-                ScrollBar = new VerticalScrollBar((int)Size.Y, MaxScrollY + (int)Size.Y, ScrollBarWidth);
-                ScrollBar.SetScrollByScrollValue(ScrollY);
-                ScrollBar.Refresh();
-                ScrollBar.ScrollChanged += (s, e) => {
-                    ScrollY = (int)((VerticalScrollBar)s).CurrentScroll;
-                };
+                if (ScrollBar == null)
+                {
+                    if (Childs.Any(x => x is VerticalScrollBar))
+                    {
+                        foreach (var OldScrollBar in Childs.Where(x => x is VerticalScrollBar).ToArray())
+                        {
+                            OldScrollBar.Dispose();
+                        }
+                    }
 
-                AddChild(ScrollBar);
+                    ScrollBar = new VerticalScrollBar((int)Size.Y, TotalHeight, ScrollBarWidth);
+                    ScrollBar.SetScrollByScrollValue(ScrollY);
+                    ScrollBar.Refresh();
+                    ScrollBar.ScrollChanged += (s, e) => { ScrollY = (int)((VerticalScrollBar)s).CurrentScroll; };
+
+                    AddChild(ScrollBar);
+                }
             }
 
             Background.Width = (int)Size.X;
@@ -176,6 +185,7 @@ namespace OrbisGL.Controls
             PositionMap[Child] = Child.Position;
             Child.OnControlMoved += Child_OnControlMoved;
             base.AddChild(Child);
+            Invalidate();
         }
 
         bool Moving;

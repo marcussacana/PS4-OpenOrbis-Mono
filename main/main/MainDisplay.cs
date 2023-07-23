@@ -49,6 +49,16 @@ namespace Orbis
             View.Position = new Vector2(10, 80);
             ButtonB.Position = new Vector2(10, 80 + View.Size.Y + 60);
 
+            ButtonA.OnClicked += (sender, args) =>
+            {
+                User.Notify(User.PlaystationButtons, "Button A Clicked");
+            };
+            
+            ButtonB.OnClicked += (sender, args) =>
+            {
+                User.Notify(User.PlaystationButtons, "Button B Clicked");
+            };
+
             ButtonA.Links.Down = View;
             ButtonB.Links.Up = View;
 

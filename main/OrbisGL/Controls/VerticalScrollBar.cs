@@ -52,7 +52,7 @@ namespace OrbisGL.Controls
             var TriangleDistance = InnerDistance + TriangleMargin;
             var InnerBarMargin = (Width - InnerDistance) / 2;
 
-            SlimBar = new RoundedRectangle2D(Width / 3, 1, true);
+            SlimBar = new RoundedRectangle2D(Width / 4, 1, true);
             SlimBar.Color = ForegroundColor;
             SlimBar.RoundLevel = 1.8f;
             SlimBar.Opacity = 150;

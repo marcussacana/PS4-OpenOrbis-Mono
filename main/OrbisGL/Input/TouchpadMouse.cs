@@ -9,7 +9,6 @@ namespace OrbisGL.Input
     {
         public GamepadListener Gamepad;
 
-
         float _Sensitivity = 0.5f;
         public float Sensitivity
         {
@@ -18,23 +17,28 @@ namespace OrbisGL.Input
             {
                 _Sensitivity = value;
                 TouchMax = new Vector2(Constants.MaxTouchX * value, Constants.MaxTouchX * value);
+                DeadDistance = TouchMax * 0.02f;
             }
         }
 
-        private Vector2 TouchMax = new Vector2(Constants.MaxTouchX * 0.5f, Constants.MaxTouchX * 0.5f);
-
         int FingerCount;
+        long FingerTouchStartTick;
+        long FingerTouchEndTick;
+        
+        long ElapsedTouchStartMilesecond => (LastRefreshTick - FingerTouchStartTick) / Constants.SCE_MILISECOND;
+        long ElapsedTouchEndMilesecond => (LastRefreshTick - FingerTouchEndTick) / Constants.SCE_MILISECOND;
 
-        Vector2 FingerInitialPos;
-        Vector2 InitialCursorPos;
 
-        long LeftStateTick = 0;
         int LeftState = 0;//0 = not pressed, 1 = clicked, 2 = hold
-        long ElapsedTouchMilesecond => (LastRefreshTick - LeftStateTick) / Constants.SCE_MILISECOND;
 
         bool RightPressed;
 
         long LastRefreshTick;
+
+        Vector2 FingerInitialPos;
+        Vector2 InitialCursorPos;
+        Vector2 DeadDistance;
+        Vector2 TouchMax;
 
 
         private const int PressDelay = 300;
@@ -77,8 +81,9 @@ namespace OrbisGL.Input
             {
                 FingerInitialPos = Args.Position;
                 InitialCursorPos = CurrentPos;
+                FingerTouchStartTick = LastRefreshTick;
 
-                if (LeftState == 1 && ElapsedTouchMilesecond < PressDelay)
+                if (LeftState == 1 && ElapsedTouchEndMilesecond < PressDelay)
                 {
                     LeftState++;
                 }
@@ -100,13 +105,11 @@ namespace OrbisGL.Input
 
                 var DeltaPos = Vector2.Abs(EndPos - InitialPos);
 
-                var DeadDistance = TouchMax * 0.02f;
-
                 //Too little pixels moved, trigger an click
                 if (DeltaPos.X < DeadDistance.X && DeltaPos.Y < DeadDistance.Y)
                 {
                     LeftState = 1;
-                    LeftStateTick = LastRefreshTick;
+                    FingerTouchEndTick = LastRefreshTick;
                 }
 
                 //Finish Drag
@@ -119,6 +122,8 @@ namespace OrbisGL.Input
             if (FingerCount < 0)
                 FingerCount = 0;
         }
+        
+        
         private void Gamepad_OnTouchMove(object Sender, TouchEventArgs Args)
         {
             Args.Handled = true;
@@ -127,6 +132,14 @@ namespace OrbisGL.Input
             var FingerEndPos = GetXY(Args.Position);
 
             var FingerDeltaPos = FingerEndPos - FingerInitialPos;
+
+            var FingerDiff = Vector2.Abs(FingerDeltaPos);
+            
+            
+            //For help the click accuracy the begin of the move will be ignored
+            //fow some few milliseconds and an certain distance.
+            if (FingerDiff.X < DeadDistance.X && FingerDiff.Y < DeadDistance.Y && ElapsedTouchStartMilesecond < PressDelay)
+                return;
 
             CurrentPos = InitialCursorPos + FingerDeltaPos;
 
@@ -164,7 +177,7 @@ namespace OrbisGL.Input
 
             if (LeftState == 1)
             {
-                long Elapsed = ElapsedTouchMilesecond;
+                long Elapsed = ElapsedTouchEndMilesecond;
                 if (Elapsed > PressDelay)
                 {
                     LeftState = 0;
@@ -191,6 +204,7 @@ namespace OrbisGL.Input
 
         public bool Initialize(int UserID = -1)
         {
+            Sensitivity = 0.5f;
             return true;
         }
 

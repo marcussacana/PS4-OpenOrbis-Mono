@@ -1,4 +1,5 @@
-﻿using OrbisGL.GL;
+﻿using System;
+using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System.Numerics;
 using OrbisGL.FreeTypeLib;
@@ -41,6 +42,8 @@ namespace OrbisGL.Controls
         RoundedRectangle2D Background;
         RoundedRectangle2D BackgroundContour;
         Text2D Foreground;
+
+        public event EventHandler OnClicked;
 
         public Button(int Width, int Height, int FontSize) : this (Width, Height)
         {
@@ -135,6 +138,22 @@ namespace OrbisGL.Controls
                 args.Handled = true;
                 CurrentState = ButtonState.Normal;
                 Invalidate();
+            };
+
+            OnButtonPressed += (sender, args) =>
+            {
+                if (args.Button != OrbisPadButton.Cross)
+                    return;
+
+                OnClicked?.Invoke(this, args);
+            };
+
+            OnMouseClick += (sender, args) =>
+            {
+                if (!IsMouseHover)
+                    return;
+
+                OnClicked?.Invoke(this, args);
             };
         }
 

@@ -21,17 +21,49 @@ namespace OrbisGL.GL
         public static bool PhysicalKeyboardAvailable { get; set; }
 
         public int UserID = -1;
+        
+        /// <summary>
+        /// An mouse driver to control the cursor
+        /// </summary>
         public IMouse MouseDriver { get; set; } = null;
 
+        /// <summary>
+        /// Delay in seconds to hide the mouse cursor, zero means always hide, negative means never hide
+        /// </summary>
+        public int CursorHideDelay { get; set; } = 5;
+
         private IntPtr Handler = IntPtr.Zero;
+        
+        /// <summary>
+        /// The current rendering width resolution
+        /// </summary>
         public int Width { get; private set; }
+        
+        /// <summary>
+        /// The current rendering height resolution
+        /// </summary>
         public int Height { get; private set; }
         
+        /// <summary>
+        /// If set, each new frame the screen will be cleared with the given color
+        /// </summary>
         public RGBColor ClearColor = null;
+        
         private EGLDisplay GLDisplay;
+        
+        /// <summary>
+        /// Delay in Ticks for each frame
+        /// </summary>
         public readonly int FrameDelay = 0;
 
+        /// <summary>
+        /// Enumerates the controllers currently stored at Objects
+        /// </summary>
         public IEnumerable<Control> Controllers => Objects.Where(x => x is Control).Cast<Control>();
+        
+        /// <summary>
+        /// A list of objects to be rendered, it can be an Control or an OpenGL object
+        /// </summary>
         public readonly IList<IRenderable> Objects = new List<IRenderable>();
 
         /// <summary>
@@ -49,7 +81,7 @@ namespace OrbisGL.GL
             FrameDelay = 1000 / FramePerSecond;
 #endif
 
-            GL2D.Coordinates2D.SetSize(Width, Height);
+            Coordinates2D.SetSize(Width, Height);
 
             this.Handler = Handler ?? IntPtr.Zero;
             
@@ -289,6 +321,8 @@ namespace OrbisGL.GL
 
         IMouse InitializedMouse = null;
 
+        private long LastMouseMove;
+
         private void ProcessEvents(long Tick)
         {
             if (MouseDriver != null)
@@ -305,7 +339,9 @@ namespace OrbisGL.GL
 
                 if (Moved)
                 {
+                    LastMouseMove = Tick;
                     CursorPosition = CurrentPosition;
+                    Control.Cursor.Visible = true;
                     foreach (var Child in Controllers)
                     {
                         if (Child.AbsoluteRectangle.IsInBounds(CurrentPosition))
@@ -315,6 +351,10 @@ namespace OrbisGL.GL
                         }
                     }
                 }
+                else if (CursorHideDelay >= 0 && (Tick - LastMouseMove) / Constants.SCE_SECOND > CursorHideDelay)
+                {
+                    Control.Cursor.Visible = false;
+                }
 
                 var CurrentButtons = MouseDriver.GetMouseButtons();
                 bool Changed = CurrentButtons != MousePressedButtons;
@@ -323,6 +363,7 @@ namespace OrbisGL.GL
                 {
                     var OldButtons = MousePressedButtons;
                     MousePressedButtons = CurrentButtons;
+                    Control.Cursor.Visible = true;
 
                     foreach (var Child in Controllers)
                     {
@@ -349,9 +390,6 @@ namespace OrbisGL.GL
                 UserService.GetInitialUser(out UserID);
             }
 #endif
-
-            InitializedMouse = MouseDriver;
-            MouseDriver.Initialize(UserID);
             
             Control.Cursor = new Cursor()
             {
@@ -359,6 +397,9 @@ namespace OrbisGL.GL
                 Height = (int)((Coordinates2D.Height / 720f) * 19),
                 Visible = false
             };
+
+            InitializedMouse = MouseDriver;
+            MouseDriver.Initialize(UserID);
             
             Control.Cursor.RefreshVertex();
         }

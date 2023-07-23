@@ -15,6 +15,7 @@ namespace OrbisGL.Controls
             set { 
                 if (_Checked == value) 
                     return; 
+                
                 _Checked = value;
                 Invalidate();
 
