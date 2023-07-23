@@ -1,16 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net;
+using System.Net.Cache;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
+using System.Text;
+using Orbis.Internals;
 using SharpGLES;
 
 namespace OrbisGL
 {
     public static class Shader
-    {  
+    {
+
+        public static bool ExportShaderCache = true;
+
+        static List<ShaderInfo> ShaderCache = null;
+
         public static int GetShader(int Type, string Source)
         {
+#if ORBIS
+            if (GetShaderFromCache(Source, out int hProgram))
+            {
+                return hProgram;
+            }
+#endif
+
+            if (!GLES20.HasShaderCompiler)
+            {
+                throw new Exception("Precompiled Shader Not Found");
+            }
+
             int hShader = GLES20.CreateShader(Type);
 
             if (hShader == 0)
@@ -20,9 +45,7 @@ namespace OrbisGL
 
             GLES20.CompileShader(hShader);
 
-
             GLES20.GetShaderiv(hShader, GLES20.GL_COMPILE_STATUS, out int Status);
-
 
             if (Status == 0)
             {
@@ -32,10 +55,12 @@ namespace OrbisGL
 
                 throw new Exception("Failed to Compile the Shader: " + Info);
             }
+#if ORBIS
+            AddShaderToCache(Type, Source, hShader);
+#endif
 
             return hShader;
         }
-
 
 #if ORBIS
         public static int GetShader(int Type, byte[] Data)
@@ -68,6 +93,15 @@ namespace OrbisGL
             return hShader;
         }
 
+        public static byte[] GetShaderBinary(int hShader)
+        {
+            var Data = GLES20.GetShaderBinary(hShader, out _);
+
+            GLES20.DeleteShader(hShader);
+
+            return Data;
+        }
+
         public static byte[] GetShaderBinary(int Type, string Source)
         {
             var hShader = GetShader(Type, Source);
@@ -85,6 +119,113 @@ namespace OrbisGL
             int hFragment = GetShader(GLES20.GL_FRAGMENT_SHADER, FragmentData);
 
             return GetProgram(hVertex, hFragment);
+        }
+
+        private static byte[] GetSHA256(byte[] Data)
+        {
+            SHA256 SHA256 = SHA256.Create();
+            return SHA256.ComputeHash(Data);
+        }
+        
+        private static bool GetShaderFromCache(string Source, out int hProgram)
+        {
+            hProgram = -1;
+
+            if (ShaderCache == null)
+            {
+                ShaderCache = new List<ShaderInfo>();
+                
+                if (ResLoader.FindResource("Shaders.bin") != null)
+                {
+                    var CacheData = ResLoader.GetResourceData("Shaders.bin");
+                    using (MemoryStream Stream = new MemoryStream(CacheData))
+                    using (BinaryReader Reader = new BinaryReader(Stream))
+                    {
+                        var ShaderCount = Reader.ReadInt32();
+                        for (int i = 0; i < ShaderCount; i++)
+                        {
+                            ShaderInfo Shader = new ShaderInfo();
+
+                            Shader.Type = Reader.ReadInt32();
+                            Shader.Hash = Reader.ReadBytes(0x20);
+                            Shader.Data = new byte[Reader.ReadInt32()];
+                            Reader.Read(Shader.Data, 0, Shader.Data.Length);
+
+                            ShaderCache.Add(Shader);
+                        }
+                    }
+                }
+            }
+
+            int ShaderType = -1;
+            byte[] ShaderData = null;
+            var ShaderHash = GetSHA256(Encoding.UTF8.GetBytes(Source));
+            foreach (var Shader in ShaderCache)
+            {
+                if (!Shader.Hash.SequenceEqual(ShaderHash))
+                    continue;
+
+                ShaderData = Shader.Data;
+                ShaderType = Shader.Type;
+            }
+
+            if (ShaderData == null)
+                return false;
+
+            hProgram = GetShader(ShaderType, ShaderData);
+
+            return true;
+        }
+
+        private static void AddShaderToCache(int Type, string Source, int hShader)
+        {
+            var Data = GetShaderBinary(hShader);
+            var Hash = GetSHA256(Encoding.UTF8.GetBytes(Source));
+
+            ShaderInfo Info = new ShaderInfo()
+            {
+                Data = Data,
+                Hash = Hash,
+                Type = Type
+            };
+
+            if (ShaderCache.Where(x => x.Hash.SequenceEqual(Hash)).Any())
+            {
+                throw new Exception("Shader Hash Collision: The shader is already in the cache.");
+            }
+
+            ShaderCache.Add(Info);
+
+            if (ExportShaderCache)
+            {
+                Stream Output = null;
+                string OutFile = Path.Combine(IO.GetAppBaseDirectory(), "Shaders.bin");
+
+                try
+                {
+                    Output = File.Create(OutFile, 1024 * 1024);
+                }
+                catch
+                {
+                    Output = File.Create("/data/Shaders.bin");
+                }
+
+                using (BinaryWriter Writer = new BinaryWriter(Output))
+                {
+                    Writer.Write(ShaderCache.Count);
+
+                    foreach (var Shader in ShaderCache)
+                    {
+                        Writer.Write(Shader.Type);
+                        Writer.Write(Shader.Hash, 0, 0x20);
+                        Writer.Write(Shader.Data.Length);
+                        Writer.Write(Shader.Data, 0, Data.Length);
+                    }
+                }
+
+                Output?.Close();
+                Output?.Dispose();
+            }
         }
 
 #else

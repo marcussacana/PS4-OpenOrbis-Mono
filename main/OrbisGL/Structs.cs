@@ -51,4 +51,11 @@ namespace OrbisGL
         public Controls.Control Left;
         public Controls.Control Right;
     }
+
+    internal struct ShaderInfo
+    {
+        public byte[] Hash;
+        public byte[] Data;
+        public int Type;
+    }
 }

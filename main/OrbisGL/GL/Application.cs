@@ -416,8 +416,9 @@ namespace OrbisGL.GL
             if (GLDisplay == null)
                 GLDisplay = new EGLDisplay(Handler, Width, Height);
 
-            ProcessEvents();
-            Draw(DateTime.Now.Ticks/10);
+            var Ticks = DateTime.Now.Ticks / 10;
+            ProcessEvents(Ticks);
+            Draw(Ticks);
         }
 #endif
         bool GLReady = false;
