@@ -17,6 +17,7 @@
 
 
 
+        public const int SCE_IME_MAX_TEXT_LENGTH = 2048;
         public const int SCE_IME_KEYBOARD_MAX_NUMBER = 5;
 
         public const int SCE_USER_SERVICE_USER_ID_ALL_USERS = 0x000000FE;

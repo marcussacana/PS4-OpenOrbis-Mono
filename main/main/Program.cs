@@ -5,7 +5,7 @@
     {
         public static void Main(string[] args)
         {
-            var Display = new MainDisplay();
+            var Display = new Entrypoint();
             Display.Run();
         }
       

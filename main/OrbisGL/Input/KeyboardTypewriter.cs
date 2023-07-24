@@ -476,5 +476,20 @@ namespace OrbisGL.Input
 
             return String.Substring(0, Index - 1) + String.Substring(Index);
         }
+
+        public void Exit()
+        {
+
+        }
+
+        public void Refresh()
+        {
+
+        }
+
+        public void Dispose()
+        {
+
+        }
     }
 }

@@ -140,6 +140,7 @@
     <Compile Include="Input\Layouts\Latin.cs" />
     <Compile Include="Input\OrbisKeyboard.cs" />
     <Compile Include="Input\OrbisMouse.cs" />
+    <Compile Include="Input\OSKTypewriter.cs" />
     <Compile Include="Input\Selector.cs" />
     <Compile Include="Input\TouchpadMouse.cs" />
     <Compile Include="Internals\IO.cs" />

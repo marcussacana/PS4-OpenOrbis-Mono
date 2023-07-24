@@ -32,7 +32,6 @@ namespace OrbisGL.Controls
             } 
         }
 
-        bool Typing;
         float CurrentTextXOffset = 0;
 
         RoundedRectangle2D Background;
@@ -110,7 +109,10 @@ namespace OrbisGL.Controls
 
             OnMouseButtonDown += MouseButtonDown;
             OnMouseButtonUp += MouseButtonUp;
+            OnMouseClick += MouseClick;
             OnMouseMove += MouseMoved;
+
+            OnButtonPressed += TextBox_ButtonPressed;
         }
 
         bool IsKeyboardButtonDown = false;
@@ -190,6 +192,14 @@ namespace OrbisGL.Controls
             }
 
             EventArgs.Handled = true;
+        }
+
+        private void MouseClick(object sender, ClickEventArgs Args)
+        {
+            if (TypeWriter is OSKTypewriter)
+            {
+                TypeWriter.Enter(AbsoluteRectangle);
+            }
         }
 
         private bool IsCursorMoved(Vector2 RelativeCursor)
@@ -273,26 +283,43 @@ namespace OrbisGL.Controls
         {
             if (Application.PhysicalKeyboardAvailable && !(TypeWriter is KeyboardTypewriter))
             {
+                TypeWriter?.Dispose();
                 TypeWriter = new KeyboardTypewriter();
                 TypeWriter.OnTextChanged += TypeWriter_OnTextChanged;
                 TypeWriter.OnCaretMove += TypeWriter_OnCaretMove;
-                TypeWriter.OnComplete += TypeWriter_OnComplete;
                 TypeWriter.CurrentText = Text;
                 TypeWriter.CaretPosition = SelectionStart;
             }
 
-            if (TypeWriter != null)
+#if ORBIS
+            if (!Application.PhysicalKeyboardAvailable && TypeWriter == null)
             {
-                TypeWriter.Enter(new Rectangle(Position.X, Position.Y, Size.X, Size.Y));
-                Typing = true;
+                TypeWriter = new OSKTypewriter();
+                TypeWriter.OnTextChanged += TypeWriter_OnTextChanged;
+                TypeWriter.OnCaretMove += TypeWriter_OnCaretMove;
+                TypeWriter.CurrentText = Text;
+            }
+#endif
+
+            if (TypeWriter != null && !(TypeWriter is OSKTypewriter))
+            {
+                TypeWriter.Enter(AbsoluteRectangle);
             }
 
             base.OnFocus(Sender, Args);
         }
-
-        private void TypeWriter_OnComplete(object sender, EventArgs e)
+        private void TextBox_ButtonPressed(object Sender, ButtonEventArgs Args)
         {
-            Typing = false;
+            if (Args.Button != OrbisPadButton.Cross || !(TypeWriter is OSKTypewriter))
+                return;
+
+            TypeWriter.Enter(AbsoluteRectangle);
+        }
+
+        protected override void OnLostFocus(object Sender, EventArgs Args)
+        {
+            TypeWriter?.Exit();
+            base.OnLostFocus(Sender, Args);
         }
 
         private void TypeWriter_OnCaretMove(object sender, EventArgs e)
@@ -487,6 +514,7 @@ namespace OrbisGL.Controls
         public override void Draw(long Tick)
         {
             Caret.Visible = Focused && (Tick % Second > HalfSecond);
+            TypeWriter?.Refresh();
 
             base.Draw(Tick);
         }

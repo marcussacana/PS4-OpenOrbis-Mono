@@ -3,15 +3,18 @@ using System;
 
 namespace OrbisGL.Input
 {
-    public interface ITypewriter
+    public interface ITypewriter : IDisposable
     {
         event EventHandler OnComplete;
         event EventHandler OnTextChanged;
         event EventHandler OnCaretMove;
+
         string CurrentText { get; set; }
         string CurrentAccumulator { get; set; }
         int CaretPosition { get; set; }
         int SelectionLength { get; set; }
         void Enter(Rectangle TextArea);
+        void Exit();
+        void Refresh();
     }
 }

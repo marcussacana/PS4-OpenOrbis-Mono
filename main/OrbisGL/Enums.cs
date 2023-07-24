@@ -521,14 +521,17 @@ namespace OrbisGL
         ABORT = 262,
     }
 
-    public enum IME_Align : int
+    public enum IME_Horizontal_Align : int
     {
-        HORIZONTAL_LEFT = 0,
-        HORIZONTAL_CENTER = 1,
-        HORIZONTAL_RIGHT = 2,
-        VERTICAL_TOP = 0,
-        VERTICAL_CENTER = 1,
-        VERTICAL_BOTTOM = 2,
+        LEFT = 0,
+        CENTER = 1,
+        RIGHT = 2 
+    }
+
+    public enum IME_Vertical_Align : int { 
+        TOP = 0,
+        CENTER = 1,
+        BOTTOM = 2,
     }
 
     public enum IME_EnterLabel : int
