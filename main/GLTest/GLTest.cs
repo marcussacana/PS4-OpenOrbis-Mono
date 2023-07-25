@@ -86,30 +86,7 @@ void main(void) {
 
         private void button1_Click(object sender, EventArgs e)
         {
-#if !ORBIS
-            var hProg = Shader.GetProgram(Vertex, FragmentColor);
-            
-            var Prog = new GLProgram(hProg);
-
-            Prog.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
-
-            var Obj = new GLObject(Prog, RenderMode.Triangle);
-
-            var XPos = Rand.Next(0, 450);
-            var YPos = Rand.Next(0, 450);
-
-            Obj.AddArray(XToPoint(10 + XPos), YToPoint(10 + YPos), 1);
-            Obj.AddArray(XToPoint(60 + XPos), YToPoint(10 + YPos), 1);
-            Obj.AddArray(XToPoint(10 + XPos), YToPoint(60 + YPos), 1);
-            Obj.AddArray(XToPoint(60 + XPos), YToPoint(60 + YPos), 1);
-
-            Obj.AddIndex(0, 1, 2, 2, 1, 3);
-
-
-            Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
-
-            GLControl.GLApplication.Objects.Add(Obj);
-#endif
+            throw new NotImplementedException();
        }
 
         private void button2_Click(object sender, EventArgs e)
@@ -127,79 +104,12 @@ void main(void) {
 
         private void button3_Click(object sender, EventArgs e)
         {
-#if !ORBIS
-            var ProgFile = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Program-*.bin");
-
-            if (!ProgFile.Any())
-            {
-                var Data = Shader.GetProgramBinary(Vertex, FragmentColor, out int Format);
-                File.WriteAllBytes($"Program-{Format}.bin", Data);
-
-                MessageBox.Show("Program Shader Compiled");
-            }
-
-            ProgFile = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Program-*.bin");
-
-            int ProgFormat = int.Parse(ProgFile.Single().Split('-').Last().Split('.').First());
-
-            var Program = File.ReadAllBytes(ProgFile.Single());
-
-            var hProg = Shader.GetProgram(Program, ProgFormat);
-
-            var Prog = new GLProgram(hProg);
-
-            Prog.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
-
-            var Obj = new GLObject(Prog, RenderMode.ClosedLine);
-
-            var XPos = Rand.Next(0, 450);
-            var YPos = Rand.Next(0, 450);
-
-            Obj.AddArray(XToPoint(10 + XPos), YToPoint(10 + YPos), 1);
-            Obj.AddArray(XToPoint(60 + XPos), YToPoint(10 + YPos), 1);
-            Obj.AddArray(XToPoint(10 + XPos), YToPoint(60 + YPos), 1);
-            Obj.AddArray(XToPoint(60 + XPos), YToPoint(60 + YPos), 1);
-
-            Obj.AddIndex(0, 1, 2, 2, 1, 3);
-
-            Prog.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
-
-            GLControl.GLApplication.Objects.Add(Obj);
-#endif
+            throw new NotImplementedException();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-#if !ORBIS
-            var hProg = Shader.GetProgram(VertexMat4, FragmentColor);
-
-            var GLProg = new GLProgram(hProg);
-            GLProg.AddBufferAttribute("Position", AttributeType.Float, AttributeSize.Vector3);
-
-            var Translation = new Matrix4x4(0.755f, 0, 0, 0,
-                                            0, 1, 0, 0,
-                                            0, 0, 1, 0,
-                                            0, 0, 0, 1);
-
-            GLProg.SetUniform("Color", new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255)), 255);
-
-
-            var Obj = new GLObject(GLProg, RenderMode.Triangle);
-
-            Obj.AddArray(-0.3f, -0.6f, 1);
-            Obj.AddArray(0.6f, -0.6f, 1);
-            Obj.AddArray(-0.3f, 0.6f, 1);
-            Obj.AddArray(0.6f, 0.6f, 1);
-
-            Obj.AddIndex(0, 1, 2, 1, 2, 3);
-
-           // var Scale = Matrix4x4.CreateScale(1, 1, 1, Vector3.One);
-
-
-            GLProg.SetUniform("Transformation", Translation);
-
-            GLControl.GLApplication.Objects.Add(Obj);
-#endif
+            throw new NotImplementedException();
         }
 
         private void button5_Click(object sender, EventArgs e)

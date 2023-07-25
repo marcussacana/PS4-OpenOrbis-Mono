@@ -72,6 +72,7 @@
     <Compile Include="Controls\Events\MouseEvent.cs" />
     <Compile Include="Controls\Events\MoveEvent.cs" />
     <Compile Include="Controls\Events\TouchEvent.cs" />
+    <Compile Include="Controls\Label.cs" />
     <Compile Include="Controls\RowView.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\Events\ButtonEvent.cs" />

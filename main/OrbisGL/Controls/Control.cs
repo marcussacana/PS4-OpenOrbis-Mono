@@ -44,6 +44,8 @@ namespace OrbisGL.Controls
                 Refresh();
 #endif
 
+                GLObject.Position = AbsolutePosition;
+
                 Invalidated = false;
             }
 
@@ -127,7 +129,7 @@ namespace OrbisGL.Controls
                     }
                 }
                 
-                return false;
+                return Parent?.Focus() ?? false;
             }
 
             OnFocus(this, EventArgs.Empty);
@@ -203,6 +205,8 @@ namespace OrbisGL.Controls
 
             if (!Children.Contains(Child))
                 Children.Add(Child);
+
+            Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
         }
 
         public virtual void RemoveChild(Control Child)
@@ -212,12 +216,15 @@ namespace OrbisGL.Controls
 
             Child.Parent = null;
             Children.Remove(Child);
+
+            Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
         }
 
         public virtual void RemoveChildren()
         {
             foreach (var Child in Children) { 
                 Child.Parent = null;
+                Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
             }
 
             Children.Clear();

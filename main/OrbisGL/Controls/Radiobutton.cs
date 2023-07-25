@@ -3,6 +3,7 @@ using OrbisGL.GL2D;
 using System;
 using System.Numerics;
 using OrbisGL.Controls.Events;
+using System.Xml;
 
 namespace OrbisGL.Controls
 {
@@ -27,7 +28,8 @@ namespace OrbisGL.Controls
 
         public override string Name => "Radiobutton";
 
-        Text2D Label;
+        //Text2D Label;
+        Label lblText;
         Elipse2D CircleIcon;
         GLObject2D BGContour;
         GLObject2D Background;
@@ -62,18 +64,18 @@ namespace OrbisGL.Controls
             CircleIcon.Position = (Background.Rectangle.Size / 2) - (CircleIcon.Rectangle.Size / 2);
             CircleIcon.Visible = false;
 
-            Label = new Text2D(Font, FontSize);
-            Label.Position = new Vector2(Size + TextMargin, TextMargin);
+            lblText = new Label();
+            lblText.Font = Font;
+            lblText.FontSize = FontSize;
+            lblText.Position = new Vector2(Size + TextMargin, TextMargin);
 
             this.Size = new Vector2(Size);
-
-
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BGContour);
             GLObject.AddChild(CircleIcon);
-            GLObject.AddChild(Label);
 
+            AddChild(lblText);
 
             OnMouseEnter += (s, e) => Invalidate();
             OnMouseLeave += (s, e) => Invalidate();
@@ -113,12 +115,13 @@ namespace OrbisGL.Controls
 
         public override void Refresh()
         {
-            Label.Color = ForegroundColor;
+            lblText.Text = Text;
+            lblText.ForegroundColor = ForegroundColor;
+            lblText.Refresh();
+
             CircleIcon.Color = BackgroundColor;
 
-            Label.SetText(Text);
-
-            Size = new Vector2(Label.Position.X + Label.Width, Size.Y);
+            Size = new Vector2(lblText.Position.X + lblText.Size.X, Size.Y);
 
             Background.Color = BackgroundColor;
             BGContour.Color = ForegroundColor.Highlight(160);
@@ -129,14 +132,6 @@ namespace OrbisGL.Controls
                 Background.Color = BackgroundColor.Highlight(160);
 
             CircleIcon.Visible = Checked;
-        }
-
-        public override void Draw(long Tick)
-        {
-            if (Invalidated)
-                Refresh();
-
-            base.Draw(Tick);
         }
     }
 }
