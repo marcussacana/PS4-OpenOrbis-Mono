@@ -1,13 +1,7 @@
 ﻿using OrbisGL.Controls;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
-using SixLabors.ImageSharp.Processing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OrbisGL.Input
 {
@@ -68,8 +62,8 @@ namespace OrbisGL.Input
 
             Rect.Top -= 3;
             Rect.Left -= 3;
-            Rect.Right += 8;
-            Rect.Bottom += 8;
+            Rect.Right += 3;
+            Rect.Bottom += 3;
 
             if (Rectangle.Rectangle != Rect)
             {

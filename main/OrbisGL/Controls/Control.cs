@@ -44,10 +44,10 @@ namespace OrbisGL.Controls
                 Refresh();
 #endif
 
-                GLObject.Position = AbsolutePosition;
-
                 Invalidated = false;
             }
+
+            GLObject.Position = AbsolutePosition;
 
 #if DEBUG
             Timecritical.Restart();
@@ -80,7 +80,7 @@ namespace OrbisGL.Controls
         /// Set the visible area rectangle relative to the controller begin
         /// </summary>
         /// <param name="Area"></param>
-        public void SetVisibleArea(Rectangle Area)
+        public virtual void SetVisibleArea(Rectangle Area)
         {
             if (Area.IsEmpty())
             {
@@ -94,7 +94,8 @@ namespace OrbisGL.Controls
             VisibleRectangle = Area;
             _RectInvisible = false;
 
-            var AbsArea = new Rectangle(Area.X + AbsolutePosition.X, Area.Y + AbsolutePosition.Y, Area.Width, Area.Height);
+            var AbsArea = Area;
+            AbsArea.Position += AbsolutePosition;
             foreach (var Child in Childs)
             {
                 Child.SetVisibleArea(Rectangle.GetChildBounds(AbsArea, Child.AbsoluteRectangle));
@@ -159,9 +160,14 @@ namespace OrbisGL.Controls
 
         protected virtual void OnFocus(object Sender, EventArgs Args)
         {
+            var LastFocus = RootControl.FocusedControl;
+
+            if (LastFocus == this)
+                return;
+
             if (!Focused && Visible && Enabled)
             {
-                RootControl.FocusedControl?.OnLostFocus(this, Args);
+                LastFocus?.OnLostFocus(this, Args);
 
                 if (Focusable)
                 {

@@ -42,7 +42,7 @@ namespace OrbisGL.Controls
         }
 
         internal static Control LastCursorControl = null;
-        internal static Vector2 CurrentPosition = Vector2.Zero;
+        internal static Vector2 CurrentCursorPosition = Vector2.Zero;
 
         internal static bool MouseInteracted = false;
 
@@ -90,7 +90,7 @@ namespace OrbisGL.Controls
                 ClickBegin = -1;
             }
 
-            CurrentPosition = XY;
+            CurrentCursorPosition = XY;
             PropagateAll((x, y) => x?.OnMouseMove?.Invoke(x, (MouseEventArgs)y), Coordinates);
         }
         internal void ProcessMouseButtons(MouseButtons PressedBefore, MouseButtons PressedNow)
@@ -106,13 +106,13 @@ namespace OrbisGL.Controls
             {
                 LastCursorControl.Focus();
 
-                var PressedEvent = new ClickEventArgs(CurrentPosition, NewPressed, false);
+                var PressedEvent = new ClickEventArgs(CurrentCursorPosition, NewPressed, false);
                 PropagateAll((x, y) => x?.OnMouseButtonDown?.Invoke(x, (ClickEventArgs)y), PressedEvent);
             }
 
             if (NewReleased != 0)
             {
-                var ReleasedEvent = new ClickEventArgs(CurrentPosition, NewReleased, false);
+                var ReleasedEvent = new ClickEventArgs(CurrentCursorPosition, NewReleased, false);
                 PropagateAll((x, y) => x?.OnMouseButtonUp?.Invoke(x, (ClickEventArgs)y), ReleasedEvent);
 
                 ReleasedEvent.Handled = false;
@@ -130,7 +130,7 @@ namespace OrbisGL.Controls
                     else
                         LeftClickCount++;
 
-                    LeftClickPos = CurrentPosition;
+                    LeftClickPos = CurrentCursorPosition;
                 }
 
                 if (NewReleased.HasFlag(MouseButtons.Right))
@@ -143,7 +143,7 @@ namespace OrbisGL.Controls
                     else
                         RightClickCount++;
 
-                    RightClickPos = CurrentPosition;
+                    RightClickPos = CurrentCursorPosition;
                 }
             }
         }

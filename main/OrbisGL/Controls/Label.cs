@@ -1,4 +1,5 @@
 ﻿using OrbisGL.FreeTypeLib;
+using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System.Numerics;
 
@@ -12,21 +13,7 @@ namespace OrbisGL.Controls
         {
             BackgroundColor = null;
             Text2D = new RichText2D(22, ForegroundColor, null);
-            OnControlParentChanged += Label_OnControlParentChanged;
             GLObject.AddChild(Text2D);
-        }
-
-        private void Label_OnControlParentChanged(object sender, System.EventArgs e)
-        {
-            if (Parent == null)
-                return;
-
-            Parent.OnControlInvalidated += Parent_OnControlInvalidated;
-        }
-
-        private void Parent_OnControlInvalidated(object sender, System.EventArgs e)
-        {
-            Invalidate();
         }
 
         public Label(string Text) : this()
@@ -43,12 +30,15 @@ namespace OrbisGL.Controls
         public override string Text { 
             get => Text2D.Text;
             set {
+                if (Text2D.Text == value)
+                    return;
 
-                if (RichText)
-                    Text2D.SetRichText(value);
-                else
-                    Text2D.SetRichText(value.Replace("<", "<<"));
+                var NewText = value;
 
+                if (!RichText)
+                    NewText = NewText.Replace("<", "<<");
+
+                Text2D.SetRichText(NewText);
                 Invalidate();
             }
         }
@@ -80,11 +70,17 @@ namespace OrbisGL.Controls
 
             if (Resized)
             {
-                ClearVisibleArea();
-                Invalidate(true);
+                Parent?.Invalidate();
+                Size = NewSize;
             }
+        }
 
-            Size = NewSize;
+        public override void SetVisibleArea(Rectangle Area)
+        {
+            if (Size == Vector2.Zero)
+                return;
+
+            base.SetVisibleArea(Area);
         }
     }
 }

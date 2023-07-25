@@ -135,7 +135,8 @@ namespace OrbisGL.GL2D
         {
             VisibleRectangle = Area;
 
-            var AbsArea = new Rectangle(Area.X + AbsolutePosition.X, Area.Y + AbsolutePosition.Y, Area.Width, Area.Height);
+            var AbsArea = Area;
+            AbsArea.Position += AbsolutePosition;
 
             foreach (var Child in Childs)
             { 

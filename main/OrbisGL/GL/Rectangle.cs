@@ -106,14 +106,14 @@ namespace OrbisGL.GL
             var Position = new Vector2(InnerRect.X, InnerRect.Y);
             var Size = new Vector2(InnerRect.Width, InnerRect.Height);
 
-            if (InnerRect.X < OutterRect.X)
-                InnerRect.X = OutterRect.X;
+            if (InnerRect.Left < OutterRect.Left)
+                InnerRect.Left = OutterRect.Left;
 
             if (InnerRect.Right > OutterRect.Right)
                 InnerRect.Right = OutterRect.Right;
 
-            if (InnerRect.Y < OutterRect.Y)
-                InnerRect.Y = OutterRect.Y;
+            if (InnerRect.Top < OutterRect.Top)
+                InnerRect.Top = OutterRect.Top;
 
             if (InnerRect.Bottom > OutterRect.Bottom)
                 InnerRect.Bottom = OutterRect.Bottom;
@@ -142,7 +142,7 @@ namespace OrbisGL.GL
             {
                 float DeltaY = value - Vector.Y;
                 Vector.Y = value;
-                Vector.W += DeltaY;
+                Vector.W -= DeltaY;
             }
         }
 
@@ -151,7 +151,7 @@ namespace OrbisGL.GL
             {
                 float DeltaX = value - Vector.X;
                 Vector.X = value;
-                Vector.Z += DeltaX;
+                Vector.Z -= DeltaX;
             }
         }
 

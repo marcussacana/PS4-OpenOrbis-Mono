@@ -155,7 +155,7 @@ namespace OrbisGL.Controls
             get => _Position;
             set
             {
-                if (_Position == value && GLObject.Position == AbsolutePosition)
+                if (_Position == value)
                 {
                     OnControlMoved?.Invoke(this, new EventArgs());
                     return;
