@@ -24,7 +24,7 @@ namespace Orbis
 
         private void InitializeComponents()
         {
-            var BG = new Panel(1920, 1080);
+            var BG = new RowView(1920, 1080);
             BG.Size = new Vector2(Width, Height);
 
             var View = new RowView(300, 600);

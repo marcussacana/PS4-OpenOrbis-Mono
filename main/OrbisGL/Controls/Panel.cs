@@ -179,7 +179,8 @@ namespace OrbisGL.Controls
             GLObject.RefreshVertex();
         }
 
-        Dictionary<Control, Vector2> PositionMap = new Dictionary<Control, Vector2>();
+        protected readonly Dictionary<Control, Vector2> PositionMap = new Dictionary<Control, Vector2>();
+        
         public override void AddChild(Control Child)
         {
             PositionMap[Child] = Child.Position;
@@ -208,7 +209,7 @@ namespace OrbisGL.Controls
             base.RemoveChild(Child);
         }
 
-        public override void RemoveChildren()
+        public override void RemoveChildren(bool Dispose)
         {
             foreach (var Child in Childs)
             {
@@ -216,7 +217,14 @@ namespace OrbisGL.Controls
             }
 
             PositionMap.Clear();
-            base.RemoveChildren();
+
+            if (ScrollBar != null)
+                RemoveChild(ScrollBar);
+
+            base.RemoveChildren(Dispose);
+
+            if (ScrollBar != null)
+                AddChild(ScrollBar);
         }
 
         protected override void OnFocus(object Sender, EventArgs Args)

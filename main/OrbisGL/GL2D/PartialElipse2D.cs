@@ -46,8 +46,6 @@ namespace OrbisGL.GL2D
 
             CircleConfigUniformLocation = GLES20.GetUniformLocation(Program.Handler, "CircleConfig");//vec3(startAngle, endAngle, Thickness)
 
-            Program.SetUniform("Resolution", (float)Width, (float)Height);
-
             RefreshVertex();
         }
 

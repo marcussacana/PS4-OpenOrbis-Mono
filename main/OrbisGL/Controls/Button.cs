@@ -167,7 +167,7 @@ namespace OrbisGL.Controls
 
             Foreground.SetText(Text);
 
-            if (AutoSize && Size.X < Foreground.Width || Size.Y < Foreground.Height)
+            if (AutoSize && (Size.X < Foreground.Width || Size.Y < Foreground.Height))
                 Size = new Vector2(Foreground.Width + 10, Foreground.Height + 10);
 
             Background.Width = (int)Size.X;

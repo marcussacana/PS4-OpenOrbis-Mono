@@ -48,8 +48,6 @@ namespace OrbisGL.GL2D
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
             MarginUniformLocation = GLES20.GetUniformLocation(Program.Handler, "Margin");
 
-            Program.SetUniform("Resolution", (float)Width, (float)Height);
-
             RefreshVertex();
         }
 

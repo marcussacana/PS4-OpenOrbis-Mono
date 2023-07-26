@@ -15,6 +15,7 @@ namespace OrbisGL.Input
             ContourWidth = 2f
         };
 
+        public event EventHandler SelectionChanged;
 
         public void Select(Control Controller)
         {
@@ -54,6 +55,8 @@ namespace OrbisGL.Input
 
                 TargetControl.OnControlInvalidated += TargetInvalidated;
                 TargetControl.Focus();
+
+                SelectionChanged?.Invoke(TargetControl, EventArgs.Empty);
             }
 
             SelectedControl = TargetControl;

@@ -30,8 +30,6 @@ namespace OrbisGL.GL2D
             AntiAliasingUniformLocation = GLES20.GetUniformLocation(Program.Handler, "AntiAliasing");
             ContourWidthUniformLocation = GLES20.GetUniformLocation(Program.Handler, "ContourWidth");
 
-            Program.SetUniform("Resolution", (float)Width, (float)Height);
-
             RefreshVertex();
         }
 

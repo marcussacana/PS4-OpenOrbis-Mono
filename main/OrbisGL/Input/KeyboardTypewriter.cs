@@ -228,11 +228,13 @@ namespace OrbisGL.Input
                             return;
                         }
 
-                        CurrentText = RemoveAt(CurrentText, CurrentCaret);
-                        CurrentCaret--;
+                        if (CurrentCaret > 0) {
+                            CurrentText = RemoveAt(CurrentText, CurrentCaret);
+                            CurrentCaret--;
 
-                        OnTextChanged?.Invoke(this, new EventArgs());
-                        OnCaretMove?.Invoke(this, new EventArgs());
+                            OnTextChanged?.Invoke(this, new EventArgs());
+                            OnCaretMove?.Invoke(this, new EventArgs());
+                        }
                         return;
                     }
                     break;

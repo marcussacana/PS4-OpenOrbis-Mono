@@ -26,8 +26,12 @@ namespace OrbisGL.Controls
             get => _Text; 
             set 
             {
+                if (_Text == value)
+                    return;
+
                 _Text = value;
                 Foreground.SetRichText(value.Replace("<", "<<"));
+                TextChanged?.Invoke(this, EventArgs.Empty);
                 Invalidate();
             } 
         }
@@ -40,6 +44,8 @@ namespace OrbisGL.Controls
 
         Line2D FocusIndicator;
         Line2D Caret;
+
+        public EventHandler TextChanged;
 
         public TextBox(int Width, int FontSize)
         {
@@ -81,6 +87,7 @@ namespace OrbisGL.Controls
                     End = new Vector2(Size.X-10, 0)
                 }
             });
+
             FocusIndicator.Position = new Vector2(5, Size.Y - 1);
 
             Caret = new Line2D(false);
@@ -391,6 +398,7 @@ namespace OrbisGL.Controls
             }
 
             Foreground.SetRichText(RichText);
+            Text = Foreground.Text;
         }
 
         bool Desaturate = false;
@@ -411,6 +419,28 @@ namespace OrbisGL.Controls
 
         public override void Refresh()
         {
+            //Update TextBox Size
+            if (Background.Width != (int)Size.X || Background.Height != (int)Size.Y)
+            {
+                Background.Width = (int)Size.X;
+                Background.Height = (int)Size.Y;
+                BackgroundContour.Width = (int)Size.X;
+                BackgroundContour.Height = (int)Size.Y;
+
+                Background.RefreshVertex();
+                BackgroundContour.RefreshVertex();
+
+                FocusIndicator.SetLines(new Line[] {
+                    new Line()
+                    {
+                        Begin = new Vector2(0, 0),
+                        End = new Vector2(Size.X-10, 0)
+                    }
+                });
+
+                FocusIndicator.Position = new Vector2(5, Size.Y - 1);
+            }
+
             //Update TextBox Style
             Background.Color = Desaturate && !Focused ? BackgroundColor.Desaturate(240) : BackgroundColor;
             BackgroundContour.Color = ForegroundColor;

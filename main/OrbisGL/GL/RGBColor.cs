@@ -141,6 +141,14 @@ namespace OrbisGL.GL
             return obj.RedF.GetHashCode() ^ obj.GreenF.GetHashCode() ^ obj.BlueF.GetHashCode();
         }
 
+        public override string ToString()
+        {
+            if (ColorMap.TryGetValue(this, out string Name))
+                return Name;
+
+            return AsHex();
+        }
+
         public int R { get => (int)(255 * RedF); set => RedF = value / 255f; }
         public int G { get => (int)(255 * GreenF); set => GreenF = value / 255f; }
         public int B { get => (int)(255 * BlueF); set => BlueF = value / 255f; }

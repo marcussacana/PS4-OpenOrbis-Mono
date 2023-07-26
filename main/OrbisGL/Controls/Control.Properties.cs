@@ -227,9 +227,22 @@ namespace OrbisGL.Controls
         public virtual IEnumerable<Control> Childs => Children;
 
         /// <summary>
+        /// Represents a generic container for data or information defined by the user.
+        /// The contents of this object can vary based on the application's needs.
+        /// </summary>
+        public object Model { get; set; }
+
+        /// <summary>
         /// Get the controls that shares the same parent of this one
         /// </summary>
         public IEnumerable<Control> Siblings => Parent?.Children;
+
+        internal Application _Application;
+
+        /// <summary>
+        /// Returns the linked <see cref="Application"/> instance with this controller
+        /// </summary>
+        public Application Application => _Application ?? Parent?.Application;
 
         List<Control> Children = new List<Control>();
 

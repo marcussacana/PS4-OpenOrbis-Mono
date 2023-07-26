@@ -16,7 +16,7 @@ namespace OrbisGL.Controls
 
             GLObject.Dispose();
 
-            RemoveChildren();
+            RemoveChildren(true);
             Parent?.RemoveChild(this);
         }
 
@@ -181,7 +181,7 @@ namespace OrbisGL.Controls
                 }
             }
 
-            Parent?.OnFocus(Sender, Args);
+            Parent?.OnFocus(this, Args);
         }
 
         protected virtual void OnLostFocus(object Sender, EventArgs Args)
@@ -226,11 +226,18 @@ namespace OrbisGL.Controls
             Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
         }
 
-        public virtual void RemoveChildren()
+        public virtual void RemoveChildren(bool Dispose)
         {
-            foreach (var Child in Children) { 
-                Child.Parent = null;
-                Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
+            foreach (var Child in Children) {
+                if (Dispose)
+                {
+                    Child.Dispose();
+                }
+                else
+                {
+                    Child.Parent = null;
+                    Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
+                }
             }
 
             Children.Clear();

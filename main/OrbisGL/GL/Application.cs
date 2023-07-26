@@ -48,9 +48,7 @@ namespace OrbisGL.GL
         /// If set, each new frame the screen will be cleared with the given color
         /// </summary>
         public RGBColor ClearColor = null;
-        
-        private EGLDisplay GLDisplay;
-        
+
         /// <summary>
         /// Delay in Ticks for each frame
         /// </summary>
@@ -60,11 +58,16 @@ namespace OrbisGL.GL
         /// Enumerates the controllers currently stored at Objects
         /// </summary>
         public IEnumerable<Control> Controllers => Objects.Where(x => x is Control).Cast<Control>();
-        
+
         /// <summary>
         /// A list of objects to be rendered, it can be an Control or an OpenGL object
         /// </summary>
-        public readonly IList<IRenderable> Objects = new List<IRenderable>();
+        public IEnumerable<IRenderable> Objects => _Objects;
+
+        private EGLDisplay GLDisplay;
+
+        private IList<IRenderable> _Objects = new List<IRenderable>();
+
 
         /// <summary>
         /// Create an OpenGL ES 2 Environment 
@@ -458,6 +461,44 @@ namespace OrbisGL.GL
 
             Control.Selector.Draw(Tick);
             Control.Cursor.Draw(Tick);
+        }
+
+        /// <summary>
+        /// Add an Object to be rendred
+        /// </summary>
+        /// <param name="Object">The renderable object</param>
+        public void AddObject(IRenderable Object)
+        {
+            if (Object is Control Controller)
+                Controller._Application = this;
+
+            _Objects.Add(Object);
+        }
+
+        /// <summary>
+        /// Remove an object to be rendered
+        /// </summary>
+        /// <param name="Object">The renderable object</param>
+        public void RemoveObject(IRenderable Object)
+        {
+            _Objects.Remove(Object);
+
+            if (Object is Control Controller)
+                Controller._Application = null;
+        }
+
+        /// <summary>
+        /// Remove all renderable objects
+        /// </summary>
+        public void RemoveObjects()
+        {
+            foreach (var Object in _Objects)
+            {
+                if (Object is Control Controller)
+                    Controller._Application = null;
+            }
+
+            _Objects.Clear();
         }
         
 #if !ORBIS

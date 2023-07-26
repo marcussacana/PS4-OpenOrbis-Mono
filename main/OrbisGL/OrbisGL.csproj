@@ -82,6 +82,7 @@
     <Compile Include="Controls\Radiobutton.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Controls\VerticalScrollBar.cs" />
+    <Compile Include="Debug\Inspector.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="FreeTypeLib\FontHandler.cs" />

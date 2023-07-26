@@ -24,15 +24,22 @@ namespace OrbisGL.Controls
 
         public override void AddChild(Control Child)
         {
-            Control LastChild = Childs.Any() ? Childs.Last() : null;
-            
-            if (LastChild != null)
-                LastChild.Links.Down = Child;
-            
-            Child.Links.Up = LastChild;
-            
-            Child.Position = CurrentPosition;
-            CurrentPosition += new Vector2(0, Child.Size.Y + Margin);
+            var Positions = PositionMap.Where(x => Childs.Contains(x.Key));
+            if (!(Child is VerticalScrollBar))
+            {
+                Control LastChild = Childs.Any() ? Childs.Last() : null;
+
+                if (LastChild != null)
+                    LastChild.Links.Down = Child;
+
+                Child.Links.Up = LastChild;
+
+                var CurrentBottom = Positions.Any() ? Positions.Max(x => x.Value.Y + x.Key.Size.Y) : 0;
+
+                Child.Position = new Vector2(0, CurrentBottom + Margin);
+
+                Child.Refresh();
+            }
             
             base.AddChild(Child);
         }

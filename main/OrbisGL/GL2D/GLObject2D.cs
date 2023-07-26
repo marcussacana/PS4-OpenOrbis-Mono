@@ -65,6 +65,7 @@ namespace OrbisGL.GL2D
         int OffsetUniform = int.MinValue;
         int VisibleUniform = int.MinValue;
         int ColorUniform = int.MinValue;
+        int ResolutionUniform = int.MinValue;
 
         public void UpdateUniforms()
         {
@@ -96,6 +97,16 @@ namespace OrbisGL.GL2D
             {
                 ColorUniform = GLES20.GetUniformLocation(Program.Handler, "Color");
                 Program.SetUniform(ColorUniform, Color, Opacity);
+            }
+
+            if (ResolutionUniform >= 0)
+            {
+                Program.SetUniform(ResolutionUniform, (float)Width, Height);
+            }
+            else if (ResolutionUniform == int.MinValue)
+            {
+                ResolutionUniform = GLES20.GetUniformLocation(Program.Handler, "Resolution");
+                Program.SetUniform(ResolutionUniform, (float)Width, Height);
             }
         }
 

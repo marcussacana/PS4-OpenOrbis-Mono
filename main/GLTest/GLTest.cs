@@ -1,5 +1,6 @@
 ﻿using OrbisGL;
 using OrbisGL.Controls;
+using OrbisGL.Debug;
 using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
@@ -9,6 +10,9 @@ using System.Numerics;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using static OrbisGL.GL2D.Coordinates2D;
+using Button = OrbisGL.Controls.Button;
+using Panel = OrbisGL.Controls.Panel;
+using TextBox = OrbisGL.Controls.TextBox;
 
 namespace GLTest
 {
@@ -93,7 +97,7 @@ void main(void) {
         {
 #if !ORBIS
             var Objs = GLControl.GLApplication.Objects.ToArray();
-            GLControl.GLApplication.Objects.Clear();
+            GLControl.GLApplication.RemoveObjects();
 
             foreach (var Obj in Objs)
             {
@@ -120,7 +124,7 @@ void main(void) {
 
             Rect.Program.SetUniform("Resolution", new Vector2(1280f, 720f));
 
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
@@ -135,7 +139,7 @@ void main(void) {
             Rect.Rotate = Rand.Next(0, 3600) / 10f;
 
             Rect.RoundLevel = Rand.Next(0, 100) / 100f;
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
@@ -147,7 +151,7 @@ void main(void) {
             Rect.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
             Rect.Opacity = (byte)Rand.Next(0, 255);
 
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
@@ -164,7 +168,7 @@ void main(void) {
 
             //Rect.Transparency = (byte)Rand.Next(0, 255);
 
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
@@ -176,7 +180,7 @@ void main(void) {
             Text.SetText("Hello World");
             Text.Position = new Vector2(Rand.Next(0, GLControl.Width - 200), Rand.Next(GLControl.Height - 200));
             Text.Color = new RGBColor((byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255), (byte)Rand.Next(0, 255));
-            GLControl.GLApplication.Objects.Add(Text);
+            GLControl.GLApplication.AddObject(Text);
 #endif
         }
 
@@ -196,14 +200,14 @@ void main(void) {
 
             Rect.SetVisibleRectangle(0, 0, 200, 100);
 
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
         private void button11_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
 
 
             var Button = new OrbisGL.Controls.Button(50, 25, 18);
@@ -214,14 +218,14 @@ void main(void) {
 
             BG.AddChild(Button);
 
-            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.AddObject(BG);
 #endif
         }
 
         private void button12_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
 
             var RT2D = new RichText2D(28, RGBColor.Black, null);
 
@@ -245,8 +249,8 @@ void main(void) {
                 }
             };
 
-            GLControl.GLApplication.Objects.Add(BG);
-            GLControl.GLApplication.Objects.Add(RT2D);
+            GLControl.GLApplication.AddObject(BG);
+            GLControl.GLApplication.AddObject(RT2D);
 #endif
         }
 
@@ -274,7 +278,7 @@ void main(void) {
 
             Line.SetVisibleRectangle(300, 100, 800, 500);
 
-            GLControl.GLApplication.Objects.Add(Line);
+            GLControl.GLApplication.AddObject(Line);
 #endif
         }
 
@@ -283,7 +287,7 @@ void main(void) {
 
 #if !ORBIS
 
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.ReallyLightBlue;
 
             var TB = new OrbisGL.Controls.TextBox(200, 18);
@@ -294,7 +298,7 @@ void main(void) {
 
             BG.AddChild(TB);
 
-            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.AddObject(BG);
             GLControl.Focus();
 #endif
         }
@@ -302,15 +306,15 @@ void main(void) {
         private void button15_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.Red;
 
-            var BG2 = new OrbisGL.Controls.Panel(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
+            var BG2 = new OrbisGL.Controls.RowView(GLControl.Size.Width / 2, GLControl.Size.Height / 2);
             BG2.BackgroundColor = RGBColor.ReallyLightBlue;
             BG2.Position = new Vector2(0, 10);
             BG2.AllowScroll = true;
 
-            var BG3 = new OrbisGL.Controls.Panel(GLControl.Size.Width - 100, GLControl.Size.Height / 3); BG2.BackgroundColor = RGBColor.ReallyLightBlue;
+            var BG3 = new OrbisGL.Controls.RowView(GLControl.Size.Width - 100, GLControl.Size.Height / 3); BG2.BackgroundColor = RGBColor.ReallyLightBlue;
             BG3.BackgroundColor = RGBColor.Yellowish;
             BG3.Position = new Vector2(50, 100);
             BG3.AllowScroll = true;
@@ -332,7 +336,7 @@ void main(void) {
 
             BG.AddChild(BG3);
 
-            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.AddObject(BG);
             GLControl.Focus();
 #endif
         }
@@ -376,14 +380,14 @@ void main(void) {
 
             //Rect.Transparency = (byte)Rand.Next(10, 255);
 
-            GLControl.GLApplication.Objects.Add(Rect);
+            GLControl.GLApplication.AddObject(Rect);
 #endif
         }
 
         private void button17_Click(object sender, EventArgs e)
         {
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.White;
 
 
@@ -393,7 +397,7 @@ void main(void) {
 
             BG.AddChild(CK);
 
-            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.AddObject(BG);
 #endif
 
         }
@@ -402,7 +406,7 @@ void main(void) {
         {
 
 #if !ORBIS
-            var BG = new OrbisGL.Controls.Panel(GLControl.Size.Width, GLControl.Size.Height);
+            var BG = new OrbisGL.Controls.RowView(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.White;
 
             var List = new RowView(300, 500);
@@ -419,7 +423,43 @@ void main(void) {
 
             BG.AddChild(List);
 
-            GLControl.GLApplication.Objects.Add(BG);
+            GLControl.GLApplication.AddObject(BG);
+#endif
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var BG = new Panel(GLControl.Size.Width, GLControl.Size.Height);
+            BG.BackgroundColor = RGBColor.White;
+
+            var Inspect = new Inspector(600, 600);
+            Inspect.Position = new Vector2(400, 0);
+
+            var List = new RowView(300, 600);
+            List.Position = new Vector2(0, 0);
+            List.BackgroundColor = RGBColor.ReallyLightBlue;
+
+            var RB = new Radiobutton(28);
+            RB.Text = "Hello World";
+            RB.OnMouseClick += (s, a) => { Inspect.Target = (OrbisGL.Controls.Control)s; };
+
+            var BTN = new Button(200, 20, 28);
+            BTN.Text = "Hello World";
+            BTN.OnMouseClick += (s, a) => { Inspect.Target = (OrbisGL.Controls.Control)s; };
+
+            var TB = new TextBox(200, 28);
+            TB.Text = "Hello World";
+            TB.OnMouseClick += (s, a) => { Inspect.Target = (OrbisGL.Controls.Control)s; };
+
+            List.AddChild(RB);
+            List.AddChild(BTN);
+            List.AddChild(TB);
+
+            BG.AddChild(List);
+            BG.AddChild(Inspect);
+
+            GLControl.GLApplication.AddObject(BG);
 #endif
         }
     }
