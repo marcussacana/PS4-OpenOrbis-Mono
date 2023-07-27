@@ -53,7 +53,9 @@ namespace OrbisGL.Controls
 
             BGContour = new RoundedRectangle2D(Size, Size, false)
             {
-                ContourWidth = 1.8f
+                ContourWidth = 1.8f,
+                Opacity = 160,
+                Margin = new Vector2(-1)
             };
 
             CheckIcon = new Line2D(new GL.Line[] {

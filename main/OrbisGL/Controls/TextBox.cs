@@ -71,7 +71,7 @@ namespace OrbisGL.Controls
             BackgroundContour.Opacity = 100;
             BackgroundContour.RoundLevel = 1.2f;
             BackgroundContour.ContourWidth = 1.5f;
-            BackgroundContour.Margin = new Vector2(-0.3f, -0.3f);
+            BackgroundContour.Margin = new Vector2(-0.8f);
 
             Foreground = new RichText2D(Face, FontSize, ForegroundColor);
 

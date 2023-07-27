@@ -77,9 +77,9 @@ namespace OrbisGL.Controls
             BackgroundContour = new RoundedRectangle2D(Width, Height, false);
             BackgroundContour.Color = BackgroundColor;
             BackgroundContour.Opacity = 100;
-            BackgroundContour.RoundLevel = 1.8f;
-            BackgroundContour.ContourWidth = 0.5f;
-            BackgroundContour.Margin = new Vector2(-0.3f, -0.3f);
+            BackgroundContour.RoundLevel = 1.2f;
+            BackgroundContour.ContourWidth = 1.5f;
+            BackgroundContour.Margin = new Vector2(-0.8f);
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BackgroundContour);

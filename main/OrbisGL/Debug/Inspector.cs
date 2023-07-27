@@ -17,18 +17,36 @@ namespace OrbisGL.Debug
         Label lblCurrent = new Label("Current: ");
 
         Button btnBack;
+        Checkbox ckShowAll;
+        
+        Panel Browse;
 
         public Inspector(Vector2 Size) : base(Size)
         {
-            btnBack = new Button((int)Size.X - 20, 20, 20);
+            btnBack = new Button(50, 20, 20);
+            btnBack.AutoSize = true;
             btnBack.Text = "Back";
             btnBack.OnClicked += BtnBack_OnClicked;
 
+            ckShowAll = new Checkbox(20);
+            ckShowAll.Text = "Show All Fields";
+            ckShowAll.OnCheckedChanged += (s, a) =>
+            {
+                if (InspectorStack.Any())
+                    UpdateInspector(InspectorStack.Peek());
+            };
+            ckShowAll.Position = new Vector2(60, 0);
+
+            btnBack.Links.Right = ckShowAll;
+            ckShowAll.Links.Left = btnBack;
+            
+            Browse = new Panel((int)Size.X - 30, 40);
+            Browse.AddChild(btnBack);
+            Browse.AddChild(ckShowAll);
+
             AddChild(lblCurrent);
             AddChild(lblStatus);
-            AddChild(btnBack);
-
-            BackgroundColor = RGBColor.White;
+            AddChild(Browse);
         }
 
         public Inspector(int Width, int Height) : this(new Vector2(Width, Height)) { }
@@ -42,11 +60,13 @@ namespace OrbisGL.Debug
                 bool Modified = _Target != value;
                 _Target = value;
 
-                InspectorStack.Clear(); 
-                InspectorStack.Push(value);
-
                 if (Modified)
+                {
+                    InspectorStack.Clear();
+                    InspectorStack.Push(value);
+
                     UpdateInspector(value);
+                }
             }
 
         }
@@ -58,14 +78,14 @@ namespace OrbisGL.Debug
             //Prevent Dispose
             RemoveChild(lblCurrent);
             RemoveChild(lblStatus);
-            RemoveChild(btnBack);
+            RemoveChild(Browse);
 
             //Remove and Dispose all childs
             RemoveChildren(true);
 
             AddChild(lblCurrent);
             AddChild(lblStatus);
-            AddChild(btnBack);
+            AddChild(Browse);
 
             lblCurrent.Text = $"Current: {Target.GetType().Name}";
 
@@ -88,9 +108,6 @@ namespace OrbisGL.Debug
                 }
                 else
                 {
-                    if ((Prop.Name.Contains("<") && Prop.Name.Contains(">")) || Prop.Name.Contains("UniformLocation"))
-                        continue;
-
                     var Button = new Button((int)Size.X - 30, 30, 18);
                     Button.AutoSize = false;
                     Button.Text = Prop.Name;
@@ -121,9 +138,6 @@ namespace OrbisGL.Debug
                 }
                 else
                 {
-                    if ((Field.Name.Contains("<") && Field.Name.Contains(">")) || Field.Name.Contains("UniformLocation"))
-                        continue;
-
                     var Button = new Button((int)Size.X - 30, 30, 18);
                     Button.AutoSize = false;
                     Button.Text = Field.Name;
@@ -140,9 +154,6 @@ namespace OrbisGL.Debug
 
         void BuildViewer(object Info, string Name, object Value)
         {
-            if ((Name.Contains("<") && Name.Contains(">")) || Name.Contains("UniformLocation"))
-                return;
-
             var Panel = new Panel((int)Size.X - 30, 30);
 
             var TB = new TextBox(100, 18);
@@ -278,6 +289,11 @@ namespace OrbisGL.Debug
                     if (short.TryParse(Value, out short Val16))
                         return Val16;
                     break;
+                
+                case nameof(SByte):
+                    if (sbyte.TryParse(Value, out sbyte Val8))
+                        return Val8;
+                    break;
 
                 case nameof(UInt64):
                     if (ulong.TryParse(Value, out ulong uVal64))
@@ -294,6 +310,11 @@ namespace OrbisGL.Debug
                         return uVal16;
                     break;
 
+                case nameof(Byte):
+                    if (byte.TryParse(Value, out byte uVal8))
+                        return uVal8;
+                    break;
+                    
                 case nameof(Double):
                     if (double.TryParse(Value, out double DoubleVal))
                         return DoubleVal;
@@ -308,6 +329,13 @@ namespace OrbisGL.Debug
                     if (bool.TryParse(Value, out bool BooleanVal))
                         return BooleanVal;
                     break;
+                
+                case nameof(Vector2):
+                    var Values = Value.Split(';');
+                    if (Values.Length == 2 && float.TryParse(Values.First().Trim(), out float X))
+                        if (float.TryParse(Values.Last().Trim(), out float Y))
+                            return new Vector2(X, Y);
+                    break;
             }
 
             return null;
@@ -317,27 +345,46 @@ namespace OrbisGL.Debug
         {
             var TargetType = InspectorStack.Peek().GetType();
             return TargetType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.DeclaringType == TargetType);
+                .Where(x => x.DeclaringType == TargetType || ckShowAll.Checked)
+                .Where(x=> !x.Name.Contains("UniformLocation"))
+                .Where(x => !x.Name.Contains("__BackingField"));
         }
 
         public IEnumerable<FieldInfo> GetFields()
         {
             var TargetType = InspectorStack.Peek().GetType();
             return TargetType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(x => x.DeclaringType == TargetType);
+                .Where(x => x.DeclaringType == TargetType || ckShowAll.Checked)
+                .Where(x=> !x.Name.Contains("UniformLocation"))
+                .Where(x => !x.Name.Contains("__BackingField"));
         }
         public string ToString(object Data)
         {
             if (Data is RGBColor Color)
                 return Color.ToString();
 
-            if (Data is int Int16)
+            if (Data is byte UInt8)
+                return UInt8.ToString();
+
+            if (Data is ushort UInt16)
+                return UInt16.ToString();
+
+            if (Data is uint UInt32)
+                return UInt32.ToString();
+
+            if (Data is ulong UInt64)
+                return UInt64.ToString();
+            
+            if (Data is sbyte Int8)
+                return Int8.ToString();
+
+            if (Data is short Int16)
                 return Int16.ToString();
 
             if (Data is int Int32)
                 return Int32.ToString();
 
-            if (Data is int Int64)
+            if (Data is long Int64)
                 return Int64.ToString();
 
             if (Data is float Single)
@@ -352,21 +399,27 @@ namespace OrbisGL.Debug
             if (Data is bool Boolean)
                 return Boolean.ToString();
 
+            if (Data is Vector2 Vector)
+                return $"{Vector.X}; {Vector.Y}";
+
             return $"UNK TYPE {Data.GetType().Name}";
         }
         public bool IsEditable(Type Info)
         {
             switch (Info.Name)
             {
+                case nameof(Vector2):
                 case nameof(Boolean):
                 case nameof(String):
                 case nameof(RGBColor):
                 case nameof(UInt64):
                 case nameof(UInt32):
                 case nameof(UInt16):
+                case nameof(Byte):
                 case nameof(Int64):
                 case nameof(Int32):
                 case nameof(Int16):
+                case nameof(SByte):    
                 case nameof(Double):
                 case nameof(Single):
                     return true;

@@ -2,6 +2,7 @@
 using System.Numerics;
 using OrbisGL.Controls;
 using OrbisGL;
+using OrbisGL.Debug;
 
 namespace Orbis
 {
@@ -24,60 +25,44 @@ namespace Orbis
 
         private void InitializeComponents()
         {
-            var BG = new RowView(1920, 1080);
+            var BG = new Panel(1920, 1080);
             BG.Size = new Vector2(Width, Height);
 
-            var View = new RowView(300, 600);
+            var Inspect = new Inspector(600, 600);
+            Inspect.Position = new Vector2(400, 0);
 
-            for (int i = 0; i < 30; i++)
-            {
-                View.AddChild(new Checkbox(28)
-                {
-                    Text = $"Checkbox {i}"
-                });
-            }
+            BG.Links.Right = Inspect;
+            Inspect.Links.Left = BG;
 
-            var ButtonA = new Button(1, 1, 28);
-            ButtonA.Text = "Button A";
+            var List = new RowView(300, 600);
+            List.Position = new Vector2(0, 0);
+            List.BackgroundColor = RGBColor.ReallyLightBlue;
 
-            var ButtonB = new Button(1, 1, 28);
-            ButtonB.Text = "Button B";
-
-            ButtonA.Position = new Vector2(10, 10);
-            View.Position = new Vector2(10, 80);
-            ButtonB.Position = new Vector2(10, 80 + View.Size.Y + 60);
-
-            ButtonA.OnClicked += (sender, args) =>
-            {
-                User.Notify(User.PlaystationButtons, "Button A Clicked");
-            };
+            var RB = new Radiobutton(28);
+            RB.Text = "Hello World";
+            RB.OnMouseClick += (s, a) => { Inspect.Target = (Control)s; };
             
-            ButtonB.OnClicked += (sender, args) =>
-            {
-                User.Notify(User.PlaystationButtons, "Button B Clicked");
-            };
+            var CB = new Checkbox(28);
+            CB.Text = "Hello World";
+            CB.OnMouseClick += (s, a) => { Inspect.Target = (Control)s; };
 
-            var TextBox = new TextBox(300, 28);
-            TextBox.Text = "Hello World";
-            TextBox.Position = ButtonB.Position + new Vector2(400, 0);
+            var BTN = new Button(200, 20, 28);
+            BTN.Text = "Hello World";
+            BTN.OnMouseClick += (s, a) => { Inspect.Target = (Control)s; };
 
-            TextBox.Links.Left = ButtonB;
-            TextBox.Links.Up = View;
+            var TB = new TextBox(200, 28);
+            TB.Text = "Hello World";
+            TB.OnMouseClick += (s, a) => { Inspect.Target = (Control)s; };
 
-            ButtonA.Links.Down = View;
-            ButtonB.Links.Up = View;
-            ButtonB.Links.Right = TextBox;
+            List.AddChild(RB);
+            List.AddChild(CB);
+            List.AddChild(BTN);
+            List.AddChild(TB);
 
-            View.Links.Up = ButtonA;
-            View.Links.Down = ButtonB;
-            View.Links.Right = TextBox;
+            BG.AddChild(List);
+            BG.AddChild(Inspect);
 
-            BG.AddChild(ButtonA);
-            BG.AddChild(View);
-            BG.AddChild(ButtonB);
-            BG.AddChild(TextBox);
-
-            Objects.Add(BG);
+            AddObject(BG); 
         }
 
 
