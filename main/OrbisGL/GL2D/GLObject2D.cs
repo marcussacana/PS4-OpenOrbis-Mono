@@ -220,5 +220,15 @@ namespace OrbisGL.GL2D
 
             Children.Clear();
         }
+
+        public override void Dispose()
+        {
+            foreach (var Child in Children)
+            {
+                Child.Dispose();
+            }
+            
+            base.Dispose();
+        }
     }
 }

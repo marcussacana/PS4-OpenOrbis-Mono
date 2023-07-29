@@ -29,6 +29,8 @@ namespace OrbisGL.GL
 
         private bool ValidBuffer = false;
 
+        private bool Disposed = false;
+
         protected GLObject() {
             this.RenderMode = (int)OrbisGL.RenderMode.Triangle;
         }
@@ -47,6 +49,9 @@ namespace OrbisGL.GL
 
         protected unsafe void AddArray(params float[] Points)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             BufferInvalidated = true;
             fixed (void* Pointer = Points)
             {
@@ -58,6 +63,9 @@ namespace OrbisGL.GL
 
         protected unsafe void IntAddArray(params int[] Numbers)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             BufferInvalidated = true;
             fixed (void* Pointer = Numbers)
             {
@@ -68,8 +76,11 @@ namespace OrbisGL.GL
         }
 
 
-        protected unsafe void AddArray(byte Alpha, params RGBColor[] Colors)
+        protected void AddArray(byte Alpha, params RGBColor[] Colors)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             var AlphaF = Alpha/255f;
             BufferInvalidated = true;
             for (int i = 0; i < Colors.Length; i++)
@@ -84,6 +95,9 @@ namespace OrbisGL.GL
 
         public void AddIndex(params byte[] Indexes)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             BufferInvalidated = true;
             IndexBuffer.AddRange(Indexes);
         }
@@ -97,6 +111,9 @@ namespace OrbisGL.GL
         
         public unsafe void BuildBuffers()
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             if (!BufferInvalidated)
                 return;
 
@@ -153,23 +170,35 @@ namespace OrbisGL.GL
 
         public void SetTexture(string UniformName, Texture Texture)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             this.Texture = Texture;
             Program.SetUniform(UniformName, Texture.Active());
         }
         
         public void SetTexture(int UniformLocation, Texture Texture)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             this.Texture = Texture;
             Program.SetUniform(UniformLocation, Texture.Active());
         }
 
         public void FreeBuffer()
         {
-            if (pIndexBuffer != IntPtr.Zero)    
+            if (pIndexBuffer != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(pIndexBuffer);
+                pIndexBuffer = IntPtr.Zero;
+            }
 
             if (pArrayBuffer != IntPtr.Zero)
+            {
                 Marshal.FreeHGlobal(pArrayBuffer);
+                pArrayBuffer = IntPtr.Zero;
+            }
         }
 
         public void UpdateUniforms(long Tick)
@@ -189,6 +218,9 @@ namespace OrbisGL.GL
 
         public virtual void Draw(long Tick)
         {
+            if (Disposed)
+                throw new ObjectDisposedException(this.GetType().Name);
+            
             GLES20.UseProgram(Program.Handler);
 
             UpdateUniforms(Tick);
@@ -214,8 +246,11 @@ namespace OrbisGL.GL
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
+            if (Disposed)
+                return;
+            
             Program?.Dispose();
             Texture?.Dispose();
             int Count = 0;
@@ -228,6 +263,8 @@ namespace OrbisGL.GL
                 Buffers[Count++] = GLIndexBuffer;
             
             GLES20.DeleteBuffers(Count, Buffers);
+
+            Disposed = true;
         }
     }
 }
