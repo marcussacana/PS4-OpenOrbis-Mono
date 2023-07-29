@@ -202,7 +202,7 @@ namespace OrbisGL.Controls
         public override void RemoveChild(Control Child)
         {
             if (!PositionMap.ContainsKey(Child))
-                return;
+                base.RemoveChild(Child);
 
             Child.OnControlMoved -= Child_OnControlMoved;
             PositionMap.Remove(Child);

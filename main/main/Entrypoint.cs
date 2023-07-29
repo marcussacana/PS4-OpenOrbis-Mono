@@ -31,12 +31,12 @@ namespace Orbis
             var Inspect = new Inspector(600, 600);
             Inspect.Position = new Vector2(400, 0);
 
-            BG.Links.Right = Inspect;
-            Inspect.Links.Left = BG;
-
             var List = new RowView(300, 600);
             List.Position = new Vector2(0, 0);
             List.BackgroundColor = RGBColor.ReallyLightBlue;
+
+            List.Links.Right = Inspect;
+            Inspect.Links.Left = List;
 
             var RB = new Radiobutton(28);
             RB.Text = "Hello World";

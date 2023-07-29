@@ -82,24 +82,8 @@ namespace OrbisGL.Controls
             }
         }
 
-        public Control FocusedControl
-        {
-            get
-            {
-                foreach (var Child in Children)
-                {
-                    var ChildFocus = Child.FocusedControl;
-
-                    if (ChildFocus != null)
-                        return ChildFocus;
-                }
-
-                if (_Focused)
-                    return this;
-
-                return null;
-            }
-        }
+        private static Control CurrentFocus;
+        public Control FocusedControl => CurrentFocus;
 
         public bool IsMouseHover { get; private set; }
 
@@ -110,15 +94,14 @@ namespace OrbisGL.Controls
         public abstract string Name { get; }
         public virtual string Text { get; set; }
 
-        bool _Focused;
-        public bool Focused { get => _Focused | Children.Any(x => x.Focused); }
+        public bool Focused { get => CurrentFocus == this | Children.Any(x => x.Focused); }
 
         bool _RectInvisible = false;
 
         bool _Visible = true;
         public bool Visible
         {
-            get => _Visible && (Parent == null || Parent.Visible) && !_RectInvisible; 
+            get => _Visible && (Parent == null || Parent.Visible) && !_RectInvisible && !Disposed; 
             set
             {
                 if (Visible == value)
@@ -132,7 +115,7 @@ namespace OrbisGL.Controls
         bool _Enabled = true;
         public bool Enabled
         {
-            get => _Enabled && (Parent == null || Parent.Enabled); 
+            get => _Enabled && (Parent == null || Parent.Enabled) && !Disposed; 
             set 
             {
                 if (_Enabled == value)
@@ -245,6 +228,9 @@ namespace OrbisGL.Controls
         public Application Application => _Application ?? Parent?.Application;
 
         List<Control> Children = new List<Control>();
+
+        private bool TryingChildFocus;
+        private bool Disposed;
 
         protected bool Invalidated { get; private set; } = true;
 

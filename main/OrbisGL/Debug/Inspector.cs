@@ -98,6 +98,8 @@ namespace OrbisGL.Debug
                     try
                     {
                         Value = Prop.GetValue(Target);
+                        if (Value == null)
+                            continue;
                     }
                     catch
                     {
@@ -128,6 +130,8 @@ namespace OrbisGL.Debug
                     try
                     {
                         Value = Field.GetValue(Target);
+                        if (Value == null)
+                            continue;
                     }
                     catch
                     {

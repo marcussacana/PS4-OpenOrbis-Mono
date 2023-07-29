@@ -17,7 +17,7 @@ namespace OrbisGL.GL
 {
     public class Application : IRenderable
     {
-
+        public static Application Default { get; private set; }
         public static bool PhysicalKeyboardAvailable { get; set; }
 
         public int UserID = -1;
@@ -83,6 +83,7 @@ namespace OrbisGL.GL
 #else
             FrameDelay = 1000 / FramePerSecond;
 #endif
+            Default = this;
 
             Coordinates2D.SetSize(Width, Height);
 
@@ -98,6 +99,7 @@ namespace OrbisGL.GL
             if (GLES20.HasShaderCompiler)
                 Shader.PrecompileShaders();
 #endif
+
             this.Width = Width;
             this.Height = Height;
         }

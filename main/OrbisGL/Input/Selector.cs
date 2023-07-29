@@ -2,6 +2,7 @@
 using OrbisGL.GL;
 using OrbisGL.GL2D;
 using System;
+using System.Linq;
 
 namespace OrbisGL.Input
 {
@@ -52,7 +53,7 @@ namespace OrbisGL.Input
             {
                 if (SelectedControl != null)
                     SelectedControl.OnControlInvalidated -= TargetInvalidated;
-
+                
                 TargetControl.OnControlInvalidated += TargetInvalidated;
                 TargetControl.Focus();
 
@@ -60,6 +61,36 @@ namespace OrbisGL.Input
             }
 
             SelectedControl = TargetControl;
+            
+            //if the selected target is invisible find in the parent tree for an new controller to give focus
+            if (!TargetControl.Visible)
+            {
+                Control Current = TargetControl;
+                
+                do
+                {
+                    Current = TargetControl.Parent;
+                } while (Current != null && !Current.Visible);
+
+                //no visible parent found, try find for alternative in reaming root controllers
+                if (Current == null)
+                {
+                    var Alternatives = Application.Default.Controllers.Where(x => x != TargetControl.RootControl);
+                    if (Alternatives.Any())
+                    {
+                        Alternatives.First().Focus();
+                        return;
+                    }
+                }
+                
+                //if visible parent has been found, send the focus
+                if (Current != null && Current != TargetControl)
+                {
+                    Current.Focus();
+                    Refresh();
+                    return;
+                }
+            }
 
             var Rect = TargetControl.AbsoluteRectangle;
 

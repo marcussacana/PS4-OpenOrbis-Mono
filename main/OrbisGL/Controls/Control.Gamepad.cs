@@ -25,7 +25,7 @@ namespace OrbisGL.Controls
         /// </summary>
         public event ButtonEventHandler OnButtonPressed;
 
-        Control LastButtonController;
+        static Control LastButtonController;
 
         internal void ProcessButtonDown(object Sender, ButtonEventArgs Args)
         {
@@ -66,6 +66,19 @@ namespace OrbisGL.Controls
                 {
                     Ctrl.OnButtonPressed?.Invoke(Ctrl, (ButtonEventArgs)e);
                 }, Args);
+            } 
+            else if (EnableSelector && FocusedControl == null)
+            {
+                switch (Args.Button)
+                {
+                    case OrbisPadButton.Up:
+                    case OrbisPadButton.Left:
+                    case OrbisPadButton.Right:
+                    case OrbisPadButton.Down:
+                        RootControl.Focus();
+                        Args.Handled = true;
+                        return;
+                }
             }
         }
     }

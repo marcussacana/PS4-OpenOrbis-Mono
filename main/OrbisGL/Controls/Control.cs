@@ -9,14 +9,24 @@ namespace OrbisGL.Controls
 {
     public abstract partial class Control : IRenderable
     {
+        ~Control()
+        {
+            Dispose();
+        }
+        
         public virtual void Dispose()
         {
+            if (Disposed)
+                return;
+            
+            Disposed = true;
+            
             foreach (var Child in Children.ToArray())
                 Child.Dispose();
 
             GLObject.Dispose();
 
-            RemoveChildren(true);
+            _RemoveChildren(true);
             Parent?.RemoveChild(this);
         }
 
@@ -112,24 +122,33 @@ namespace OrbisGL.Controls
 
         public bool Focus()
         {
-            if (_Focused)
+            if (FocusedControl == this)
                 return true;
+
+            if (TryingChildFocus)
+                return false;
 
             if (!Focusable)
             {
-                if (LastChildFocus != null)
+                if (LastChildFocus != null && LastChildFocus.Visible)
                 {
                     return LastChildFocus.Focus();
                 }
 
-                foreach (var Child in Childs)
+                try
                 {
-                    if (Child.Focusable)
+                    TryingChildFocus = true;
+                    foreach (var Child in Childs)
                     {
-                        return Child.Focus();
+                        if (Child.Focus())
+                            return true;
                     }
                 }
-                
+                finally
+                {
+                    TryingChildFocus = false;
+                }
+
                 return Parent?.Focus() ?? false;
             }
 
@@ -171,10 +190,9 @@ namespace OrbisGL.Controls
 
                 if (Focusable)
                 {
-                    _Focused = true;
+                    CurrentFocus = this;
 
-                    if (Parent != null)
-                        Parent.LastChildFocus = this;
+                    Parent?.SetLastChildFocus(this);
 
                     SetAsSelected();
                     Invalidate();
@@ -183,21 +201,26 @@ namespace OrbisGL.Controls
 
             Parent?.OnFocus(this, Args);
         }
+        private void SetLastChildFocus(Control Child)
+        {
+            if (Child == this || !Children.Contains(Child))
+                return;
+            
+            LastChildFocus = Child;
+            Parent?.SetLastChildFocus(this);
+        }
 
         protected virtual void OnLostFocus(object Sender, EventArgs Args)
         {
             if (Focused)
             {
-                if (!_Focused)
+                if (CurrentFocus != this)
                 {
                     Children.Single(x => x.Focused).OnLostFocus(Sender, Args);
                     return;
                 }
-                else
-                {
-                    _Focused = false;
-                    Invalidate();
-                }
+
+                Invalidate();
             }
         }
         public virtual void AddChild(Control Child)
@@ -226,9 +249,11 @@ namespace OrbisGL.Controls
             Child.OnControlParentChanged?.Invoke(Child, EventArgs.Empty);
         }
 
-        public virtual void RemoveChildren(bool Dispose)
+        public virtual void RemoveChildren(bool Dispose) => _RemoveChildren(Dispose);
+
+        void _RemoveChildren(bool Dispose)
         {
-            foreach (var Child in Children) {
+            foreach (var Child in Children.ToArray()) {
                 if (Dispose)
                 {
                     Child.Dispose();
