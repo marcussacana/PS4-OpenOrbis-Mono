@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Serialization;
 
 namespace OrbisGL.Controls
 {
@@ -36,9 +37,10 @@ namespace OrbisGL.Controls
 
                 var CurrentBottom = Positions.Any() ? Positions.Max(x => x.Value.Y + x.Key.Size.Y) : 0;
 
-                Child.Position = new Vector2(0, CurrentBottom + Margin);
+                Child.Position = new Vector2(Child.Position.X, CurrentBottom + Margin);
 
-                Child.Refresh();
+                if (Child.Invalidated)
+                    Child.Refresh();
             }
             
             base.AddChild(Child);

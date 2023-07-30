@@ -68,6 +68,7 @@
     <Compile Include="Controls\Control.Extensions.cs" />
     <Compile Include="Controls\Control.Properties.cs" />
     <Compile Include="Controls\Control.Selector.cs" />
+    <Compile Include="Controls\DropDownButton.cs" />
     <Compile Include="Controls\Events\KeyboardEvent.cs" />
     <Compile Include="Controls\Events\MouseEvent.cs" />
     <Compile Include="Controls\Events\MoveEvent.cs" />

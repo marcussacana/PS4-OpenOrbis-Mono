@@ -36,10 +36,15 @@ namespace OrbisGL.GL2D
             }
         }
 
-        public Text2D(int FontSize, string FontPath) : this(GetFont(FontPath, FontSize, out _), FontSize) { }
-        public Text2D(FontFaceHandler Font, int FontSize)
+        public Text2D(int FontSize, string FontPath) : this(GetFont(FontPath, FontSize, out _)) { }
+        public Text2D(FontFaceHandler Font, int FontSize) : this(Font)
         {
+            Font.SetFontSize(FontSize);
             this.FontSize = FontSize;
+        }
+        public Text2D(FontFaceHandler Font)
+        {
+            this.FontSize = Font.CurrentSize;
 
             var hProgram = Shader.GetProgram(ResLoader.GetResource("VertexOffsetTexture"), ResLoader.GetResource("FragmentFont"));
             Program = new GLProgram(hProgram);
@@ -70,7 +75,7 @@ namespace OrbisGL.GL2D
 
                 if (!CurrentFont.Disposed)
                 {
-                    FreeType.SetFontSize(CurrentFont, FontSize);
+                    CurrentFont.SetFontSize(FontSize);
                     return CurrentFont;
                 }
             }
@@ -101,7 +106,7 @@ namespace OrbisGL.GL2D
         {
             foreach (var Font in FontCache.Values)
             {
-                FreeType.UnloadFont(Font);
+                Font.Dispose();
             }
 
             FontCache.Clear();
@@ -118,7 +123,7 @@ namespace OrbisGL.GL2D
 
         public void SetFontSize(int FontSize)
         {
-            FreeType.SetFontSize(Font, FontSize);
+            Font.SetFontSize(FontSize);
             RefreshVertex();
         }
 
@@ -138,7 +143,7 @@ namespace OrbisGL.GL2D
                 return;
             }
 
-            FreeType.SetFontSize(Font, FontSize);
+            Font.SetFontSize(FontSize);
 
             FreeType.MeasureText(Text, Font, out int Width, out int Height, out GlyphInfo[] Glyphs);
 

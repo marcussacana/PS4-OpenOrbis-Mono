@@ -77,17 +77,7 @@ namespace OrbisGL.FreeTypeLib
 
             Face = FontFace;
 
-            return SetFontSize(Face, FontSize);
-        }
-
-        public static unsafe bool SetFontSize(FontFaceHandler Face, int FontSize)
-        {
-            return FT_Set_Pixel_Sizes(Face, 0, FontSize) >= 0;
-        }
-
-        public static unsafe bool UnloadFont(FontFaceHandler Face)
-        {
-            return FT_Done_Face(Face) == 0;
+            return Face.SetFontSize(FontSize);
         }
 
         public static unsafe void MeasureText(string Text, FontFaceHandler FontFace, out int Width, out int Height, out GlyphInfo[] GlyphsRectangles)
@@ -272,10 +262,11 @@ namespace OrbisGL.FreeTypeLib
             FT_RENDER_MODE_LCD_V,
             FT_RENDER_MODE_MAX
         }
+
 #if ORBIS
-        private const string FreeTypeLib = "libSceFreeTypeOl";
+        internal const string FreeTypeLib = "libSceFreeTypeOl";
 #else
-        private const string FreeTypeLib = "freetype";
+        internal const string FreeTypeLib = "freetype";
 #endif
 
         [DllImport(FreeTypeLib)]
@@ -283,12 +274,6 @@ namespace OrbisGL.FreeTypeLib
 
         [DllImport(FreeTypeLib, CharSet = CharSet.Ansi)]
         private static extern unsafe int FT_New_Face(IntPtr ftLib, string fontPath, int faceIndex, out FT_Face* face);
-
-        [DllImport(FreeTypeLib)]
-        private static extern unsafe int FT_Done_Face(FT_Face* face);
-
-        [DllImport(FreeTypeLib)]
-        private static extern unsafe int FT_Set_Pixel_Sizes(FT_Face* face, int pixelWidth, int pixelHeight);
 
         [DllImport(FreeTypeLib)]
         private static extern unsafe int FT_Load_Glyph(FT_Face* face, uint glyphIndex, FT_Load_Flag loadFlags);

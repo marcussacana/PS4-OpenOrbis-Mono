@@ -3,6 +3,13 @@ using SharpGLES;
 
 namespace OrbisGL
 {
+    internal enum ControlState
+    {
+        Normal,
+        Disabled,
+        Hover,
+        Pressed
+    }
     public enum RenderMode : int
     {
         Triangle = GLES20.GL_TRIANGLES,

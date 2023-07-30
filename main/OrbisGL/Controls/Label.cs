@@ -9,14 +9,20 @@ namespace OrbisGL.Controls
     {
         RichText2D Text2D;
 
-        public Label()
+        public Label(FontFaceHandler Font)
         {
             BackgroundColor = null;
             Text2D = new RichText2D(22, ForegroundColor, null);
+            Text2D.Font = Font;
             GLObject.AddChild(Text2D);
         }
 
-        public Label(string Text) : this()
+        public Label(string Text, FontFaceHandler Font) : this(Font)
+        {
+            Text2D.SetRichText(Text.Replace("<", "<<"));
+        }
+
+        public Label(string Text) : this(GL2D.Text2D.GetFont(null, 20, out _))
         {
             Text2D.SetRichText(Text.Replace("<", "<<"));
         }

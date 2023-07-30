@@ -57,15 +57,7 @@ namespace OrbisGL.Controls
             GLObject.AddChild(Foreground);
         }
 
-        enum ButtonState
-        {
-            Normal,
-            Disabled,
-            Hover,
-            Pressed
-        }
-
-        ButtonState CurrentState = ButtonState.Normal;
+        ControlState CurrentState = ControlState.Normal;
 
         Button(int Width, int Height) {
             Size = new Vector2(Width, Height);
@@ -89,7 +81,7 @@ namespace OrbisGL.Controls
                     return;
 
                 e.Handled = true;
-                CurrentState = ButtonState.Hover;
+                CurrentState = ControlState.Hover;
                 Invalidate();
             };
 
@@ -98,7 +90,7 @@ namespace OrbisGL.Controls
                     return;
 
                 e.Handled = true;
-                CurrentState = ButtonState.Pressed;
+                CurrentState = ControlState.Pressed;
                 Invalidate();
             };
 
@@ -106,8 +98,8 @@ namespace OrbisGL.Controls
                 if (!Enabled)
                     return;
 
-                e.Handled = CurrentState == ButtonState.Pressed;
-                CurrentState = IsMouseHover ? ButtonState.Hover : ButtonState.Normal;
+                e.Handled = CurrentState == ControlState.Pressed;
+                CurrentState = IsMouseHover ? ControlState.Hover : ControlState.Normal;
                 Invalidate();
             };
 
@@ -116,7 +108,7 @@ namespace OrbisGL.Controls
                     return;
 
                 e.Handled = true;
-                CurrentState = ButtonState.Normal;
+                CurrentState = ControlState.Normal;
                 Invalidate();
             };
 
@@ -126,17 +118,17 @@ namespace OrbisGL.Controls
                     return;
 
                 args.Handled = true;
-                CurrentState = ButtonState.Pressed;
+                CurrentState = ControlState.Pressed;
                 Invalidate();
             };
 
             OnButtonUp += (sender, args) =>
             {
-                if (CurrentState != ButtonState.Pressed || args.Button != OrbisPadButton.Cross)
+                if (CurrentState != ControlState.Pressed || args.Button != OrbisPadButton.Cross)
                     return;
                 
                 args.Handled = true;
-                CurrentState = ButtonState.Normal;
+                CurrentState = ControlState.Normal;
                 Invalidate();
             };
 
@@ -163,7 +155,7 @@ namespace OrbisGL.Controls
                 return;
 
             if (!Enabled)
-                CurrentState = ButtonState.Disabled;
+                CurrentState = ControlState.Disabled;
 
             Foreground.SetText(Text);
 
@@ -183,13 +175,13 @@ namespace OrbisGL.Controls
 
             switch (CurrentState)
             {
-                case ButtonState.Pressed:
+                case ControlState.Pressed:
                     Background.Color = Background.Color.Desaturate(180);
                     break;
-                case ButtonState.Hover:
+                case ControlState.Hover:
                     Background.Color = Background.Color.Desaturate(210);
                     break;
-                case ButtonState.Disabled:
+                case ControlState.Disabled:
                     Background.Color = BackgroundColor.Grayscale();
                     Foreground.Color = ForegroundColor.Grayscale();
                     break;

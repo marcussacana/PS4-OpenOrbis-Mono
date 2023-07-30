@@ -39,7 +39,7 @@ namespace OrbisGL.Controls
         public Checkbox(int FontSize) : this(FontSize, Text2D.GetFont(null, FontSize, out _)) { }
         
         public Checkbox(int FontSize, FontFaceHandler Font) {
-            FreeType.SetFontSize(Font, FontSize);
+            Font.SetFontSize(FontSize);
 
             FreeType.MeasureText("A", Font, out int _, out int Height, out _);
 

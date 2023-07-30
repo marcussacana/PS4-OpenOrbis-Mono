@@ -40,7 +40,7 @@ namespace OrbisGL.Controls
 
         public Radiobutton(int FontSize, FontFaceHandler Font)
         {
-            FreeType.SetFontSize(Font, FontSize);
+            Font.SetFontSize(FontSize);
 
             FreeType.MeasureText("A", Font, out int _, out int Height, out _);
 

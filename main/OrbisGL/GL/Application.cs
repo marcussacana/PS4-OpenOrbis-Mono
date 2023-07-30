@@ -68,6 +68,8 @@ namespace OrbisGL.GL
 
         private IList<IRenderable> _Objects = new List<IRenderable>();
 
+        private Control[] ControllersSnaptshot => Controllers.ToArray();
+
 
         /// <summary>
         /// Create an OpenGL ES 2 Environment 
@@ -189,16 +191,22 @@ namespace OrbisGL.GL
 
             Dualshock.OnButtonDown += (sender, args) =>
             {
-                foreach (var Child in Controllers)
+                foreach (var Child in ControllersSnaptshot.Reverse())
                 {
+                    if (args.Handled)
+                        break;
+
                     Child.ProcessButtonDown(sender, args);
                 }
             };
 
             Dualshock.OnButtonUp += (sender, args) =>
             {
-                foreach (var Child in Controllers)
+                foreach (var Child in ControllersSnaptshot.Reverse())
                 {
+                    if (args.Handled)
+                        break;
+
                     Child.ProcessButtonUp(sender, args);
                 }
             };
@@ -278,8 +286,11 @@ namespace OrbisGL.GL
                 EventUp = new ButtonEventArgs(OrbisPadButton.Down);
             }
 
-            foreach (var Child in Controllers)
+            foreach (var Child in ControllersSnaptshot.Reverse())
             {
+                if (EventDown.Handled && EventUp.Handled)
+                    break;
+
                 Child.ProcessButtonDown(Child, EventDown);
                 Child.ProcessButtonUp(Child, EventUp);
             }
@@ -310,16 +321,22 @@ namespace OrbisGL.GL
 
             KeyboardDriver.OnKeyDown += (sender, args) =>
             {
-                foreach (var Child in Controllers)
+                foreach (var Child in ControllersSnaptshot.Reverse())
                 {
+                    if (args.Handled)
+                        break;
+
                     Child.ProcessKeyDown(sender, args);
                 }
             };
 
             KeyboardDriver.OnKeyUp += (sender, args) =>
             {
-                foreach (var Child in Controllers)
+                foreach (var Child in ControllersSnaptshot.Reverse())
                 {
+                    if (args.Handled)
+                        break;
+
                     Child.ProcessKeyUp(sender, args);
                 }
             };
@@ -351,7 +368,7 @@ namespace OrbisGL.GL
                     LastMouseMove = Tick;
                     CursorPosition = CurrentPosition;
                     Control.Cursor.Visible = true;
-                    foreach (var Child in Controllers)
+                    foreach (var Child in ControllersSnaptshot.Reverse())
                     {
                         if (Child.AbsoluteRectangle.IsInBounds(CurrentPosition))
                         {
@@ -374,7 +391,7 @@ namespace OrbisGL.GL
                     MousePressedButtons = CurrentButtons;
                     Control.Cursor.Visible = true;
 
-                    foreach (var Child in Controllers)
+                    foreach (var Child in ControllersSnaptshot.Reverse())
                     {
                         if (Child.AbsoluteRectangle.IsInBounds(CurrentPosition))
                         {
@@ -453,7 +470,7 @@ namespace OrbisGL.GL
 
 
 
-            foreach (var Object in Objects)
+            foreach (var Object in Objects.ToArray())
             {
                 if (Object is Control Controller)
                     Controller.FlushMouseEvents(Tick);

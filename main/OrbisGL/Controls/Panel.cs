@@ -16,16 +16,13 @@ namespace OrbisGL.Controls
         {
             this.Size = Size;
 
-            Background = new Rectangle2D((int)Size.X, (int)Size.Y, true);
-            Background.Position = new Vector2(0, 0);
-
             OnControlResized += (s, e) =>
             {
                 Background.Width = (int)this.Size.X;
                 Background.Height = (int)this.Size.Y;
             };
 
-            GLObject.AddChild(Background);
+            SetBackground(new Rectangle2D((int)Size.X, (int)Size.Y, true));
         }
 
         public bool AllowScroll { get; set; }
@@ -39,7 +36,7 @@ namespace OrbisGL.Controls
 
         public override string Text { get; set; }
 
-        Rectangle2D Background;
+        GLObject2D Background;
 
         int _ScrollX = 0;
         int _ScrollY = 0;
@@ -177,6 +174,18 @@ namespace OrbisGL.Controls
             Background.Height = (int)BGVisibleRect.Height;
 
             GLObject.RefreshVertex();
+        }
+
+        public void SetBackground(GLObject2D Background)
+        {
+            if (this.Background != null)
+                GLObject.RemoveChild(this.Background);
+
+            Background.Position = new Vector2(0, 0);
+
+            GLObject.AddChild(Background);
+
+            this.Background = Background;
         }
 
         protected readonly Dictionary<Control, Vector2> PositionMap = new Dictionary<Control, Vector2>();

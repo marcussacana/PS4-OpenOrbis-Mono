@@ -232,7 +232,7 @@ namespace OrbisGL.Controls
         private bool TryingChildFocus;
         private bool Disposed;
 
-        protected bool Invalidated { get; private set; } = true;
+        public bool Invalidated { get; private set; } = true;
 
         public event EventHandler OnControlMoved;
         public event EventHandler OnControlResized;

@@ -87,7 +87,6 @@ namespace OrbisGL.Input
                 if (Current != null && Current != TargetControl)
                 {
                     Current.Focus();
-                    Refresh();
                     return;
                 }
             }
