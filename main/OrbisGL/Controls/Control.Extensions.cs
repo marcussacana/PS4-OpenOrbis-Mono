@@ -103,7 +103,7 @@ namespace OrbisGL.Controls
             var Current = this;
             do
             {
-                if (Current.Enabled)
+                if (Current.Enabled && !Current.Disposed)
                     Action(Current, Args);
 
                 if (Args != null && Args.Handled)

@@ -479,6 +479,14 @@ void main(void) {
             DropButton.Items.Add("Option F");
             DropButton.Items.Add("Option G");
             DropButton.Items.Add("Option H");
+            DropButton.Items.Add("Option I");
+            DropButton.Items.Add("Option J");
+            DropButton.Items.Add("Option K");
+            DropButton.Items.Add("Option L");
+            DropButton.Items.Add("Option M");
+            DropButton.Items.Add("Option N");
+            DropButton.Items.Add("Option O");
+
             DropButton.Text = "Select an Option";
 
             DropButton.Position = new Vector2(100, 20);

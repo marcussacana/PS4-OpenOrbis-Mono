@@ -38,6 +38,8 @@ namespace OrbisGL.Controls
 
         GLObject2D Background;
 
+        Vector2 BGMargin = Vector2.Zero;
+
         int _ScrollX = 0;
         int _ScrollY = 0;
 
@@ -169,19 +171,21 @@ namespace OrbisGL.Controls
             Background.ClearVisibleRectangle();
 
             var BGVisibleRect = Rectangle.GetChildBounds(AreaRect, AbsoluteRectangle);
-            Background.Position = BGVisibleRect.Position;
+            Background.Position = BGVisibleRect.Position + BGMargin;
             Background.Width = (int)BGVisibleRect.Width;
             Background.Height = (int)BGVisibleRect.Height;
 
             GLObject.RefreshVertex();
         }
 
+        public void SetBackgroundMargin(Vector2 Margin) => BGMargin = Margin;
+
         public void SetBackground(GLObject2D Background)
         {
             if (this.Background != null)
                 GLObject.RemoveChild(this.Background);
 
-            Background.Position = new Vector2(0, 0);
+            Background.Position = BGMargin;
 
             GLObject.AddChild(Background);
 

@@ -1,7 +1,5 @@
-﻿using OrbisGL.Controls.Events;
-using OrbisGL.GL;
+﻿using OrbisGL.GL;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 

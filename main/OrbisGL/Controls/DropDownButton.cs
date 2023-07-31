@@ -10,6 +10,7 @@ namespace OrbisGL.Controls
 {
     public class DropDownButton : Control
     {
+        public bool ListExpanded { get; private set; }
         public override bool Focusable => true;
 
         public override string Name => "DropDownButton";
@@ -30,6 +31,9 @@ namespace OrbisGL.Controls
         RoundedRectangle2D Background;
         RoundedRectangle2D BackgroundContour;
         Text2D Foreground;
+        Line2D ArrowIcon;
+
+        Vector2 ArrowPos => Size - new Vector2((Margin * 2) + ArrowIcon.Width, (Size.Y / 2) + (ArrowIcon.Height / 2));
 
         ControlState CurrentState;
 
@@ -39,6 +43,8 @@ namespace OrbisGL.Controls
             FreeType.MeasureText("A", Font, out _, out int Height, out _);
 
             Height += Margin * 2;
+
+            Size = new Vector2(Width, Height);
 
             Background = new RoundedRectangle2D(Width, Height, true);
             Background.Color = BackgroundColor;
@@ -55,11 +61,31 @@ namespace OrbisGL.Controls
             Foreground.Color = ForegroundColor;
             Foreground.Position = new Vector2(Margin, Margin);
 
+            ArrowIcon = new Line2D(new Line[]
+            {
+                new Line()
+                {
+                    Begin = new Vector2(0, 1),
+                    End = new Vector2(5.5f, 5),
+                },
+                new Line()
+                {
+                    Begin = new Vector2(5.5f, 5),
+                    End = new Vector2(10.5f, 0)
+                }
+            }, false);
+
+            ArrowIcon.Color = ForegroundColor;
+            ArrowIcon.Opacity = 100;
+            ArrowIcon.Position = ArrowPos;
+
+
             //[WIP] Add "v" symbol in the dropdownbutton
 
             GLObject.AddChild(Background);
             GLObject.AddChild(BackgroundContour);
             GLObject.AddChild(Foreground);
+            GLObject.AddChild(ArrowIcon);
 
             Size = new Vector2(Width, Height);
 
@@ -77,6 +103,7 @@ namespace OrbisGL.Controls
                     return;
 
                 e.Handled = true;
+                PressTickBegin = 0;
                 CurrentState = ControlState.Pressed;
                 Invalidate();
             };
@@ -105,6 +132,7 @@ namespace OrbisGL.Controls
                     return;
 
                 args.Handled = true;
+                PressTickBegin = 0;
                 CurrentState = ControlState.Pressed;
                 Invalidate();
             };
@@ -134,7 +162,6 @@ namespace OrbisGL.Controls
 
                 Expand();
             };
-
         }
 
         RowView ListView;
@@ -148,10 +175,21 @@ namespace OrbisGL.Controls
 
         private void Expand()
         {
+            if (!Enabled)
+                return;
+
+            if (ListExpanded)
+            {
+                Colapse();
+                return;
+            }
+
             OnBeforeItemsExpand?.Invoke(this, EventArgs.Empty);
 
             int ItemCount = Items.Count();
 
+
+            //Build the Item List Viewer
             if (ListView == null)
             {
                 int Height = Math.Min(((int)Size.Y * ItemCount) - (Margin*2), ExpandMaxHeight);
@@ -159,23 +197,25 @@ namespace OrbisGL.Controls
 
                 Blank2D BG = new Blank2D();
 
-                var BGRound = new RoundedRectangle2D((int)ListView.Size.X, (int)ListView.Size.Y + Margin, false);
+                var BGRound = new RoundedRectangle2D((int)ListView.Size.X, (int)ListView.Size.Y + (Margin*2), false);
                 BGRound.RoundLevel = 1.2f;
                 BGRound.Color = BackgroundColor;
 
                 var BGRoundContour = new RoundedRectangle2D(BGRound.Width, BGRound.Height, false);
                 BGRoundContour.Color = ForegroundColor;
                 BGRoundContour.Opacity = 100;
-                BGRoundContour.RoundLevel = 1.05f;
+                BGRoundContour.RoundLevel = 1.00f;
                 BGRoundContour.ContourWidth = 1.5f;
-                BGRoundContour.Margin = new Vector2(-0.8f);
+                BGRoundContour.Margin = new Vector2(0.3f);
 
                 BG.AddChild(BGRound);
                 BG.AddChild(BGRoundContour);
 
+                ListView.SetBackgroundMargin(new Vector2(0, -5));
                 ListView.SetBackground(BG);
             }
 
+            //Add the item list to the viewer
             var LastItems = ListView.Childs.Cast<Label>().ToArray();
 
             int i = 0;
@@ -210,10 +250,13 @@ namespace OrbisGL.Controls
                 Item.Position = new Vector2(Margin * 4, 0);
 
                 ListView.AddChild(Item);
+                ListView.Links.Up = this;
             }
 
+
+            //Calculate the List Popup position
             var PositionX = ((Size.X / 2) + AbsolutePosition.X) - (ListView.Size.X / 2);
-            var PositionY = AbsoluteRectangle.Bottom;
+            var PositionY = AbsoluteRectangle.Bottom + Margin;
 
             ListView.Position = new Vector2(PositionX, PositionY);
 
@@ -240,12 +283,16 @@ namespace OrbisGL.Controls
 
                 ListView.Focus();
             }
+
+            ListExpanded = true;
         }
 
         private void Colapse()
         {
-            if (!Application.Objects.Contains(ListView))
+            if (!ListExpanded || !Application.Objects.Contains(ListView))
                 return;
+
+            ListExpanded = false;
 
             Application.RemoveObject(ListView);
             OnItemsColapsed?.Invoke(this, EventArgs.Empty);
@@ -260,6 +307,25 @@ namespace OrbisGL.Controls
                 Background.Height = (int)Size.Y;
                 BackgroundContour.Width = (int)Size.X;
                 BackgroundContour.Height = (int)Size.Y;
+
+            }
+
+            ArrowIcon.Position = ArrowPos;
+            Background.Color = BackgroundColor;
+            Foreground.Color = ForegroundColor;
+
+            switch (CurrentState)
+            {
+                case ControlState.Pressed:
+                    Background.Color = Background.Color.Desaturate(180);
+                    break;
+                case ControlState.Hover:
+                    Background.Color = Background.Color.Desaturate(210);
+                    break;
+                case ControlState.Disabled:
+                    Background.Color = BackgroundColor.Grayscale();
+                    Foreground.Color = ForegroundColor.Grayscale();
+                    break;
             }
 
             Foreground.SetText(Text);
@@ -285,6 +351,39 @@ namespace OrbisGL.Controls
                     Foreground.SetVisibleRectangle(ForeVisible);
                 }
             }
+        }
+
+        const int SlideTime = Constants.SCE_MILISECOND * 100;
+        const int SlideDistance = 3;
+
+        long PressTickBegin;
+
+        public override void Draw(long Tick)
+        {
+            if (CurrentState == ControlState.Pressed)
+            {
+                if (PressTickBegin == 0)
+                    PressTickBegin = Tick;
+
+                float ElapsedTicks = Tick - PressTickBegin;
+                float AnimProgress = Math.Min(ElapsedTicks / SlideTime, 1.0f);
+
+                ArrowIcon.Position = ArrowPos + new Vector2(0, AnimProgress * SlideDistance);
+            }
+
+            base.Draw(Tick);
+        }
+
+        protected override void OnLostFocus(object Sender, EventArgs Args)
+        {
+            bool InList = false;
+            if (Sender is Control Ctrl)
+                InList = Ctrl.IsDescendantOf(ListView);
+
+            if (!InList)
+                Colapse();
+
+            base.OnLostFocus(Sender, Args);
         }
     }
 }
