@@ -14,10 +14,14 @@ namespace OrbisGL
 
         public static string GetResource(string Name)
         {
-            var ResName = FindResource(Name) ?? throw new KeyNotFoundException($"Resource '{Name}' aren't available.");
+            return GetResource(CurrentAssembly, Name);
+        }
+        public static string GetResource(Assembly Target, string Name)
+        {
+            var ResName = FindResource(Target, Name) ?? throw new KeyNotFoundException($"Resource '{Name}' aren't available.");
 
             using (MemoryStream Stream = new MemoryStream())
-            using (var Resource = CurrentAssembly.GetManifestResourceStream(ResName))
+            using (var Resource = Target.GetManifestResourceStream(ResName))
             {
                 Resource.CopyTo(Stream);
                 var Data = Stream.ToArray();
@@ -31,10 +35,15 @@ namespace OrbisGL
 
         public static byte[] GetResourceData(string Name)
         {
-            var ResName = FindResource(Name) ?? throw new KeyNotFoundException($"Resource '{Name}' aren't available.");
+            return GetResourceData(CurrentAssembly, Name);
+        }
+
+        public static byte[] GetResourceData(Assembly Target, string Name)
+        {
+            var ResName = FindResource(Target, Name) ?? throw new KeyNotFoundException($"Resource '{Name}' aren't available.");
 
             using (MemoryStream Stream = new MemoryStream())
-            using (var Resource = CurrentAssembly.GetManifestResourceStream(ResName))
+            using (var Resource = Target.GetManifestResourceStream(ResName))
             {
                 Resource.CopyTo(Stream);
                 var Data = Stream.ToArray();
@@ -43,10 +52,18 @@ namespace OrbisGL
             }
         }
 
+        public static string FindResource(Assembly Target, string Name)
+        {
+            return FindResource(Target.GetManifestResourceNames(), Name);
+        }
         public static string FindResource(string Name)
         {
+            return FindResource(ResourcesList, Name);
+        }
+        public static string FindResource(string[] List, string Name)
+        {
             var NoExtName = Path.GetFileNameWithoutExtension(Name);
-            var Entries = ResourcesList.Where((x) =>
+            var Entries = List.Where((x) =>
             {
                 var ResName = GetResourceFileName(x);
                 bool Valid = ResName.Equals(Name, StringComparison.InvariantCultureIgnoreCase);
@@ -57,7 +74,7 @@ namespace OrbisGL
 
             if (!Entries.Any())
             {
-                if (ResourcesList.Contains(Name))
+                if (List.Contains(Name))
                     return Name;
                 
                 return null;

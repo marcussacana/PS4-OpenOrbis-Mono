@@ -5,7 +5,7 @@ using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
 {
-    internal class Texture2D : GLObject2D
+    public class Texture2D : GLObject2D
     {
         int TextureUniformLocation;
 
@@ -42,6 +42,11 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
+            if (Texture != null)
+            {
+                Width = Texture.Width;
+                Height = Texture.Height;
+            }
 
             var PointA = new Vector2(0, 0);
             var PointB = new Vector2(Width, 0);

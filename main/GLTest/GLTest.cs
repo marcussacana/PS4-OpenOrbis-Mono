@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using static OrbisGL.GL2D.Coordinates2D;
@@ -496,6 +497,33 @@ void main(void) {
             GLControl.GLApplication.AddObject(BG);
 #endif
 
+        }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+
+#if !ORBIS
+            var BG = new Panel(GLControl.Size.Width, GLControl.Size.Height);
+            BG.BackgroundColor = RGBColor.White;
+
+            var Cat = ResLoader.GetResourceData(Assembly.GetExecutingAssembly(), "cat_sprite");
+
+            Texture Tex = new Texture(true);
+            Tex.SetImage(Cat, PixelFormat.RGBA);
+
+            Texture2D TexObj = new Texture2D();
+            TexObj.Texture = Tex;
+
+            Sprite2D Spriter = new Sprite2D(TexObj);
+            Spriter.Width = 221;
+            Spriter.Height = 154;
+
+            Spriter.MaxStep = 8;
+            Spriter.StepDelay = 50;
+
+            GLControl.GLApplication.AddObject(BG);
+            GLControl.GLApplication.AddObject(Spriter);
+#endif
         }
     }
 }

@@ -114,6 +114,7 @@
     <Compile Include="GL2D\Elipse2D.cs" />
     <Compile Include="GL2D\RichText2D.cs" />
     <Compile Include="GL2D\RoundedRectangle2D.cs" />
+    <Compile Include="GL2D\Sprite2D.cs" />
     <Compile Include="GL2D\Text2D.cs" />
     <Compile Include="GL2D\Texture2D.cs" />
     <Compile Include="GL2D\Triangle2D.cs" />

@@ -192,21 +192,21 @@ namespace OrbisGL.GL2D
             }
         }
 
-        public void AddChild(GLObject2D Child)
+        public virtual void AddChild(GLObject2D Child)
         {
             Children.Add(Child);
             Child.Parent = this;
             Child.RefreshVertex();
         }
 
-        public void RemoveChild(GLObject2D Child)
+        public virtual void RemoveChild(GLObject2D Child)
         {
             Children.Remove(Child);
             Child.Parent = null;
             Child.RefreshVertex();
         }
 
-        public void RemoveChildren(bool Dispose)
+        public virtual void RemoveChildren(bool Dispose)
         {
             foreach (var Child in Children)
             {
