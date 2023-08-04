@@ -13,6 +13,9 @@ namespace OrbisGL.GL
 
         private static List<int> SlotTexture = new List<int>(32);
 
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+
         static Texture()
         {
             for (int i = 0; i < 32; i++)
@@ -43,6 +46,9 @@ namespace OrbisGL.GL
         public unsafe void SetData(int Width, int Height, byte[] Data, PixelFormat Format)
         {
             Bind(Active());
+
+            this.Width = Width;
+            this.Height = Height;
 
             fixed (byte* pData = Data)
             {
@@ -82,7 +88,7 @@ namespace OrbisGL.GL
                     throw new Exception("Unexpected Pixel Format");
             }
 
-            SetData(Width, Height, Data, TextureFormat);
+            SetData(Width, Height, Buffer, TextureFormat);
         }
 
         /// <summary>
