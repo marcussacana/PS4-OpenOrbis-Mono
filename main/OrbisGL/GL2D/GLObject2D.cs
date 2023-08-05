@@ -1,7 +1,6 @@
 ﻿using OrbisGL.GL;
 using SharpGLES;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Numerics;
 
 namespace OrbisGL.GL2D

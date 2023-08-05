@@ -195,21 +195,23 @@ namespace OrbisGL.Controls
                 int Height = Math.Min(((int)Size.Y * ItemCount) - (Margin*2), ExpandMaxHeight);
                 ListView = new RowView((int)Size.X + (Margin * 4), Height);
 
+
                 Blank2D BG = new Blank2D();
 
-                var BGRound = new RoundedRectangle2D((int)ListView.Size.X, (int)ListView.Size.Y + (Margin*2), false);
-                BGRound.RoundLevel = 1.2f;
+                var BGRound = new RoundedRectangle2D((int)ListView.Size.X, (int)ListView.Size.Y + (Margin), true);
+                BGRound.RoundLevel = 0.8f;
                 BGRound.Color = BackgroundColor;
+                BGRound.Position = new Vector2(0, 2);
 
                 var BGRoundContour = new RoundedRectangle2D(BGRound.Width, BGRound.Height, false);
                 BGRoundContour.Color = ForegroundColor;
                 BGRoundContour.Opacity = 100;
-                BGRoundContour.RoundLevel = 1.00f;
+                BGRoundContour.RoundLevel = 0.60f;
                 BGRoundContour.ContourWidth = 1.5f;
-                BGRoundContour.Margin = new Vector2(0.3f);
+                BGRoundContour.Margin = new Vector2(-0.6f);
 
                 BG.AddChild(BGRound);
-                BG.AddChild(BGRoundContour);
+                BGRound.AddChild(BGRoundContour);
 
                 ListView.SetBackgroundMargin(new Vector2(0, -5));
                 ListView.SetBackground(BG);

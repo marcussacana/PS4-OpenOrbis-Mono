@@ -468,7 +468,7 @@ void main(void) {
         {
 #if !ORBIS
             var BG = new Panel(GLControl.Size.Width, GLControl.Size.Height);
-            BG.BackgroundColor = RGBColor.White;
+            BG.BackgroundColor = RGBColor.ReallyLightBlue;
 
             var DropButton = new DropDownButton(200);
 
