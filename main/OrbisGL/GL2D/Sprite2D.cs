@@ -165,11 +165,7 @@ namespace OrbisGL.GL2D
         {
             if (Width != 0 && Height != 0)
             {
-                if (LastStepTick == -1)
-                {
-                    LastStepTick = Tick;
-                }
-                else if ((Tick - LastStepTick) > StepDelayTicks)
+                if ((Tick - LastStepTick) > StepDelayTicks)
                 {
                     LastStepTick = Tick;
                     StepFoward();
