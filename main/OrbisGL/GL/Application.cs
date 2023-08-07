@@ -133,14 +133,14 @@ namespace OrbisGL.GL
             {
 #if ORBIS
                 long CurrentTick = 0;
-                sceRtcGetCurrentTick(out CurrentTick);
+                Kernel.sceRtcGetCurrentTick(out CurrentTick);
 
                 long NextDrawTick = LastDrawTick + FrameDelay;
 
                 if (NextDrawTick > CurrentTick)
                 {
                     uint ReamingTicks = (uint)(NextDrawTick - CurrentTick);
-                    sceKernelUsleep(ReamingTicks);
+                    Kernel.sceKernelUsleep(ReamingTicks);
                 } 
 #if DEBUG
                 if (CurrentTick > NextDrawTick)
@@ -430,13 +430,7 @@ namespace OrbisGL.GL
             Control.Cursor.RefreshVertex();
         }
 
-#if ORBIS
-        [DllImport("libkernel.sprx")]
-        static extern void sceKernelUsleep(uint MicroSecond);
-        
-        [DllImport("libSceRtc.srpx")]
-        static extern int sceRtcGetCurrentTick(out long CurrentTick);
-#else
+#if !ORBIS
         public void DrawOnce()
         {
             if (GLDisplay == null)

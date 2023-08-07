@@ -15,6 +15,15 @@
         public const int ORBIS_PAD_MAX_TOUCH_NUM = 2;
         public const int ORBIS_PAD_MAX_DATA_NUM = 0x40;
 
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_S16_MONO = 0;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_S16_STEREO = 1;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_S16_8CH = 2;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_MONO = 3;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_STEREO = 4;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_8CH = 5;
+
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_S16_8CH_STD = 6;
+        public const int SCE_AUDIO_OUT_PARAM_FORMAT_FLOAT_8CH_STD = 7;
 
 
         public const int SCE_IME_MAX_TEXT_LENGTH = 2048;

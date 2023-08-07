@@ -94,6 +94,12 @@ namespace Orbis.Internals
         [DllImport("libkernel.sprx", EntryPoint = "sceKernelMprotect")]
         public static extern int MemProtect(void* Address, int size, int Flags);
 
+        [DllImport("libkernel.sprx")]
+        public static extern void sceKernelUsleep(uint MicroSecond);
+
+        [DllImport("libSceRtc.srpx")]
+        public static extern int sceRtcGetCurrentTick(out long CurrentTick);
+
         public const int PROT_READ = 1;
         public const int PROT_WRITE = 2;
         public const int PROT_EXEC = 4;
