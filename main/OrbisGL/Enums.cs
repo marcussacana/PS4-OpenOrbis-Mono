@@ -723,4 +723,33 @@ namespace OrbisGL
     }
 
     #endregion
+
+    #region AUDIO
+    public enum OrbisAudioOutChannel
+    {
+        L = 0,
+        R,    /* 1 */
+        C,    /* 2 */
+        LFE,    /* 3 */
+        LS,    /* 4 */
+        RS,    /* 5 */
+        LE,    /* 6 */
+        RE,    /* 7 */
+        MAX    /* 8 */
+    }
+
+    public enum OrbisAudioOutChannelOrderStd
+    {
+        L = 0,
+        R,    /* 1 */
+        C,    /* 2 */
+        LFE,    /* 3 */
+        LE,    /* 4 */
+        RE,    /* 5 */
+        LS,    /* 6 */
+        RS,    /* 7 */
+        MAX    /* 8 */
+    }
+
+    #endregion
 }
