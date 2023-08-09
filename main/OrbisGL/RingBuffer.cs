@@ -16,9 +16,12 @@ namespace OrbisGL
 
         public override bool CanWrite => true;
 
-        public override long Length => Size;
+        /// <summary>
+        /// Get the total amount of data currently buffered in the ring buffer
+        /// </summary>
+        public override long Length => BufferedAmount;
 
-        public override long Position { get => BufferedAmount; set => throw new NotImplementedException(); }
+        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public RingBuffer(int Size) { 
             this.Size = Size;
@@ -40,7 +43,7 @@ namespace OrbisGL
             throw new NotImplementedException();
         }
 
-        public override unsafe int Read(byte[] buffer, int OutOffset, int count)
+        public override int Read(byte[] buffer, int OutOffset, int count)
         {
             if (ReadOffset >= Size)
                 ReadOffset = 0;
@@ -74,14 +77,10 @@ namespace OrbisGL
 
             if (count > 0)
                 return Read(buffer, OutOffset + ReadAmount, count) + ReadAmount;
-
-            if (AntiOverflow.CurrentCount == 0)
-                AntiOverflow.Release();
-
+            
             return ReadAmount;
         }
 
-        SemaphoreSlim AntiOverflow = new SemaphoreSlim(1, 1);
         public override void Write(byte[] buffer, int InOffset, int count)
         {
             if (count > Size)
@@ -90,45 +89,34 @@ namespace OrbisGL
             if (WriteOffset >= Size)
                 WriteOffset = 0;
 
+            while (BufferedAmount > Size)
+                Thread.Sleep(100);
 
-            AntiOverflow.Wait();
-
-            while (count > Size - BufferedAmount)
-                AntiOverflow.Wait();
-
-            try
+            if (WriteOffset + count <= Size)
             {
-                if (WriteOffset + count <= Size)
-                {
-                    // Write the entire chunk at once if it fits in the buffer.
-                    Array.Copy(buffer, InOffset, DataBuffer, WriteOffset, count);
+                // Write the entire chunk at once if it fits in the buffer.
+                Array.Copy(buffer, InOffset, DataBuffer, WriteOffset, count);
 
-                    WriteOffset += count;
-                }
-                else
-                {
-                    // Write in two parts if the chunk wraps around the end of the buffer.
-                    int firstPartSize = Size - WriteOffset;
-                    int secondPartSize = count - firstPartSize;
-
-                    Array.Copy(buffer, InOffset, DataBuffer, WriteOffset, firstPartSize);
-                    Array.Copy(buffer, InOffset + firstPartSize, DataBuffer, 0, secondPartSize);
-
-                    WriteOffset = secondPartSize;
-                }
-
-                BufferedAmount += count;
+                WriteOffset += count;
             }
-            finally
+            else
             {
-                if (AntiOverflow.CurrentCount == 0)
-                    AntiOverflow.Release();
+                // Write in two parts if the chunk wraps around the end of the buffer.
+                int firstPartSize = Size - WriteOffset;
+                int secondPartSize = count - firstPartSize;
+
+                Array.Copy(buffer, InOffset, DataBuffer, WriteOffset, firstPartSize);
+                Array.Copy(buffer, InOffset + firstPartSize, DataBuffer, 0, secondPartSize);
+
+                WriteOffset = secondPartSize;
             }
+
+            BufferedAmount += count;
         }
 
         protected override void Dispose(bool disposing)
         {
-            AntiOverflow.Dispose();
+            DataBuffer = null;
             base.Dispose(disposing);
         }
     }

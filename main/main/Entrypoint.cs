@@ -1,7 +1,11 @@
-﻿using OrbisGL.GL;
+﻿using System;
+using System.IO;
+using OrbisGL.GL;
 using System.Numerics;
+using Orbis.Internals;
 using OrbisGL.Controls;
 using OrbisGL;
+using OrbisGL.Audio;
 using OrbisGL.Debug;
 
 namespace Orbis
@@ -54,6 +58,14 @@ namespace Orbis
             TB.Text = "Hello World";
             TB.OnMouseClick += (s, a) => { Inspect.Target = (Control)s; };
 
+            var Play = new Button(200, 20, 28);
+            Play.Text = "Play Audio";
+            Play.Position = new Vector2(Inspect.AbsoluteRectangle.Right + 20, Inspect.AbsolutePosition.Y);
+            Play.OnClicked += PlayOnClicked;
+
+            Inspect.Links.Right = Play;
+            Play.Links.Left = Inspect;
+
             List.AddChild(RB);
             List.AddChild(CB);
             List.AddChild(BTN);
@@ -61,10 +73,27 @@ namespace Orbis
 
             BG.AddChild(List);
             BG.AddChild(Inspect);
+            BG.AddChild(Play);
 
             AddObject(BG); 
         }
 
-
+        private IAudioPlayer Player;
+        private void PlayOnClicked(object sender, EventArgs e)
+        {
+            var AudioOut = new OrbisAudioOut();
+            if (Player == null)
+            {
+                Player = new WavePlayer();
+                
+                var Stream = File.OpenRead(Path.Combine(IO.GetAppBaseDirectory(), "assets", "sound", "Test.wav"));
+                
+                Player.Open(Stream);
+                Player.SetAudioDriver(AudioOut);
+            }
+            
+            Player.Resume();
+            AudioOut.SetVolume(100);
+        }
     }
 }

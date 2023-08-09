@@ -86,6 +86,7 @@ namespace OrbisGL.Audio
                 case "LIST":
                     var List = new CHUNKINFO<LISTCHUNK>();
                     List = Info;
+                    List.Data.ChunkType.Data = Stream.ReadChars(4);
                     List.Data.Subchunks = new List<LISTSUBCHUNK>();
                     while (Stream.BaseStream.Position < NextChunkPos)
                         List.Data.Subchunks.Add(ReadSubChunk());
@@ -162,6 +163,7 @@ namespace OrbisGL.Audio
             if (PlayerThread == null)
             {
                 PlayerThread = new Thread(Player);
+                PlayerThread.Name = "WavePlayer";
                 PlayerThread.Start();
             }
 
@@ -175,7 +177,7 @@ namespace OrbisGL.Audio
                 Stream.BaseStream.Position = DataOffset;
                 var EndPos = DataOffset + DataSize;
 
-                Driver.SetProprieties(Format.WChannels, 256, Format.DSamplesPerSec);
+                Driver.SetProprieties(Format.WChannels, 1024, Format.DSamplesPerSec);
                 Driver.Play(Buffer);
 
                 Duration = TimeSpan.Zero;
@@ -197,10 +199,15 @@ namespace OrbisGL.Audio
                             Thread.Sleep(100);
                     }
                 }
+                catch (Exception ex)
+                {
+                    throw;
+                }
                 finally
                 {
                     Stopped = true;
                     Driver.Stop();
+                    PlayerThread = null;
                 }
             }
         }
