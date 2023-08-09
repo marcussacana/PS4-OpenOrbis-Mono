@@ -1,14 +1,13 @@
 ﻿using Orbis.Internals;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Threading;
 using static OrbisGL.Constants;
 
 namespace OrbisGL.Audio
 {
-    public class AudioOut : IDisposable
+    public class OrbisAudioOut : IAudioOut
     {
         RingBuffer Buffer;
 
@@ -19,7 +18,8 @@ namespace OrbisGL.Audio
         uint Sampling;
 
         Thread SoundThread;
-        public AudioOut(int Channels, uint Grain, uint SamplingRate = 48000)
+
+        public void SetProprieties(int Channels, uint Grain, uint SamplingRate = 48000)
         {
             if (!(new uint[] { 256, 512, 768, 1024, 1280, 1536, 1792, 2048 }).Contains(Grain))
                 throw new ArgumentException("Grain must be one of the given values:\n256, 512, 768, 1024, 1280, 1536, 1792, 2048");

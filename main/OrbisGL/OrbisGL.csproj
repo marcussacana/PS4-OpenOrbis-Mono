@@ -60,7 +60,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio\AudioOut.cs" />
+    <Compile Include="Audio\OrbisAudioOut.cs" />
+    <Compile Include="Audio\IAudioOut.cs" />
+    <Compile Include="Audio\IAudioPlayer.cs" />
+    <Compile Include="Audio\WavePlayer.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\Checkbox.cs" />
     <Compile Include="Controls\Control.Gamepad.cs" />
