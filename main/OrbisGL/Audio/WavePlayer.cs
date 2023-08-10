@@ -32,6 +32,7 @@ namespace OrbisGL.Audio
         public TimeSpan? Duration { get; private set; }
 
         public bool Playing => !Paused && Stream != null && !Stopped;
+        private int BlockSize => Format.WBlockAlign * (int)Format.DSamplesPerSec;
 
         public void Close()
         {
@@ -172,8 +173,6 @@ namespace OrbisGL.Audio
 
         private void Player()
         {
-            int BlockSize = Format.WChannels * sizeof(short) * (int)Format.DSamplesPerSec;
-            
             using (var Buffer = new RingBuffer(BlockSize*2))
             {
                 Stream.BaseStream.Position = DataOffset;
@@ -223,9 +222,12 @@ namespace OrbisGL.Audio
 
         public void SkipTo(TimeSpan Duration)
         {
-            this.Duration = Duration;
-            Stream.BaseStream.Position = (long)(Format.DAvgBytesPerSec * Duration.TotalSeconds) + DataOffset;
+            long targetBytePosition = (long)(Format.DAvgBytesPerSec * Duration.TotalSeconds);
 
+            // Align the targetBytePosition to the nearest block boundary
+            targetBytePosition = (targetBytePosition / BlockSize) * BlockSize;
+
+            Stream.BaseStream.Position = targetBytePosition + DataOffset;
         }
 
         struct ID

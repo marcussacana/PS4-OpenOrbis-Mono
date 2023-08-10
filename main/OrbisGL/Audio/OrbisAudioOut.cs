@@ -76,8 +76,6 @@ namespace OrbisGL.Audio
 
             int BlockSize = (int)(Grain * Channels * sizeof(short));
 
-            byte[] ReadBuffer = new byte[BlockSize];
-
             var WavBufferA = new byte[Grain * (int)OrbisAudioOutChannel.MAX];
             var WavBufferB = new byte[Grain * (int)OrbisAudioOutChannel.MAX];
 
