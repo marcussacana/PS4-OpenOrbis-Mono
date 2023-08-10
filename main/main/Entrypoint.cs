@@ -86,7 +86,7 @@ namespace Orbis
             {
                 Player = new WavePlayer();
                 
-                var Stream = File.OpenRead(Path.Combine(IO.GetAppBaseDirectory(), "assets", "sound", "Test.wav"));
+                var Stream = File.OpenRead(Path.Combine(IO.GetAppBaseDirectory(), "assets", "audio", "Test.wav"));
                 
                 Player.Open(Stream);
                 Player.SetAudioDriver(AudioOut);
