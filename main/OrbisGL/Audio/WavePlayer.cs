@@ -172,17 +172,21 @@ namespace OrbisGL.Audio
 
         private void Player()
         {
-            using (var Buffer = new RingBuffer((int)Format.DAvgBytesPerSec*2))
+            int BlockSize = Format.WChannels * sizeof(short) * (int)Format.DSamplesPerSec;
+            
+            using (var Buffer = new RingBuffer(BlockSize*2))
             {
                 Stream.BaseStream.Position = DataOffset;
                 var EndPos = DataOffset + DataSize;
 
-                Driver.SetProprieties(Format.WChannels, 1024, Format.DSamplesPerSec);
+                const int Grain = 256;
+        
+                Driver.SetProprieties(Format.WChannels, Grain, Format.DSamplesPerSec);
                 Driver.Play(Buffer);
 
                 Duration = TimeSpan.Zero;
 
-                byte[] DataBuffer = new byte[Format.DAvgBytesPerSec];
+                byte[] DataBuffer = new byte[BlockSize];
 
                 Stopped = false;
 

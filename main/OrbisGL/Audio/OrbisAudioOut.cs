@@ -72,7 +72,7 @@ namespace OrbisGL.Audio
             if (handle < 0)
                 throw new Exception("Failed to Initialize the Audio Driver");
 
-            SetVolume(100);
+            SetVolume(80);
 
             int BlockSize = (int)(Grain * Channels * sizeof(short));
 
@@ -131,6 +131,7 @@ namespace OrbisGL.Audio
 
             sceAudioOutOutput(handle, null);
             sceAudioOutClose(handle);
+            StopPlayer = false;
             SoundThread = null;
         }
 

@@ -6,7 +6,8 @@ namespace OrbisGL
 {
     public sealed class RingBuffer : Stream
     {
-        int Size, ReadOffset, WriteOffset, BufferedAmount;
+        private int Size, ReadOffset, WriteOffset, BufferedAmount;
+        private long ReadLoop, WriteLoop;
 
         byte[] DataBuffer;
 
@@ -43,18 +44,21 @@ namespace OrbisGL
             throw new NotImplementedException();
         }
 
-        public override int Read(byte[] buffer, int OutOffset, int count)
+        public override int Read(byte[] buffer, int offset, int count)
         {
             if (ReadOffset >= Size)
+            {
                 ReadOffset = 0;
+                ReadLoop++;
+            }
 
             if (count > BufferedAmount)
                 count = BufferedAmount;
 
-            if (OutOffset + count > buffer.Length)
-                count = buffer.Length - OutOffset;
+            if (offset + count > buffer.Length)
+                count = buffer.Length - offset;
 
-            if (ReadOffset == WriteOffset)
+            if (ReadOffset == WriteOffset && ReadLoop >= WriteLoop)
                 return 0;
 
             int MaxBulkRead = Size - ReadOffset;
@@ -66,17 +70,14 @@ namespace OrbisGL
                 ReadAmount = Math.Min(ReadAmount, MaxBulkRead);
             }
 
-            Array.Copy(DataBuffer, ReadOffset, buffer, OutOffset, ReadAmount);
+            Array.Copy(DataBuffer, ReadOffset, buffer, offset, ReadAmount);
 
             count -= ReadAmount;
             ReadOffset += ReadAmount;
             BufferedAmount -= ReadAmount;
 
-            if (ReadOffset >= Size)
-                ReadOffset = 0;
-
             if (count > 0)
-                return Read(buffer, OutOffset + ReadAmount, count) + ReadAmount;
+                return Read(buffer, offset + ReadAmount, count) + ReadAmount;
             
             return ReadAmount;
         }
@@ -87,9 +88,12 @@ namespace OrbisGL
                 throw new ArgumentOutOfRangeException("count");
 
             if (WriteOffset >= Size)
+            {
                 WriteOffset = 0;
+                WriteLoop++;
+            }
 
-            while (BufferedAmount > Size)
+            while (BufferedAmount + count >= Size)
                 Thread.Sleep(100);
 
             if (WriteOffset + count <= Size)
@@ -109,6 +113,7 @@ namespace OrbisGL
                 Array.Copy(buffer, InOffset + firstPartSize, DataBuffer, 0, secondPartSize);
 
                 WriteOffset = secondPartSize;
+                WriteLoop++;
             }
 
             BufferedAmount += count;
