@@ -517,8 +517,8 @@ void main(void) {
             Spriter.Width = 221;
             Spriter.Height = 154;
 
-            Spriter.MaxStep = 8;
-            Spriter.StepDelay = 50;
+            Spriter.ComputeAllFrames(8);
+            Spriter.FrameDelay = 50;
 
             GLControl.GLApplication.AddObject(BG);
             GLControl.GLApplication.AddObject(Spriter);

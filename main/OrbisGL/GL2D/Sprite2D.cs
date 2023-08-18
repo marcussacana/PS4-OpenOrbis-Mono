@@ -1,5 +1,6 @@
 ﻿using OrbisGL.GL;
 using System;
+using System.Linq;
 using System.Numerics;
 
 namespace OrbisGL.GL2D
@@ -14,45 +15,23 @@ namespace OrbisGL.GL2D
     {
         GLObject2D Target;
 
-        int _StepDelay;
+        int _FrameDelay;
 
         /// <summary>
         /// Sets an delay in miliseconds for advance the sprite in the next frame
         /// automatically, where 0 means disabled
         /// </summary>
-        public int StepDelay { get => _StepDelay; 
+        public int FrameDelay { get => _FrameDelay; 
             set 
             {
-                _StepDelay = value;
-                StepDelayTicks = value * Constants.SCE_MILISECOND;
+                _FrameDelay = value;
+                FrameDelayTicks = value * Constants.SCE_MILISECOND;
             }
         }
 
-        /// <summary>
-        /// The max frame loop step
-        /// </summary>
-        public int MaxStep { get; set; }
 
-        public int? _StepsPerLine;
-
-        /// <summary>
-        /// The max sprite frames per line,
-        /// when 0 the amount will be automatically set by the target size
-        /// </summary>
-        public int StepsPerLine
-        {
-            get => _StepsPerLine ?? Target.Width / Width;
-            set
-            {
-                _StepsPerLine = value;
-
-                if (value == 0)
-                    _StepsPerLine = null;
-            }
-        }
-
-        int StepDelayTicks;
-        int CurrentStep = 0;
+        int FrameDelayTicks;
+        int CurrentFrame = 0;
 
         public Sprite2D(GLObject2D Content)
         {
@@ -69,8 +48,6 @@ namespace OrbisGL.GL2D
 
         public override void SetVisibleRectangle(Rectangle Parent)
         {
-            CurrentStep = 0;
-
             Target.Position = -Parent.Position;
             Width = (int)Parent.Width;
             Height = (int)Parent.Height;
@@ -101,43 +78,65 @@ namespace OrbisGL.GL2D
             Target.RemoveChildren(Dispose);
         }
 
-        public Rectangle? FirstRectangle { get; set; } = null;
+        public Rectangle[] Frames { get; set; } = new Rectangle[0];
 
         /// <summary>
-        /// Get the next rectangle for the next <see cref="StepFoward"/> call
+        /// Calculate all frames rectangle by the frame amount
         /// </summary>
-        public Rectangle NextRectangle {
-            get 
+        /// <param name="TotalFrames"></param>
+        public void ComputeAllFrames(int TotalFrames)
+        {
+            var Frame = new Rectangle(0, 0, Width, Height);
+            var RowCount = Target.Width / Width;
+
+            Frames = GetAllFrames(Frame, RowCount, TotalFrames, Target.Width, Target.Height);
+        }
+
+        /// <summary>
+        /// Calculate all frame rectangles by the given sprite params
+        /// </summary>
+        /// <param name="FirstFrame">The first frame rectangle</param>
+        /// <param name="TotalFrames">The total frame count</param>
+        /// <param name="FramesPerRow">The max frame count in each row</param>
+        public void ComputeAllFrames(int TotalFrames, Rectangle? FirstFrame, int? FramesPerRow = null)
+        {
+            var Frame = FirstFrame ?? new Rectangle(0, 0, Target.Width, Target.Height);
+            var RowCount = FramesPerRow ?? Target.Width / Width;
+
+            Frames = GetAllFrames(Frame, RowCount, TotalFrames, Target.Width, Target.Height);
+        }
+
+        public static Rectangle[] GetAllFrames(Rectangle FirstFrame, int FramesPerLine, int TotalFrames, int MaxWidth, int MaxHeight)
+        {
+            var Rects = new Rectangle[TotalFrames];
+
+            var Rect = FirstFrame;
+
+            for (int i = 0; i < TotalFrames; i++)
             {
-                if (FirstRectangle == null)
-                    FirstRectangle = new Rectangle(0, 0, Width, Height);
+                Rect.X = (Rect.Width * (i % FramesPerLine)) + FirstFrame.X;
+                Rect.Y = (Rect.Height * (i / FramesPerLine)) + FirstFrame.Y;
 
-                var Rect = FirstRectangle ?? throw new ArgumentNullException(nameof(FirstRectangle));
-
-                if (CurrentStep > 0)
+                if (Rect.Right > MaxWidth)
                 {
-                    Rect.X += Rect.Width * (CurrentStep % StepsPerLine);
-                    Rect.Y += Rect.Height * (CurrentStep / StepsPerLine);
-
-                    if (Rect.Right > Target.Width)
-                    {
-                        Rect.X = 0;
-                        Rect.Y += Rect.Height;
-                    }
-
-                    if (Rect.Bottom > Target.Height)
-                        Rect.Y = 0;
+                    Rect.X = FirstFrame.X;
+                    Rect.Y += Rect.Height;
                 }
 
-                return Rect;
+                if (Rect.Bottom > MaxHeight)
+                    Rect.Y = FirstFrame.Y;
+
+                Rects[i] = Rect;
             }
+
+            return Rects;
         }
 
 
         /// <summary>
-        /// Move the visiblity by one rectangle ahead
+        /// Set the next frame visible
         /// </summary>
-        public void StepFoward()
+        public void NextFrame()
         {
             if (Width == 0)
                 throw new ArgumentOutOfRangeException(nameof(Width));
@@ -145,30 +144,36 @@ namespace OrbisGL.GL2D
             if (Height == 0)
                 throw new ArgumentOutOfRangeException(nameof(Height));
 
-            if (MaxStep != 0 && CurrentStep >= MaxStep)
-                CurrentStep = 0;            
+            if (Frames == null || !Frames.Any())
+                throw new ArgumentException("Missing Frame Info");
 
-            int NewStep = CurrentStep + 1;
-            SetVisibleRectangle(NextRectangle);
-            CurrentStep = NewStep;
+            if (Frames.Length != 0 && CurrentFrame >= Frames.Length)
+                CurrentFrame = 0;
+
+            SetVisibleRectangle(Frames[CurrentFrame]);
+            CurrentFrame++;
         }
 
-        public void SetStep(int Step)
-        {
-            CurrentStep = Step;
 
-            StepFoward();
+        /// <summary>
+        /// Set the given frame visible
+        /// </summary>
+        public void SetCurrentFrame(int Step)
+        {
+            CurrentFrame = Step;
+
+            NextFrame();
         }
 
         long LastStepTick = -1;
         public override void Draw(long Tick)
         {
-            if (Width != 0 && Height != 0)
+            if (Width != 0 && Height != 0 && FrameDelayTicks != 0)
             {
-                if ((Tick - LastStepTick) > StepDelayTicks)
+                if ((Tick - LastStepTick) > FrameDelayTicks)
                 {
                     LastStepTick = Tick;
-                    StepFoward();
+                    NextFrame();
                 }
             }
 
