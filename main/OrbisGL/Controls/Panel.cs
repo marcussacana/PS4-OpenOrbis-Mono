@@ -51,12 +51,12 @@ namespace OrbisGL.Controls
         public int MaxScrollX { 
             get
             {
-                if (!PositionMap.Any())
+                var Objs = PositionMap.Where(x => x.Key != ScrollBar);
+
+                if (!Objs.Any())
                     return 0;
 
-                var MaxX = PositionMap
-                    .Where(x => x.Key != ScrollBar)
-                    .Max(x => x.Value.X + x.Key.Size.X) - Size.X;
+                var MaxX = Objs.Max(x => x.Value.X + x.Key.Size.X) - Size.X;
                 
                 MaxX = Math.Max(MaxX, 0);
 
@@ -68,12 +68,12 @@ namespace OrbisGL.Controls
         {
             get
             {
-                if (!PositionMap.Any())
+                var Objs = PositionMap.Where(x => x.Key != ScrollBar);
+                if (!Objs.Any())
                     return 0;
 
-                var MaxY = PositionMap
-                    .Where(x => x.Key != ScrollBar)
-                    .Max(x => x.Value.Y + x.Key.Size.Y) - Size.Y;
+                var MaxY = Objs.Max(x => x.Value.Y + x.Key.Size.Y) - Size.Y;
+
                 MaxY = Math.Max(MaxY, 0);
 
                 return (int)MaxY;

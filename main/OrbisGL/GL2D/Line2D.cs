@@ -73,6 +73,9 @@ namespace OrbisGL.GL2D
             var Rectangles = Lines.Select(x => GetLineRectangle(x.Begin, x.End));
             var MaxRectangle = GetMaxRectangle(Rectangles);
 
+            var ZoomWidth = (int)(Coordinates2D.Width * Zoom);
+            var ZoomHeight = (int)(Coordinates2D.Height * Zoom);
+
             foreach (var Line in Lines)
             {
                 var BeginPos = Line.Begin - MaxRectangle.Position;
@@ -82,9 +85,8 @@ namespace OrbisGL.GL2D
 
                 GetLineUV(MaxRectangle, BeginPos, EndPos, out Vector2 UV1, out Vector2 UV2);
 
-                var Begin = new Vector3(XToPoint(BeginPos.X), YToPoint(BeginPos.Y), -1);
-                var End = new Vector3(XToPoint(EndPos.X), YToPoint(EndPos.Y), -1);
-
+                var Begin = new Vector3(XToPoint(BeginPos.X, ZoomWidth), YToPoint(BeginPos.Y, ZoomHeight), -1);
+                var End = new Vector3(XToPoint(EndPos.X, ZoomWidth), YToPoint(EndPos.Y, ZoomHeight), -1);
                 
                 AddArray(Begin);
                 AddArray(UV1);

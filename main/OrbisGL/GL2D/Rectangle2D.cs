@@ -61,6 +61,7 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
+            var MaxSize = new Vector2(Coordinates2D.Width * Zoom, Coordinates2D.Height * Zoom);
 
             var PointA = new Vector2(0, 0);
             var PointB = new Vector2(Width, 0);
@@ -74,10 +75,10 @@ namespace OrbisGL.GL2D
             PointC = RotatePoint(PointC, Center, Rotate);
             PointD = RotatePoint(PointD, Center, Rotate);
 
-            AddArray(PointA.ToPoint(), -1);//0
-            AddArray(PointB.ToPoint(), -1);//1
-            AddArray(PointC.ToPoint(), -1);//2
-            AddArray(PointD.ToPoint(), -1);//3
+            AddArray(PointA.ToPoint(MaxSize), -1);//0
+            AddArray(PointB.ToPoint(MaxSize), -1);//1
+            AddArray(PointC.ToPoint(MaxSize), -1);//2
+            AddArray(PointD.ToPoint(MaxSize), -1);//3
 
             if (FillMode)
             {
@@ -103,6 +104,8 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
+            var MaxSize = new Vector2(Coordinates2D.Width * Zoom, Coordinates2D.Height * Zoom);
+
 
             var PointA = new Vector2(Rectangle.X, Rectangle.Y);
             var PointB = new Vector2(Rectangle.Width, Rectangle.Y);
@@ -116,10 +119,10 @@ namespace OrbisGL.GL2D
             PointC = RotatePoint(PointC, Center, Rotate);
             PointD = RotatePoint(PointD, Center, Rotate);
 
-            AddArray(PointA.ToPoint(), -1);//0
-            AddArray(PointB.ToPoint(), -1);//1
-            AddArray(PointC.ToPoint(), -1);//2
-            AddArray(PointD.ToPoint(), -1);//3
+            AddArray(PointA.ToPoint(MaxSize), -1);//0
+            AddArray(PointB.ToPoint(MaxSize), -1);//1
+            AddArray(PointC.ToPoint(MaxSize), -1);//2
+            AddArray(PointD.ToPoint(MaxSize), -1);//3
 
             if (FillMode)
             {

@@ -60,16 +60,19 @@ namespace OrbisGL.GL2D
             //   |            |
             //   2 ---------- 3
 
-            AddArray(XToPoint(0), YToPoint(0), -1);//0
+            var ZoomWidth = (int)(Coordinates2D.Width * Zoom);
+            var ZoomHeight = (int)(Coordinates2D.Height * Zoom);
+
+            AddArray(XToPoint(0, ZoomWidth), YToPoint(0, ZoomHeight), -1);//0
             AddArray(0, 0);
 
-            AddArray(XToPoint(Width), YToPoint(0), -1);//1
+            AddArray(XToPoint(Width, ZoomWidth), YToPoint(0, ZoomHeight), -1);//1
             AddArray(1, 0);
 
-            AddArray(XToPoint(0), YToPoint(Height), -1);//2
+            AddArray(XToPoint(0, ZoomWidth), YToPoint(Height, ZoomHeight), -1);//2
             AddArray(0, 1);
 
-            AddArray(XToPoint(Width), YToPoint(Height), -1);//3
+            AddArray(XToPoint(Width, ZoomWidth), YToPoint(Height, ZoomHeight), -1);//3
             AddArray(1, 1);
 
             AddIndex(0, 1, 2, 1, 2, 3);

@@ -501,7 +501,6 @@ void main(void) {
 
         private void button21_Click(object sender, EventArgs e)
         {
-
 #if !ORBIS
             var BG = new Panel(GLControl.Size.Width, GLControl.Size.Height);
             BG.BackgroundColor = RGBColor.White;
@@ -523,6 +522,20 @@ void main(void) {
 
             GLControl.GLApplication.AddObject(BG);
             GLControl.GLApplication.AddObject(Spriter);
+#endif
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+#if !ORBIS
+            var Zoom = Rand.Next(10, 100) / 100f;
+            foreach (var Obj in GLControl.GLApplication.Objects)
+            {
+                if (Obj is GLObject2D Obj2D)
+                {
+                    Obj2D.SetZoom(Zoom);
+                }
+            }
 #endif
         }
     }

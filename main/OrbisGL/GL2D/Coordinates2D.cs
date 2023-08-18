@@ -11,8 +11,11 @@ namespace OrbisGL.GL2D
             Coordinates2D.Width = Width;
             Coordinates2D.Height = Height;
 
-            XOffset = XToPoint(1) + 1;
-            YOffset = YToPoint(1) - 1;
+
+            var Offset = MeasurePixelOffset(new Vector2(Width, Height));
+
+            XOffset = Offset.X;
+            YOffset = Offset.Y;
         }
 
         internal static int Width { get; private set; }
@@ -61,6 +64,17 @@ namespace OrbisGL.GL2D
         public static Vector2 ToPoint(this Vector2 XY)
         {
             return new Vector2(XToPoint(XY.X), YToPoint(XY.Y));
+        }
+
+        /// <summary>
+        /// Nomarlize the Vertex XY Coordinate
+        /// </summary>
+        /// <param name="XY">The XY coordinate in pixels</param>
+        /// <returns>The Vertex XY Coordinate</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 ToPoint(this Vector2 XY, Vector2 MaxSize)
+        {
+            return new Vector2(XToPoint(XY.X, (int)MaxSize.X), YToPoint(XY.Y, (int)MaxSize.Y));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,6 +144,14 @@ namespace OrbisGL.GL2D
             float finalY = rotatedY + Center.Y;
 
             return new Vector2(finalX, finalY);
+        }
+
+        public static Vector2 MeasurePixelOffset(Vector2 ScreenSize)
+        {
+            var X = XToPoint(1, (int)ScreenSize.X) + 1;
+            var Y = YToPoint(1, (int)ScreenSize.Y) - 1;
+
+            return new Vector2(X, Y);
         }
     }
 }

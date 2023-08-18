@@ -2,12 +2,15 @@
 using SharpGLES;
 using System.Collections.Generic;
 using System.Numerics;
+using static OrbisGL.GL2D.Coordinates2D;
 
 namespace OrbisGL.GL2D
 {
     public abstract class GLObject2D : GLObject
     {
         public bool Visible { get; set; } = true;
+
+        public float Zoom { get; private set; } = 1f;
 
         public int Width { get; set; }
         public int Height { get; set; }
@@ -23,7 +26,7 @@ namespace OrbisGL.GL2D
             set
             {
                 _Position = value;
-                Offset = new Vector2(Coordinates2D.XOffset * value.X, Coordinates2D.YOffset * value.Y);
+                Offset = new Vector2(PixelOffset.X * value.X, PixelOffset.Y * value.Y);
             }
         }
 
@@ -49,7 +52,7 @@ namespace OrbisGL.GL2D
 
         /// <summary>
         /// Represent an offset of the object drawing location,
-        /// Calculate the offset with <see cref="Coordinates2D.XOffset">XOffset</see> and <see cref="Coordinates2D.YOffset">YOffset</see>
+        /// Calculate the offset with <see cref="XOffset">XOffset</see> and <see cref="YOffset">YOffset</see>
         /// </summary>
         protected Vector2 Offset { get; set; }
 
@@ -59,6 +62,9 @@ namespace OrbisGL.GL2D
         protected Vector2 AbsoluteOffset => Parent?.AbsoluteOffset + Offset ?? Offset;
 
         protected Vector2 AbsolutePosition => Parent?.AbsolutePosition + Position ?? Position;
+
+
+        private Vector2 PixelOffset = new Vector2(XOffset, YOffset);
 
 
         int OffsetUniform = int.MinValue;
@@ -123,11 +129,11 @@ namespace OrbisGL.GL2D
 
             InvisibleRect = false;
 
-            float MinU = Coordinates2D.GetU(Parent.X, Width);
-            float MaxU = Coordinates2D.GetU(Parent.Width, Width);
+            float MinU = GetU(Parent.X, Width);
+            float MaxU = GetU(Parent.Width, Width);
 
-            float MinV = Coordinates2D.GetV(Parent.Y, Height);
-            float MaxV = Coordinates2D.GetV(Parent.Height, Height);
+            float MinV = GetV(Parent.Y, Height);
+            float MaxV = GetV(Parent.Height, Height);
 
             VisibleRectUV = new Vector4(MinU, MinV, MaxU, MaxV);
 
@@ -172,6 +178,29 @@ namespace OrbisGL.GL2D
         {
             foreach (var Child in Childs)
                 Child.RefreshVertex();
+        }
+
+        /// <summary>
+        /// Scale object coordinates, where 1.0 = 100%, and 0.5 = 200%
+        /// </summary>
+        /// <param name="Value"></param>
+        public void SetZoom(float Value = 1f)
+        {
+            SetChildrenZoom(Value);
+            RefreshVertex();
+        }
+
+        private void SetChildrenZoom(float Value)
+        {
+            Zoom = Value;
+
+            var VirtualSize = new Vector2(Coordinates2D.Width * Zoom, Coordinates2D.Height * Zoom);
+            PixelOffset = MeasurePixelOffset(VirtualSize);
+
+            Position = Position;
+
+            foreach (var Child in Childs)
+                Child.SetChildrenZoom(Zoom);
         }
 
         public override void Draw(long Tick)
