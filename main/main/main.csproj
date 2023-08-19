@@ -74,13 +74,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OrbisGL\OrbisGL.csproj">
-      <Project>{7EF00BD1-A3C4-45FB-BF5C-44DB18F28EC9}</Project>
+    <ProjectReference Include="..\OrbisGL\OrbisGL\OrbisGL.csproj">
+      <Project>{7ef00bd1-a3c4-45fb-bf5c-44db18f28ec9}</Project>
       <Name>OrbisGL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SharpGLES\SharpGLES\SharpGLES.csproj">
-      <Project>{cf294894-f871-4cc4-b947-feed7967a49e}</Project>
-      <Name>SharpGLES</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
