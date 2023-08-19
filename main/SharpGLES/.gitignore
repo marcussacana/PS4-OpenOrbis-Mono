@@ -1,9 +1,0 @@
-*.suo
-
-/Nuspec/*.bat
-/Nuspec/*.exe
-/Nuspec/*.nupkg
-*.user
-obj/
-bin/
-packages/
