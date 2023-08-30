@@ -46,34 +46,26 @@ void addInternalCalls(){
     klog("Internal calls added.");
 }
 
-#ifdef DEBUG
 void MonoLogCallback(const char *log_domain, const char *log_level, const char *message, int fatal, void *user_data){
 	klogf("[%s] %s", log_level, message);
 }
-#endif
 
 
 void* startMono()
 {
-
-#ifndef DEBUG
-    klog("Mono Shared Area Disabled");
-	
-    setenv("MONO_DISABLE_SHARED_AREA", "1", 1);
-#endif
 
 #ifdef DEBUG
     klog("Initializing Debugger at port 2222...");
 
     mono_debugger_agent_parse_options("address=0.0.0.0:2222,transport=dt_socket,server=y");
     mono_debug_init(1);
-	
-	mono_trace_set_log_handler(MonoLogCallback, NULL);
 
     const char* options[] = { "--soft-breakpoints" };
 
     mono_jit_parse_options(sizeof(options) / sizeof(char*), (char**)options);
 #endif
+	
+	mono_trace_set_log_handler(MonoLogCallback, NULL);
 	
     klog("Starting Mono...");
 

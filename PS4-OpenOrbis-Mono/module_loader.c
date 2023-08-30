@@ -104,7 +104,7 @@ char* ApplyRemap(char* AssemblyName){
 		"System.Globalization.dll",
 		"System.Globalization.exe",
     };
-	const char* to[] = { 
+	const char* to[] = {
 		"mscorlib.dll",
 		"mscorlib.dll",
     };
@@ -122,6 +122,9 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
 {	
     LOGF("Loading Assembly: %s", AssemblyName);
 	
+	int IsGAC = strstr(AssemblyName, "mono/gac/") != NULL;
+	int IsAOT = strstr(AssemblyName, "mono/aot-cache/") != NULL;
+	
 	AssemblyName = ApplyRemap(AssemblyName);
 
     char* finalPath = AssemblyName;
@@ -129,6 +132,11 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
     void* fp = fopen(AssemblyName, "r");
     if (fp == 0) {
         LOG("Error opening file");
+		
+		if (IsGAC || IsAOT) {
+			LOG("Skipping GAC/AOT Hint");
+			return 0;
+		}
 
         char hintPath[0x300] = "\x0";
         char fnameNoExt[0x300] = "\x0";
@@ -241,7 +249,7 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
     if (OpenStatus != 0)* OpenStatus = status;
 	
 	LOGF("Assembly Image: %x", Image);
-
+	
     return Image;
 }
 
