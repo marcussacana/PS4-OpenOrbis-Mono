@@ -15,6 +15,27 @@ char* getBaseDirectory()
     return JailedBase;
 }
 
+void* getMonoMethod(void* Image, char* Namespace, char* Class, char* Method) {	
+    void* programClass = mono_class_from_name(Image, Namespace, Class);
+
+    if (!programClass) {
+        klogf("Failed to find the class %s.%s", Namespace, Class);
+        return NULL;
+    }	
+
+    void* methodTarget = mono_class_get_method_from_name(programClass, Method, 0);
+
+    if (!methodTarget) {
+		methodTarget = mono_class_get_method_from_name(programClass, Method, 1);
+		
+		if (!methodTarget) {
+			klogf("Failed to find the class %s.%s.%s() Method", Namespace, Class, Method);
+			return NULL;
+		}
+    }
+	
+	return methodTarget;
+}
 void addInternalCall(char* symbol, void* function)
 {
 	if (!function)
@@ -34,6 +55,7 @@ void addInternalCalls(){
     addInternalCall("Orbis.Internals.Kernel::IsJailbroken", isJailbroken);
     addInternalCall("Orbis.Internals.Kernel::LoadStartModule", hinted_dlopen);
     addInternalCall("Orbis.Internals.Kernel::GetModuleBase", get_module_base);
+	addInternalCall("Orbis.Internals.Kernel::GetMethodPointer", mono_method_get_unmanaged_thunk);
     klog("Adding IO internal calls...");
     addInternalCall("Orbis.Internals.IO::GetBaseDirectory", getBaseDirectory);
     klog("Adding User Service internal calls...");
@@ -116,28 +138,16 @@ void runMain()
     }
 
     klogf("Main Assembly: %x", mainAssembly);
+	
+	void* methodMain = getMonoMethod(mainImage, "Orbis", "Program", "Main");
 
-    void* programClass = mono_class_from_name(mainImage, "Orbis", "Program");
-
-    if (!programClass) {
-        klog("Failed to find the class: Orbis.Program");
-        return;
-    }	
-
-    void* methodMain = mono_class_get_method_from_name(programClass, "Main", 0);
-
-    if (!methodMain) {
-		methodMain = mono_class_get_method_from_name(programClass, "Main", 1);
-		
-		if (!methodMain) {
-			klog("Failed to find Orbis.Program.Main() Method");
-			return;
-		}
-    }
+	if (!methodMain)
+		return;
 
     sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL);
 
     klog("Starting program...");
+	
     char* argv[] = { 0 };
     mono_runtime_invoke(methodMain, 0, argv, 0);
 }
@@ -214,6 +224,7 @@ int main()
     sceKernelDlsym(mono_framework, "mono_class_from_name", (void**)&mono_class_from_name);
     sceKernelDlsym(mono_framework, "mono_class_get_method_from_name", (void**)&mono_class_get_method_from_name);
     sceKernelDlsym(mono_framework, "mono_runtime_invoke", (void**)&mono_runtime_invoke);
+    sceKernelDlsym(mono_framework, "mono_method_get_unmanaged_thunk", (void**)&mono_method_get_unmanaged_thunk);
     sceKernelDlsym(mono_framework, "mono_jit_cleanup", (void**)&mono_jit_cleanup);
     sceKernelDlsym(mono_framework, "mono_image_open_from_data_with_name", (void**)&mono_image_open_from_data_with_name);
     sceKernelDlsym(mono_framework, "mono_thread_attach", (void**)&mono_thread_attach);

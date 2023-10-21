@@ -9,6 +9,7 @@ extern void* (*mono_domain_assembly_open)(void* domain, const char *assembly_pat
 extern void* (*mono_class_from_name)(void* image, const char* class_namespace, const char* class_name);
 extern void* (*mono_class_get_method_from_name)(void* method_class, const char *method_name, int param_count);
 extern void* (*mono_runtime_invoke)(void* method, void* obj, void** params, void** exc);
+extern void* (*mono_method_get_unmanaged_thunk)(void* method);
 extern void* (*mono_jit_cleanup)(void* domain);
 extern void* (*mono_thread_attach)(void* domain);
 extern void* (*mono_assembly_get_image)(void* assembly);

@@ -134,7 +134,7 @@ void* hookLoadSprxAssembly(const char* AssemblyName, int* OpenStatus, int UnkBoo
         LOG("Error opening file");
 		
 		if (IsGAC || IsAOT) {
-			LOG("Skipping GAC/AOT Hint");
+			LOG("Skipping GAC Hint");
 			return 0;
 		}
 
@@ -302,7 +302,7 @@ void* hinted_dlopen(char* name) {
 	
 	char rndWordRoot[0x300] = "\x0";
 	
-	sprintf(&rndWordRoot, "%s/%s", appRoot, sceKernelGetFsSandboxRandomWord());
+	sprintf(&rndWordRoot, "/%s", sceKernelGetFsSandboxRandomWord());
 	
 	char* roots[4];
 	roots[0] = rootDir;
@@ -370,8 +370,7 @@ void InstallHooks()
     //6.72: 0x18CC60
 	//Hint: one of the few functions that references the string ".sprx"
     void* loadSprxAssembly = ((void*)MonoAddr) + 0x18CC60;
-    WriteJump(loadSprxAssembly, hookLoadSprxAssembly, 0);
-	
+    WriteJump(loadSprxAssembly, hookLoadSprxAssembly, 0);	
 	
 	//Fix Internal Call in Debug Mode
 	//6.72: 0x17A0F0
