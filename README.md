@@ -1,16 +1,25 @@
 # PS4-OpenOrbis-Mono
- A Sample Mono Entrypoint for PS4 homebrews with SDL2 working
+ A Sample Mono Entrypoint for PS4 homebrews with OrbisGL working
 
 If you want, you can use the pre-built binaries and just rebuild the "main" C# project,  
 and by replacing the main.exe inside the pkg and/or adding any new assemblies,
 in the PKG, you will be able to create your HB even without deal with the OpenOrbis SDK.
+
+### How to Clone
+```
+git clone https://github.com/marcussacana/OrbisGL
+git submodule init
+git submodule update --init --recursive
+```
  
 ### How to build (Linux)
+ - Clone the repo
  - Install the OpenOrbis SDK
  - Install the Mono SDK
  - Run `make`
  
 ### How to build (Windows)
+ - Clone the repo
  - Install and Build the OpenOrbis SDK
  - Install the Visual Studio
  - Install LLVM `choco install llvm`
